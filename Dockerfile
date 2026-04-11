@@ -20,4 +20,5 @@ RUN npx prisma generate && npm run build
 
 EXPOSE 3000
 
-CMD ["sh", "-c", "npx prisma migrate deploy && exec next start -H 0.0.0.0 -p ${PORT:-3000}"]
+# `next` no esta en PATH; usar npx o node_modules/.bin
+CMD ["sh", "-c", "npx prisma migrate deploy && exec npx next start -H 0.0.0.0 -p ${PORT:-3000}"]

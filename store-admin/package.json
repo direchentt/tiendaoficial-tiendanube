@@ -6,7 +6,7 @@
     "dev": "next dev -p 3010",
     "build": "prisma generate && next build",
     "start": "next start -p 3010",
-    "start:railway": "sh -c \"npx prisma migrate deploy && exec next start -H 0.0.0.0 -p ${PORT:-3000}\"",
+    "start:railway": "sh -c \"npx prisma migrate deploy && exec npx next start -H 0.0.0.0 -p ${PORT:-3000}\"",
     "lint": "next lint",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate deploy",
