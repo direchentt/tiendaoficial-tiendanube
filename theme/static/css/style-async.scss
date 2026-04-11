@@ -2144,6 +2144,102 @@ footer.section-footer-home {
   text-transform: none;
   letter-spacing: normal;
 }
+
+/*============================================================================
+  #Fase 2 — Home: secciones editoriales + tarjetas de producto
+==============================================================================*/
+
+.theme-brand-phase1.template-home .section-home:not(.section-slider-home) {
+  padding-top: calc(var(--section-distance) * 1.2);
+  padding-bottom: calc(var(--section-distance) * 1.2);
+}
+
+.theme-brand-phase1.template-home .section-featured-home .section-title {
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 500;
+  font-size: 0.8125rem;
+}
+
+@media (min-width: 768px) {
+  .theme-brand-phase1.template-home .section-featured-home .section-title {
+    font-size: 0.75rem;
+  }
+}
+
+.theme-brand-phase1.template-home .section-slider-home .section-slider .swiper-text > .mb-1,
+.theme-brand-phase1.template-home .section-slider-home .section-slider .swiper-text > .mb-md-2 {
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 0.625rem;
+  opacity: 0.9;
+}
+
+.theme-brand-phase1.template-home .section-slider-home .section-slider .swiper-text h2 {
+  letter-spacing: 0.03em;
+  font-weight: 500;
+}
+
+.theme-brand-phase1.template-home .section-slider-home .section-slider .swiper-text .btn-link {
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-size: 0.6875rem;
+  font-weight: 500;
+}
+
+.theme-brand-phase1.template-home .section-newsletter-home h2 {
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.theme-brand-phase1.template-home .section-instafeed-home .section-title,
+.theme-brand-phase1.template-home .section-instafeed-home h2.section-title {
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.theme-brand-phase1.template-home .section-banners-home .section-title {
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.theme-brand-phase1.template-home .item-name {
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  font-size: 0.8125rem;
+}
+
+@media (min-width: 768px) {
+  .theme-brand-phase1.template-home .item-name {
+    font-size: 0.875rem;
+  }
+}
+
+.theme-brand-phase1.template-home .item-price,
+.theme-brand-phase1.template-home .item-price-container .item-price {
+  letter-spacing: 0.04em;
+  font-size: 0.8125rem;
+}
+
+.theme-brand-phase1.template-home .item-description {
+  padding-top: 0.85rem;
+}
+
+.theme-brand-phase1.template-home .section-featured-home .row-grid .item-product,
+.theme-brand-phase1.template-home .section-home .row-grid .item-product {
+  margin-bottom: 1.75rem;
+}
+
+@media (min-width: 768px) {
+  .theme-brand-phase1.template-home .section-featured-home .row-grid .item-product,
+  .theme-brand-phase1.template-home .section-home .row-grid .item-product {
+    margin-bottom: 2.25rem;
+  }
+}
+
 /*============================================================================
   #Critical path utilities
 ==============================================================================*/
