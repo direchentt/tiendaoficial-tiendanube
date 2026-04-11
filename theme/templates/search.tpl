@@ -25,7 +25,7 @@
 
 {% include 'snipplets/grid/filters-modals.tpl' %}
 
-<section class="category-body {% if settings.filters_desktop_modal %}pt-md-2{% endif %}" overflow-none">
+<section class="category-body {% if settings.filters_desktop_modal %}pt-md-2{% endif %} overflow-none" aria-label="{{ 'Resultados de búsqueda' | translate }}{% if query %}: {{ query }}{% endif %}">
   <div class="container-fluid {% if products %}mt-3{% endif %} mb-5">
 		{% if products or has_applied_filters %}
 			<div class="row">

@@ -8,7 +8,7 @@
 #}
 
 {% if breadcrumbs %}
-    <div class="breadcrumbs {{ breadcrumbs_custom_class }}">
+    <nav class="breadcrumbs {{ breadcrumbs_custom_class }}" aria-label="{{ 'Ruta de navegación' | translate }}">
         <a class="crumb" href="{{ store.url }}" title="{{ store.name }}">{{ "Inicio" | translate }}</a>
         <span class="separator">|</span>
         {% if template == 'page' %}
@@ -35,5 +35,5 @@
                 {% endif %}
             {% endfor %}
         {% endif %}
-    </div>
+    </nav>
 {% endif %}

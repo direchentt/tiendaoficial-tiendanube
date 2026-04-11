@@ -37,7 +37,7 @@
 
 {% include 'snipplets/grid/filters-modals.tpl' %}
 
-<section class="category-body {% if settings.filters_desktop_modal %}pt-md-2{% endif %}" data-store="category-grid-{{ category.id }}">
+<section class="category-body {% if settings.filters_desktop_modal %}pt-md-2{% endif %}" data-store="category-grid-{{ category.id }}" aria-label="{{ category.name }}: {{ 'Listado de productos' | translate }}">
 	<div class="container-fluid mt-3 mb-5">
 		<div class="row">
 			{% include 'snipplets/grid/filters-sidebar.tpl' %}

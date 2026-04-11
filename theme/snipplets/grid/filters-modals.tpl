@@ -4,7 +4,7 @@
       <div class="category-controls-row py-3 py-md-0">
         {% if products and not has_filters_available %}
           <div class="category-control-item">
-            <a href="#" class="js-modal-open btn-link text-transform" data-toggle="#sort-by">
+            <a href="#" role="button" class="js-modal-open btn-link text-transform" data-toggle="#sort-by" aria-haspopup="dialog">
               {{ 'Ordenar' | t }}
             </a>
             {% embed "snipplets/modal.tpl" with{modal_id: 'sort-by', modal_class: 'bottom modal-centered modal-bottom-sheet modal-right-md', modal_position: 'bottom', modal_position_desktop: 'right', modal_width: 'docked-md', modal_transition: 'slide', modal_header_title: true} %}
@@ -34,7 +34,7 @@
         {% endif %}
         {% if products and has_filters_available %}
           <div class="visible-when-content-ready category-control-item">
-            <a href="#" class="js-modal-open" data-toggle="#nav-filters" data-component="filter-button">
+            <a href="#" role="button" class="js-modal-open" data-toggle="#nav-filters" data-component="filter-button" aria-haspopup="dialog">
               <span class="btn-link text-transform mr-1">{{ 'Filtrar y ordenar' | t }}</span>
               {% if has_applied_filters %}
                 (<span class="js-filters-total-badge"></span>)

@@ -2046,6 +2046,11 @@ footer.section-footer-home {
     box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.08);
   }
 }
+
+/* Categoría / búsqueda: ancla al listado tras filtros (evita título tapado por barra fija) */
+#catalog-product-list {
+  scroll-margin-top: 1rem;
+}
 /*============================================================================
   #Critical path utilities
 ==============================================================================*/

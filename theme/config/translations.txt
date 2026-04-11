@@ -64,6 +64,11 @@ pt "Formulário do produto"
 en "Product form"
 es_mx "Formulario del producto"
 
+es "Ruta de navegación"
+pt "Caminho de navegação"
+en "Breadcrumb navigation"
+es_mx "Ruta de navegación"
+
 es "Si"
 pt "Sim"
 en "Yes"

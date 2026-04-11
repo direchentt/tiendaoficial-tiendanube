@@ -2,7 +2,7 @@
 {% set noFilterResult = "No tenemos resultados para tu búsqueda. Por favor, intentá con otros filtros." %}
 
 {% if products %}
-<div class="col" data-store={{ list_data_store }}>
+<div id="catalog-product-list" class="col" role="region" aria-label="{{ 'Listado de productos' | translate }}" data-store="{{ list_data_store }}">
 {% endif %}
   {% if products %}
     <div class="js-product-table row row-grid">
