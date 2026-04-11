@@ -2303,6 +2303,98 @@ footer.section-footer-home {
 }
 
 /*============================================================================
+  #Fase 4 — Ficha de producto + footer (estilo marca)
+==============================================================================*/
+
+.theme-brand-phase1.template-product #single-product .js-product-name,
+.theme-brand-phase1.template-product #single-product .page-header h1 {
+  letter-spacing: 0.04em;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+@media (min-width: 768px) {
+  .theme-brand-phase1.template-product #single-product .js-product-name,
+  .theme-brand-phase1.template-product #single-product .page-header h1 {
+    letter-spacing: 0.03em;
+  }
+}
+
+.theme-brand-phase1.template-product #single-product .js-price-display.font-largest {
+  letter-spacing: 0.04em;
+  font-weight: 500;
+}
+
+.theme-brand-phase1.template-product #single-product .price-compare,
+.theme-brand-phase1.template-product #single-product .js-compare-price-display {
+  letter-spacing: 0.03em;
+}
+
+.theme-brand-phase1.template-product [data-store^="product-description"] > .font-small {
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 0.65rem;
+  font-weight: 500;
+  opacity: 0.85;
+  margin-bottom: 0.75rem;
+}
+
+.theme-brand-phase1.template-product [data-store^="product-description"] .user-content {
+  line-height: 1.65;
+  font-size: var(--font-small);
+}
+
+.theme-brand-phase1.template-product #single-product .btn-add-to-cart.btn-primary {
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.theme-brand-phase1.template-product .section-products-related h2 {
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 500;
+  font-size: 0.8125rem;
+}
+
+@media (min-width: 768px) {
+  .theme-brand-phase1.template-product .section-products-related h2 {
+    font-size: 0.75rem;
+  }
+}
+
+.theme-brand-phase1.template-product .section-products-related .item-name {
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  font-size: 0.8125rem;
+}
+
+.theme-brand-phase1.template-product .section-products-related .item-price {
+  letter-spacing: 0.04em;
+  font-size: 0.8125rem;
+}
+
+/* Footer: separación superior y tipografía legal más limpia */
+.theme-brand-phase1 .js-footer.footer {
+  border-top: 1px solid rgba(0, 0, 0, 0.07);
+  padding-top: 0.25rem;
+}
+
+.theme-brand-phase1 .js-footer.footer.footer-colors {
+  border-top-color: rgba(255, 255, 255, 0.12);
+}
+
+.theme-brand-phase1 .js-footer .footer-menu-link {
+  letter-spacing: 0.04em;
+}
+
+.theme-brand-phase1 .js-footer .footer-legal,
+.theme-brand-phase1 .js-footer .copyright {
+  letter-spacing: 0.02em;
+  opacity: 0.92;
+}
+
+/*============================================================================
   #Critical path utilities
 ==============================================================================*/
 
