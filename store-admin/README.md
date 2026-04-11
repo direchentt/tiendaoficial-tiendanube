@@ -36,7 +36,7 @@ Panel y API para reglas que van mas alla del admin estandar de Tiendanube, apoya
 
 1. Subi el repo a GitHub (o conecta el repo que ya uses).
 2. En [Railway](https://railway.app): **New project** → **Deploy from GitHub** → elegi el repo.
-3. En el servicio generado abri **Settings** → **Root Directory** → `store-admin` → guardar.
+3. **Root Directory**: dejalo **vacío** (raiz del repo). El `Dockerfile` de la raiz construye `store-admin/`; si pones solo `store-admin`, Railpack/Nixpacks suele funcionar, pero si ves *Error creating build plan with Railpack*, usa raiz + Dockerfile.
 4. **Create** → **Database** → **Add PostgreSQL**.
 5. En la base Postgres: pestaña **Variables** → **Connect** (o **Raw** `DATABASE_URL`) y **referenciá** esa variable en el servicio web:
    - En el servicio Next.js: **Variables** → **Add variable** → **Reference** → elegi Postgres → `DATABASE_URL`.

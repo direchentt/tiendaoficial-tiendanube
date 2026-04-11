@@ -1,0 +1,13 @@
+.git
+.github
+.cursor
+theme
+store-admin/node_modules
+store-admin/.next
+store-admin/.env
+.env
+.env.*
+**/*.db
+**/*.db-journal
+.DS_Store
+.tiendanube
