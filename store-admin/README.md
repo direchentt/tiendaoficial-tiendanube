@@ -50,6 +50,10 @@ Archivos relevantes: `railway.toml`, `package.json` (`start:railway`, `postinsta
 
 Callback Tiendanube (Business Rules): `https://TU_DOMINIO_RAILWAY/api/tn/payments-before-filter`
 
+### Supabase + Railway (`P1001 Can't reach database server`)
+
+Desde contenedores (Railway) la conexion **directa** `db.PROJECT.supabase.co:5432` a veces **no responde** (IPv4/IPv6). En Supabase: **Project Settings → Database → Connection string** y elegi **Session pooler** (recomendado para migraciones Prisma) o **Transaction pooler**. El host debe ser algo como `aws-0-REGION.pooler.supabase.com`, **no** `db.*.supabase.co`. Pegá esa URI completa en Railway como `DATABASE_URL` y agregá `?sslmode=require` si la UI no lo incluye. Comprobá que el proyecto Supabase no este **pausado**.
+
 ## Comandos (local con Postgres)
 
 ```bash
