@@ -2395,6 +2395,171 @@ footer.section-footer-home {
 }
 
 /*============================================================================
+  #Fase 5 — Carrito, páginas, contacto, blog, cuenta, 404, contraseña tienda
+==============================================================================*/
+
+/* Carrito */
+.theme-brand-phase1.template-cart #shoppingCartPage .page-header h1 {
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 500;
+  font-size: clamp(1.1rem, 2.5vw, 1.35rem);
+}
+
+.theme-brand-phase1.template-cart .cart-row.font-smallest {
+  letter-spacing: 0.1em;
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+.theme-brand-phase1.template-cart .cart-item-name {
+  letter-spacing: 0.03em;
+  font-weight: 400;
+}
+
+.theme-brand-phase1.template-cart .cart-item-name .font-small {
+  letter-spacing: 0.02em;
+  opacity: 0.85;
+}
+
+.theme-brand-phase1.template-cart .btn-primary,
+.theme-brand-phase1.template-cart .btn.btn-primary {
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+/* Páginas institucionales */
+.theme-brand-phase1.template-page .page-header h1 {
+  letter-spacing: 0.05em;
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+.theme-brand-phase1.template-page section.user-content {
+  line-height: 1.65;
+}
+
+.theme-brand-phase1.template-page section.user-content .col-md-8 {
+  font-size: var(--font-small);
+}
+
+/* Contacto */
+.theme-brand-phase1.template-contact .page-header h1 {
+  letter-spacing: 0.05em;
+  font-weight: 500;
+}
+
+.theme-brand-phase1.template-contact .btn-primary,
+.theme-brand-phase1.template-contact input[type="submit"].btn {
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.theme-brand-phase1.template-contact .contact-page .btn-link {
+  letter-spacing: 0.02em;
+}
+
+/* Blog listado */
+.theme-brand-phase1.template-blog .page-header h1 {
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 500;
+  font-size: clamp(1.1rem, 2.5vw, 1.35rem);
+}
+
+.theme-brand-phase1.template-blog .blog-page .item-name {
+  letter-spacing: 0.03em;
+  font-weight: 500;
+  font-size: 0.9375rem;
+}
+
+.theme-brand-phase1.template-blog .blog-page .btn-link {
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 0.6875rem;
+  font-weight: 500;
+}
+
+/* Entrada de blog */
+.theme-brand-phase1.template-blog-post .page-header h1 {
+  letter-spacing: 0.03em;
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+.theme-brand-phase1.template-blog-post .blog-post-page .font-small {
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 0.65rem;
+  opacity: 0.85;
+}
+
+.theme-brand-phase1.template-blog-post .blog-post-page {
+  line-height: 1.65;
+}
+
+/* Cuenta (login, registro, pedidos, etc.) */
+.theme-brand-phase1[class*="template-account"] .page-header h1 {
+  letter-spacing: 0.05em;
+  font-weight: 500;
+}
+
+.theme-brand-phase1[class*="template-account"] .btn-primary,
+.theme-brand-phase1[class*="template-account"] input[type="submit"].btn {
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.theme-brand-phase1[class*="template-account"] .card {
+  border-radius: 0;
+}
+
+/* 404 */
+.theme-brand-phase1.template-404 .page-header h1 {
+  letter-spacing: 0.05em;
+  font-weight: 500;
+}
+
+.theme-brand-phase1.template-404 #page-error h2.font-body {
+  letter-spacing: 0.02em;
+  font-weight: 400;
+  line-height: 1.35;
+}
+
+.theme-brand-phase1.template-404 #page-error .section-products-related .item-name {
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  font-size: 0.8125rem;
+}
+
+.theme-brand-phase1.template-404 #page-error .item-price {
+  letter-spacing: 0.04em;
+  font-size: 0.8125rem;
+}
+
+/* Tienda con contraseña (plantilla propia, sin layout.tpl) */
+.theme-brand-phase1.body-password .head-main {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+  padding-bottom: 0.5rem;
+}
+
+.theme-brand-phase1.body-password h2.h3-huge {
+  letter-spacing: 0.04em;
+  font-weight: 500;
+  text-align: center;
+}
+
+.theme-brand-phase1.body-password .btn-primary,
+.theme-brand-phase1.body-password input[type="submit"] {
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+/*============================================================================
   #Critical path utilities
 ==============================================================================*/
 

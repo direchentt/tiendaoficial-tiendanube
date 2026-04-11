@@ -76,7 +76,7 @@
         {{ component('structured-data') }}
 
     </head>
-    <body class="body-password">
+    <body class="theme-brand-phase1 body-password">
 
         {# Theme icons #}
 
