@@ -229,7 +229,7 @@
             {% set state = store.is_catalog ? 'catalog' : (product.available ? product.display_price ? 'cart' : 'contact' : 'nostock') %}
             {% set texts = {'cart': "Agregar al carrito", 'contact': "Consultar precio", 'nostock': "Sin stock", 'catalog': "Consultar"} %}
 
-            {% set btn_container_classes = show_product_quantity and not product.isSubscribable() ? 'col-8 pl-md-0' : 'col-12' %}
+            {% set btn_container_classes = not home_main_product ? 'col-12' : (show_product_quantity and not product.isSubscribable() ? 'col-8 pl-md-0' : 'col-12') %}
 
             <div class="{{ btn_container_classes }}">
 
