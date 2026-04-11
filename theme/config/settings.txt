@@ -1360,9 +1360,52 @@ Página de inicio
 			instafeed = Publicaciones de Instagram
 			testimonials = Testimonios
 			modules = Módulos de imagen y texto
+			brand_editorial = Franja editorial marca
 	link
 		text = Pop-up promocional
 		linkto = home_promotional_popup
+
+Marca editorial (layout)
+	meta
+		icon = paint-brush
+		advanced = false
+	subtitle
+		subtitle = <span class='legend'>Fase 1: control de ritmo visual tipo boutique streetwear. La franja editorial se activa desde el orden de la pagina de inicio.</span>
+	dropdown
+		name = brand_grid_density
+		description = Aire entre filas en catalogo, busqueda y relacionados
+		values
+			editorial = Editorial (mas aire)
+			comfortable = Equilibrada
+			compact = Compacta
+	checkbox
+		name = brand_home_wide_sections
+		description = Mas espacio vertical entre secciones del inicio
+	collapse
+		title = Franja editorial (imagen + texto)
+		backto = _top
+	description
+		description = Subi la imagen y textos; luego coloca la seccion "Franja editorial marca" en la pagina de inicio.
+	image
+		original = brand_editorial_image.jpg
+		title = Imagen principal (JPG, GIF, PNG)
+		width = 1200
+		height = 1600
+	i18n_input
+		name = brand_editorial_kicker
+		description = Antetitulo (ej. Nueva coleccion)
+	i18n_input
+		name = brand_editorial_title
+		description = Titulo
+	i18n_input
+		name = brand_editorial_text
+		description = Texto
+	i18n_input
+		name = brand_editorial_btn
+		description = Texto del boton
+	i18n_input
+		name = brand_editorial_url
+		description = Enlace del boton (URL)
 
 Listado de productos
 	meta

@@ -20,7 +20,8 @@
   news_banners: show_help or (show_component_help and not has_news_banners),
   modules: show_help or (show_component_help and not has_image_and_text_module),
   brands: show_help or (show_component_help and not has_brands),
-  testimonials: show_help or (show_component_help and not has_testimonials)
+  testimonials: show_help or (show_component_help and not has_testimonials),
+  brand_editorial: show_help or (show_component_help and not has_brand_editorial)
 } %}
 
 {% if section_select == 'slider' %}
@@ -177,6 +178,14 @@
 		{% snipplet 'defaults/home/testimonials_help.tpl' %}
 	{% else %}
 		{% include 'snipplets/home/home-testimonials.tpl' %}
+	{% endif %}
+
+{% elseif section_select == 'brand_editorial' %}
+
+	{% if home_help.brand_editorial %}
+		{% snipplet 'defaults/home/brand_editorial_help.tpl' %}
+	{% else %}
+		{% include 'snipplets/home/home-brand-editorial.tpl' %}
 	{% endif %}
 
 {% endif %}

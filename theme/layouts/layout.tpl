@@ -118,7 +118,7 @@
 
     </head>
     {# Marca visual: snipplets/theme-brand-body-class.tpl + bloque en static/css/style-async.scss #}
-    <body class="{% include 'snipplets/theme-brand-body-class.tpl' %} {% if customer %}customer-logged-in{% endif %} template-{{ template | replace('.', '-') }}">
+    <body class="{% include 'snipplets/theme-brand-body-class.tpl' %} brand-grid-{{ settings.brand_grid_density | default('editorial') }} {% if customer %}customer-logged-in{% endif %} template-{{ template | replace('.', '-') }}">
 
         {# Theme icons #}
 

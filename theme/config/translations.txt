@@ -557,6 +557,16 @@ pt "Depoimento de"
 en "Testimonial of"
 es_mx "Testimonio de"
 
+es "Franja editorial marca"
+pt "Faixa editorial da marca"
+en "Brand editorial strip"
+es_mx "Franja editorial marca"
+
+es "Subi la imagen y los textos en Diseno > Marca editorial (layout), y coloca esta seccion en el orden del inicio."
+pt "Envie a imagem e os textos em Design > Marca editorial (layout) e coloque esta secao na ordem da pagina inicial."
+en "Upload the image and copy under Design > Brand editorial (layout), then add this section to the home order."
+es_mx "Sube la imagen y los textos en Diseno > Marca editorial (layout), y coloca esta seccion en el orden del inicio."
+
 --- --- Notifications
 
 es "Al navegar por este sitio <strong>aceptás el uso de cookies</strong> para agilizar tu experiencia de compra."

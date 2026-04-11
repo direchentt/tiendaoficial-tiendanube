@@ -20,8 +20,9 @@
 {% set has_testimonial_03 = settings.testimonial_03_description or settings.testimonial_03_name or "testimonial_03.jpg" | has_custom_image %}
 {% set has_testimonial_04 = settings.testimonial_04_description or settings.testimonial_04_name or "testimonial_04.jpg" | has_custom_image %}
 {% set has_testimonials = has_testimonial_01 or has_testimonial_02 or has_testimonial_03 or has_testimonial_04 %}
+{% set has_brand_editorial = ('brand_editorial_image.jpg' | has_custom_image) or settings.brand_editorial_title or settings.brand_editorial_kicker or settings.brand_editorial_text or (settings.brand_editorial_btn and settings.brand_editorial_url) %}
 
-{% set show_help = not (has_main_slider or has_mobile_slider or has_video or has_main_categories or has_banners or has_promotional_banners or has_news_banners or has_image_and_text_module or has_brands or has_informative_banners or has_instafeed or has_testimonials or has_institutional_message or has_welcome_message or has_announcement_message) and not has_products %}
+{% set show_help = not (has_main_slider or has_mobile_slider or has_video or has_main_categories or has_banners or has_promotional_banners or has_news_banners or has_image_and_text_module or has_brands or has_informative_banners or has_instafeed or has_testimonials or has_institutional_message or has_welcome_message or has_announcement_message or has_brand_editorial) and not has_products %}
 
 {% set show_component_help = params.preview %}
 
@@ -35,7 +36,7 @@
 
 {# Tracks sections already rendered so order slots do not duplicate the same block. #}
 {% set home_sections_rendered = [] %}
-<div class="js-home-sections-container home-sections-container" role="region" aria-label="{{ 'Página de inicio' | translate }}">
+<div class="js-home-sections-container home-sections-container{% if settings.brand_home_wide_sections %} brand-home-wide-sections{% endif %}" role="region" aria-label="{{ 'Página de inicio' | translate }}">
 	{% for i in 1..19 %}
 		{% set section = 'home_order_position_' ~ i %}
 		{% set section_select = attribute(settings, section) %}
@@ -50,7 +51,7 @@
 	{# Theme editor preview: mount missing section helps without showing them on the live store. #}
 	{% if show_component_help %}
 		<div class="d-none" aria-hidden="true">
-			{% for section_select in ['slider', 'main_categories', 'welcome', 'announcement', 'institutional', 'products', 'new', 'sale', 'informatives', 'categories', 'main_product', 'video', 'newsletter', 'instafeed', 'promotional', 'news_banners', 'brands', 'testimonials', 'modules'] %}
+			{% for section_select in ['slider', 'main_categories', 'welcome', 'announcement', 'institutional', 'products', 'new', 'sale', 'informatives', 'categories', 'main_product', 'video', 'newsletter', 'instafeed', 'promotional', 'news_banners', 'brands', 'testimonials', 'modules', 'brand_editorial'] %}
 				{% if section_select not in home_sections_rendered %}
 					{% include 'snipplets/home/home-section-switch.tpl' %}
 				{% endif %}

@@ -287,4 +287,20 @@
   --section-distance-huge-md: 90px;
   --section-negative-distance: calc(var(--section-distance) * -1);
 
+  {# Brand layout density (lux street): used under .theme-brand-phase1 #}
+  {% set brand_grid_density_val = settings.brand_grid_density | default('editorial') %}
+  {% if brand_grid_density_val == 'compact' %}
+  --brand-grid-row-gap: 0.85rem;
+  --brand-grid-item-mb-mobile: 1.25rem;
+  --brand-grid-item-mb-desktop: 1.5rem;
+  {% elseif brand_grid_density_val == 'comfortable' %}
+  --brand-grid-row-gap: 1.35rem;
+  --brand-grid-item-mb-mobile: 1.6rem;
+  --brand-grid-item-mb-desktop: 2rem;
+  {% else %}
+  --brand-grid-row-gap: 1.85rem;
+  --brand-grid-item-mb-mobile: 2rem;
+  --brand-grid-item-mb-desktop: 2.65rem;
+  {% endif %}
+
 }
