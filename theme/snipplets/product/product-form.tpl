@@ -14,9 +14,13 @@
     {# Product SKU #}
 
     {% if settings.product_sku and product.sku %}
-        <div class="font-small opacity-60 mb-3">
-            {{ "SKU" | translate }}: <span class="js-product-sku">{{ product.sku }}</span>
+        <div class="font-small opacity-60 mb-3 pdp-sku-line">
+            {{ "SKU" | translate }}: <span class="js-product-sku font-weight-bold">{{ product.sku }}</span>
         </div>
+    {% endif %}
+
+    {% if not home_main_product %}
+        {% include 'snipplets/product/product-pdp-highlights.tpl' %}
     {% endif %}
 
     {# Subscription only detection #}

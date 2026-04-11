@@ -2289,24 +2289,145 @@ footer.section-footer-home {
   letter-spacing: 0.03em;
 }
 
-.theme-brand-phase1.template-product [data-store^="product-description"] > .font-small {
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  font-size: 0.65rem;
-  font-weight: 500;
-  opacity: 0.85;
-  margin-bottom: 0.75rem;
-}
-
-.theme-brand-phase1.template-product [data-store^="product-description"] .user-content {
+.theme-brand-phase1.template-product .pdp-panel__body.user-content {
   line-height: 1.65;
   font-size: var(--font-small);
+  padding-bottom: 0.25rem;
+}
+
+/* PDP app layout: gallery + sticky buy column (desktop) */
+.theme-brand-phase1.template-product .pdp-gallery-shell {
+  background: rgba(0, 0, 0, 0.02);
+  padding: 0.65rem;
+}
+
+@media (min-width: 992px) {
+  .theme-brand-phase1.template-product .pdp-app-layout {
+    display: grid;
+    grid-template-columns: minmax(260px, 1fr) minmax(300px, 420px);
+    column-gap: 2rem;
+    row-gap: 0;
+    width: 100%;
+    align-items: start;
+  }
+
+  .theme-brand-phase1.template-product .pdp-app-gallery,
+  .theme-brand-phase1.template-product .pdp-app-buybox {
+    max-width: none;
+    width: 100%;
+  }
+
+  .theme-brand-phase1.template-product .pdp-app-buybox {
+    position: sticky;
+    top: 0.75rem;
+    z-index: 4;
+    align-self: start;
+    padding: 1.15rem 1.25rem;
+    background: var(--main-background);
+    border: 1px solid rgba(0, 0, 0, 0.07);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.04);
+  }
+
+  .theme-brand-phase1.template-product .pdp-app-description-full {
+    grid-column: 1 / -1;
+  }
+}
+
+.theme-brand-phase1.template-product .pdp-panel {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.theme-brand-phase1.template-product .pdp-panel__summary {
+  cursor: pointer;
+  list-style: none;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  padding: 1rem 0;
+  position: relative;
+  padding-right: 1.5rem;
+}
+
+.theme-brand-phase1.template-product .pdp-panel__summary::-webkit-details-marker {
+  display: none;
+}
+
+.theme-brand-phase1.template-product .pdp-panel__summary::after {
+  content: "";
+  position: absolute;
+  right: 0.15rem;
+  top: 50%;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-right: 1px solid currentColor;
+  border-bottom: 1px solid currentColor;
+  transform: translateY(-65%) rotate(45deg);
+  opacity: 0.45;
+}
+
+.theme-brand-phase1.template-product .pdp-panel[open] .pdp-panel__summary::after {
+  transform: translateY(-35%) rotate(-135deg);
+}
+
+.theme-brand-phase1.template-product .pdp-panel__body--share {
+  padding-bottom: 0.5rem;
+}
+
+.theme-brand-phase1.template-product .pdp-reviews-slot {
+  padding-top: 0.5rem;
+}
+
+.theme-brand-phase1.template-product .pdp-highlights {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.theme-brand-phase1.template-product .pdp-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.4rem 0.7rem;
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: var(--main-background);
+  color: var(--main-foreground);
+  line-height: 1.2;
+}
+
+.theme-brand-phase1.template-product .pdp-chip--accent {
+  border-color: rgba(0, 0, 0, 0.14);
+  color: var(--accent-color, inherit);
+}
+
+.theme-brand-phase1.template-product .pdp-chip--ok {
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+.theme-brand-phase1.template-product .pdp-chip--muted {
+  opacity: 0.65;
+}
+
+.theme-brand-phase1.template-product .pdp-chip--action {
+  text-decoration: none;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.theme-brand-phase1.template-product .pdp-chip--action:hover,
+.theme-brand-phase1.template-product .pdp-chip--action:focus-visible {
+  border-color: var(--accent-color, rgba(0, 0, 0, 0.35));
+  outline: none;
 }
 
 .theme-brand-phase1.template-product #single-product .btn-add-to-cart.btn-primary {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   font-weight: 500;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
 }
 
 .theme-brand-phase1.template-product .section-products-related h2 {

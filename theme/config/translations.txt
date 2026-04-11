@@ -910,6 +910,11 @@ pt "Descrição do produto"
 en "Product description"
 es_mx "Descripción del producto"
 
+es "Información clave del producto"
+pt "Informações principais do produto"
+en "Key product information"
+es_mx "Información clave del producto"
+
 es "¿Qué te parecio el producto?"
 pt "O que você acha do produto?"
 en "What do you think of the product?"
