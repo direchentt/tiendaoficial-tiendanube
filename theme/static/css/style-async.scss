@@ -1988,15 +1988,28 @@ footer.section-footer-home {
     max-height: 210px;
   }
 
-  /* PDP: sticky CTA row on mobile (above footer, below WhatsApp z-index 100) */
-  .template-product .product-form-cta-row--sticky-mobile {
+  /* PDP: sticky CTA (brand only; z-index below typical fixed chat widgets) */
+  .theme-brand-phase1.template-product .product-form-cta-row--sticky-mobile {
     position: sticky;
     bottom: 0;
     z-index: 95;
-    padding-top: 0.65rem;
-    padding-bottom: max(0.65rem, env(safe-area-inset-bottom, 0px));
+    padding-top: 0.75rem;
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom, 0px));
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    margin-left: -0.5rem;
+    margin-right: -0.5rem;
+    width: calc(100% + 1rem);
+    max-width: none;
+    box-sizing: border-box;
     background: var(--main-background);
-    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.08);
+    border-top: 1px solid rgba(0, 0, 0, 0.09);
+    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.1);
+  }
+
+  .theme-brand-phase1.template-product .product-form-cta-row--sticky-mobile .btn-add-to-cart {
+    min-height: 48px;
+    letter-spacing: 0.06em;
   }
 }
 
@@ -2258,6 +2271,43 @@ footer.section-footer-home {
   padding-top: 0.35rem;
   padding-bottom: 0.85rem;
   margin-bottom: 0.35rem;
+}
+
+/* Mobile: sort / filter modals (bottom sheet + docked panel) */
+.theme-brand-phase1.template-category #sort-by .modal-header,
+.theme-brand-phase1.template-search #sort-by .modal-header,
+.theme-brand-phase1.template-category #nav-filters .modal-header,
+.theme-brand-phase1.template-search #nav-filters .modal-header {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.theme-brand-phase1.template-category #sort-by .modal-body,
+.theme-brand-phase1.template-search #sort-by .modal-body,
+.theme-brand-phase1.template-category #nav-filters .modal-body,
+.theme-brand-phase1.template-search #nav-filters .modal-body {
+  padding-bottom: max(1.25rem, env(safe-area-inset-bottom, 0px));
+}
+
+.theme-brand-phase1.template-category #nav-filters .filter-accordion .accordion-title,
+.theme-brand-phase1.template-search #nav-filters .filter-accordion .accordion-title,
+.theme-brand-phase1.template-category #nav-filters .filter-accordion .js-accordion-title,
+.theme-brand-phase1.template-search #nav-filters .filter-accordion .js-accordion-title {
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+.theme-brand-phase1.template-category #nav-filters .filters-updating-message,
+.theme-brand-phase1.template-search #nav-filters .filters-updating-message {
+  letter-spacing: 0.04em;
+}
+
+@media (max-width: 767px) {
+  .theme-brand-phase1.template-category #sort-by.modal-bottom-sheet .modal-body,
+  .theme-brand-phase1.template-search #sort-by.modal-bottom-sheet .modal-body {
+    padding-top: 0.25rem;
+  }
 }
 
 /*============================================================================
@@ -2654,6 +2704,30 @@ footer.section-footer-home {
     position: sticky;
     top: calc(4.5rem + 0.75rem);
     align-self: flex-start;
+  }
+}
+
+@media (max-width: 991px) {
+  .theme-brand-phase1.template-cart #shoppingCartPage form.visible-when-content-ready {
+    padding-bottom: max(2rem, env(safe-area-inset-bottom, 0px));
+  }
+
+  .theme-brand-phase1.template-cart .cart-app-summary {
+    margin-top: 1.35rem;
+    padding-top: 1.15rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+  }
+
+  .theme-brand-phase1.template-cart .cart-app-lines .js-cart-item .form-quantity-icon {
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .theme-brand-phase1.template-cart .cart-app-lines .cart-item-name {
+    line-height: 1.35;
   }
 }
 
