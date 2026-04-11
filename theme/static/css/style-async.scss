@@ -53,7 +53,7 @@ style.css
     // Min width 768px
     //// Components
     //// Footer
-  #Theme brand (theme-brand-phase1) — partial _theme-brand-phase1.scss
+  #Theme brand (theme-brand-phase1) - partial _theme-brand-phase1.scss
   #Critical path utilities
 
 ==============================================================================*/
@@ -2036,7 +2036,7 @@ footer.section-footer-home {
     max-height: 210px;
   }
 
-  /* Ficha: CTA cantidad + compra pegada abajo en móvil (por encima del fondo, debajo del botón WhatsApp z-index 100) */
+  /* PDP: sticky CTA row on mobile (above footer, below WhatsApp z-index 100) */
   .template-product .product-form-cta-row--sticky-mobile {
     position: sticky;
     bottom: 0;
@@ -2048,12 +2048,12 @@ footer.section-footer-home {
   }
 }
 
-/* Categoría / búsqueda: ancla al listado tras filtros (evita título tapado por barra fija) */
+/* Category/search: scroll anchor for product list (fixed bar overlap) */
 #catalog-product-list {
   scroll-margin-top: 1rem;
 }
 
-/* Overrides de marca (.theme-brand-phase1): ver partial _theme-brand-phase1.scss */
+/* Brand overrides (.theme-brand-phase1): see partial _theme-brand-phase1.scss */
 @import "theme-brand-phase1";
 
 /*============================================================================

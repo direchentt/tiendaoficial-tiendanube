@@ -1,15 +1,15 @@
 /*============================================================================
   _theme-brand-phase1.scss
 
-  Estilos bajo .theme-brand-phase1 (body). Mantener aquí el sistema de marca
-  para no inflar style-async.scss: un solo lugar para revisar tipografía,
+  Estilos bajo .theme-brand-phase1 (body). Mantener aqui el sistema de marca
+  para no inflar style-async.scss: un solo lugar para revisar tipografia,
   bordes y componentes globales.
 
   Desactivar: quitar clase theme-brand-phase1 del body en layout.tpl y password.tpl.
 ==============================================================================*/
 
 /*============================================================================
-  #Fase 1 — Header / navegación estilo marca minimal (fashion)
+  #Fase 1 - Header / navegacion estilo marca minimal (fashion)
 ==============================================================================*/
 
 .theme-brand-phase1 .head-main .head-logo-row {
@@ -32,7 +32,7 @@
   border-bottom-color: rgba(255, 255, 255, 0.14);
 }
 
-/* Desktop: ítems principales compactos, mayúsculas, tracking */
+/* Desktop: items principales compactos, mayusculas, tracking */
 .theme-brand-phase1 .nav-desktop .nav-desktop-list > .nav-item-desktop > .nav-item-container > .nav-list-link,
 .theme-brand-phase1 .nav-desktop .nav-desktop-list > .nav-item-desktop.item-with-subitems > .nav-item-container > .nav-list-link,
 .theme-brand-phase1 .nav-desktop .nav-desktop-list > .nav-item-desktop:not(.item-with-subitems) > .nav-list-link {
@@ -49,7 +49,7 @@
   padding-right: 0.4rem;
 }
 
-/* Mega menú: panel más editorial */
+/* Mega menu: panel mas editorial */
 .theme-brand-phase1 .nav-desktop .desktop-dropdown-container {
   padding-top: 1.25rem;
   padding-bottom: 1.5rem;
@@ -63,7 +63,7 @@
   padding: 0.35rem 0;
 }
 
-/* Buscador en barra: línea inferior tipo editorial */
+/* Buscador en barra: linea inferior tipo editorial */
 .theme-brand-phase1 .head-main .search-form .form-control,
 .theme-brand-phase1 .head-main .search-form input[type="search"],
 .theme-brand-phase1 .head-main .search-form input[type="text"] {
@@ -86,7 +86,7 @@
   padding-right: 0.4rem;
 }
 
-/* Menú hamburguesa (móvil): primer nivel más compacto y label en mayúsculas */
+/* Menu hamburguesa (movil): primer nivel mas compacto y label en mayusculas */
 .theme-brand-phase1 .modal-nav-hamburger .nav-list > .nav-item > .nav-list-link {
   font-size: var(--font-big);
   letter-spacing: 0.05em;
@@ -101,7 +101,7 @@
 }
 
 /*============================================================================
-  #Fase 2 — Home: secciones editoriales + tarjetas de producto
+  #Fase 2 - Home: secciones editoriales + tarjetas de producto
 ==============================================================================*/
 
 .theme-brand-phase1.template-home .section-home:not(.section-slider-home) {
@@ -196,7 +196,7 @@
 }
 
 /*============================================================================
-  #Fase 3 — Categoría y búsqueda: grilla alineada al estilo marca
+  #Fase 3 - Categoria y busqueda: grilla alineada al estilo marca
 ==============================================================================*/
 
 .theme-brand-phase1.template-category .page-header h1,
@@ -258,7 +258,7 @@
 }
 
 /*============================================================================
-  #Fase 4 — Ficha de producto + footer (estilo marca)
+  #Fase 4 - Ficha de producto + footer (estilo marca)
 ==============================================================================*/
 
 .theme-brand-phase1.template-product #single-product .js-product-name,
@@ -329,7 +329,7 @@
   font-size: 0.8125rem;
 }
 
-/* Footer: separación superior y tipografía legal más limpia */
+/* Footer: separacion superior y tipografia legal mas limpia */
 .theme-brand-phase1 .js-footer.footer {
   border-top: 1px solid rgba(0, 0, 0, 0.07);
   padding-top: 0.25rem;
@@ -350,7 +350,7 @@
 }
 
 /*============================================================================
-  #Fase 5 — Carrito, páginas, contacto, blog, cuenta, 404, contraseña tienda
+  #Fase 5 - Carrito, paginas, contacto, blog, cuenta, 404, contrasena tienda
 ==============================================================================*/
 
 /* Carrito */
@@ -384,7 +384,7 @@
   font-weight: 500;
 }
 
-/* Páginas institucionales */
+/* Paginas institucionales */
 .theme-brand-phase1.template-page .page-header h1 {
   letter-spacing: 0.05em;
   font-weight: 500;
@@ -491,7 +491,7 @@
   font-size: 0.8125rem;
 }
 
-/* Tienda con contraseña (plantilla propia, sin layout.tpl) */
+/* Tienda con contrasena (plantilla propia, sin layout.tpl) */
 .theme-brand-phase1.body-password .head-main {
   border-bottom: 1px solid rgba(0, 0, 0, 0.07);
   padding-bottom: 0.5rem;
@@ -511,7 +511,7 @@
 }
 
 /*============================================================================
-  #Fase 6 — Sistema visual global (resto del theme: modales, forms, UI común)
+  #Fase 6 - Sistema visual global (resto del theme: modales, forms, UI comun)
 ==============================================================================*/
 
 /* Botones: mismo lenguaje en toda la tienda (no afecta checkout TN) */
@@ -557,7 +557,7 @@
   min-height: 6rem;
 }
 
-/* Modales (carrito fullscreen, búsqueda, filtros, quick shop, etc.) */
+/* Modales (carrito fullscreen, busqueda, filtros, quick shop, etc.) */
 .theme-brand-phase1 .modal .modal-header {
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
@@ -589,7 +589,7 @@
   border-radius: 0;
 }
 
-/* Paginación catálogo + “mostrar más” */
+/* Paginacion catalogo + "mostrar mas" */
 .theme-brand-phase1 .js-load-more .btn-default {
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -666,7 +666,7 @@
   letter-spacing: 0.04em;
 }
 
-/* Tablas / líneas en carrito y listados */
+/* Tablas / lineas en carrito y listados */
 .theme-brand-phase1 .cart-row,
 .theme-brand-phase1 .cart-item {
   border-color: rgba(0, 0, 0, 0.07);
@@ -676,14 +676,14 @@
   border-color: rgba(0, 0, 0, 0.1);
 }
 
-/* Radio tarjetas (opciones de compra / envío) */
+/* Radio tarjetas (opciones de compra / envio) */
 .theme-brand-phase1 .radio-button-item.card {
   border-radius: 0;
 }
 
 /*============================================================================
-  #UX — Grilla de producto (home, categoría, búsqueda, relacionados)
-  Hover / focus-within suave en desktop; sin animación si el usuario pide menos movimiento.
+  #UX - Grilla de producto (home, categoria, busqueda, relacionados)
+  Hover / focus-within suave en desktop; sin animacion si el usuario pide menos movimiento.
 ==============================================================================*/
 
 @media (min-width: 768px) {
@@ -705,5 +705,37 @@
   .theme-brand-phase1 .item-product:hover .item-image img,
   .theme-brand-phase1 .item-product:focus-within .item-image img {
     transform: none;
+  }
+}
+
+/*============================================================================
+  #Phase 7 - Editorial home accents (additive, no markup changes)
+==============================================================================*/
+
+.theme-brand-phase1.template-home .section-featured-home .section-title,
+.theme-brand-phase1.template-home .section-instafeed-home .section-title {
+  padding-bottom: 0.35rem;
+}
+
+.theme-brand-phase1.template-home .section-featured-home .section-title::after,
+.theme-brand-phase1.template-home .section-instafeed-home .section-title::after,
+.theme-brand-phase1.template-home .section-banners-home .section-title::after {
+  content: "";
+  display: block;
+  width: 2.25rem;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.28;
+  margin-top: 0.55rem;
+}
+
+.theme-brand-phase1.template-home .section-banners-home .section-title.text-center::after {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (min-width: 768px) {
+  .theme-brand-phase1.template-home .section-slider-home .section-slider .swiper-text h2 {
+    line-height: 1.12;
   }
 }
