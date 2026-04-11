@@ -9,7 +9,7 @@
         {% endif %}
     {% else %}
         <section class="pdp-section pdp-section--intro" aria-label="{{ 'Información del producto' | translate }}">
-            {% embed "snipplets/page-header.tpl" with {container: false, padding: false, page_header_title_class: 'js-product-name my-3'} %}
+            {% embed "snipplets/page-header.tpl" with {container: false, padding: false, page_header_class: 'pdp-page-header', page_header_title_class: 'js-product-name pdp-product-title mt-0 mb-2'} %}
                 {% block page_header_text %}{{ product.name }}{% endblock page_header_text %}
             {% endembed %}
             {% if settings.product_sku and product.sku %}
@@ -141,7 +141,7 @@
     <section class="pdp-section pdp-section--purchase" aria-labelledby="pdp-purchase-heading">
         <h2 id="pdp-purchase-heading" class="pdp-heading-visually-hidden">{{ 'Opciones de compra' | translate }}</h2>
     {% endif %}
-     <form id="product_form" class="js-product-form pdp-product-form mt-4" method="post" action="{{ store.cart_url }}" data-store="product-form-{{ product.id }}" aria-label="{{ 'Formulario del producto' | translate }}: {{ product.name }}">
+     <form id="product_form" class="js-product-form pdp-product-form mt-3 mt-md-4" method="post" action="{{ store.cart_url }}" data-store="product-form-{{ product.id }}" aria-label="{{ 'Formulario del producto' | translate }}: {{ product.name }}">
         <input type="hidden" name="add_to_cart" value="{{product.id}}" />
         {% if template == "product" %}
             {% set show_size_guide = true %}

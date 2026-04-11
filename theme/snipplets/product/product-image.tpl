@@ -6,7 +6,7 @@
 {% set product_grid_detail = not home_main_product and settings.product_image_format == 'grid' %}
 {% set product_grid_detail_md_class = product_grid_detail ? 'd-md-none' %}
 
-<div data-store="product-image-{{ product.id }}">
+<div class="pdp-gallery-root" data-store="product-image-{{ product.id }}">
 	{% if product.media_count > 0 %}
 		{% if has_multiple_slides %}
 			<div class="swiper-buttons p-0 mr-2 {{ product_grid_detail_md_class }}">
@@ -19,7 +19,7 @@
 			</div>
 			<div class="js-swiper-product-pagination swiper-pagination d-inline-block w-auto position-relative pt-3 text-left {{ product_grid_detail_md_class }}"></div>
 		{% endif %}
-		<div class="js-swiper-product swiper-container{% if product_grid_detail %} product-detail-slider{% endif %}" data-product-images-amount="{{ product.media_count }}">
+		<div class="js-swiper-product pdp-gallery-swiper swiper-container{% if product_grid_detail %} product-detail-slider{% endif %}" data-product-images-amount="{{ product.media_count }}">
             {% include 'snipplets/labels.tpl' with {product_detail: true, label_custom_class: product_grid_detail_md_class} %}
 			<div class="swiper-wrapper">
 				{% for media in product.media %}

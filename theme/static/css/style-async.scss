@@ -2364,10 +2364,25 @@ footer.section-footer-home {
 }
 
 .theme-brand-phase1.template-product #single-product .js-price-container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.85rem;
   margin-bottom: 0.5rem;
 }
 
+.theme-brand-phase1.template-product .pdp-page-header.page-header {
+  padding-bottom: 0;
+}
+
+.theme-brand-phase1.template-product .breadcrumbs {
+  margin-bottom: 0.5rem;
+  font-size: 0.6875rem;
+  letter-spacing: 0.06em;
+}
+
 .theme-brand-phase1.template-product #single-product .js-price-display.font-largest {
+  font-size: clamp(1.15rem, 2.8vw, 1.5rem);
   letter-spacing: 0.04em;
   font-weight: 500;
 }
@@ -2383,6 +2398,12 @@ footer.section-footer-home {
   padding-bottom: 0.25rem;
 }
 
+.theme-brand-phase1.template-product .product-info-column > .pdp-description-stack {
+  margin-top: 1.25rem;
+  padding-top: 1.15rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.07);
+}
+
 /* PDP app layout: gallery + sticky buy column (desktop) */
 .theme-brand-phase1.template-product .pdp-gallery-shell {
   background: transparent;
@@ -2391,7 +2412,59 @@ footer.section-footer-home {
   overflow: hidden;
 }
 
+.theme-brand-phase1.template-product .pdp-gallery-root .js-product-slide-link:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 3px;
+}
+
+.theme-brand-phase1.template-product .pdp-gallery-root .swiper-buttons .swiper-button-prev,
+.theme-brand-phase1.template-product .pdp-gallery-root .swiper-buttons .swiper-button-next {
+  width: 2.75rem;
+  height: 2.75rem;
+  margin-top: 0;
+  border-radius: var(--brand-ui-pill);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: var(--brand-elev-1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.theme-brand-phase1.template-product .pdp-gallery-root .swiper-buttons .swiper-button-prev:hover,
+.theme-brand-phase1.template-product .pdp-gallery-root .swiper-buttons .swiper-button-next:hover {
+  transform: scale(1.05);
+}
+
+.theme-brand-phase1.template-product .pdp-gallery-root .swiper-pagination .swiper-pagination-bullet {
+  width: 6px;
+  height: 6px;
+  opacity: 0.35;
+  background: var(--main-foreground);
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.theme-brand-phase1.template-product .pdp-gallery-root .swiper-pagination .swiper-pagination-bullet-active {
+  opacity: 1;
+  transform: scale(1.25);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-brand-phase1.template-product .pdp-gallery-root .swiper-buttons .swiper-button-prev:hover,
+  .theme-brand-phase1.template-product .pdp-gallery-root .swiper-buttons .swiper-button-next:hover {
+    transform: none;
+  }
+
+  .theme-brand-phase1.template-product .pdp-gallery-root .swiper-pagination .swiper-pagination-bullet-active {
+    transform: none;
+  }
+}
+
 @media (min-width: 992px) {
+  .theme-brand-phase1.template-product .pdp-app-gallery {
+    position: sticky;
+    top: 1rem;
+    align-self: start;
+    z-index: 1;
+  }
+
   .theme-brand-phase1.template-product .pdp-app-layout {
     display: grid;
     grid-template-columns: minmax(260px, 1fr) minmax(300px, 420px);
@@ -2566,7 +2639,9 @@ footer.section-footer-home {
 }
 
 .theme-brand-phase1.template-product .pdp-section--intro {
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 .theme-brand-phase1.template-product .pdp-section--price {
