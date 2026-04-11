@@ -1,6 +1,11 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 export default function HomePage() {
+  if (process.env.NODE_ENV === "production") {
+    redirect("/admin/login");
+  }
+
   return (
     <main>
       <h1>Store admin (Next.js)</h1>
