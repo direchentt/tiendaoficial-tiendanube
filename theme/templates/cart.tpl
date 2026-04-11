@@ -20,8 +20,8 @@
         {% endfor %}
         {% if cart.items %}
 
-            <div class="row">
-                <div class="col-md-9">
+            <div class="row cart-app-layout">
+                <div class="col-md-9 cart-app-lines">
 
                     {# Cart header #}
                 
@@ -53,7 +53,7 @@
                         {% endif %}
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-3 cart-app-summary">
                     {% include "snipplets/shipping/cart-fulfillment.tpl" with {'cart_page': true} %}
                     {% include "snipplets/cart-totals.tpl" with {'cart_page': true} %}
                 </div>

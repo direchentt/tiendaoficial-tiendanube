@@ -76,7 +76,7 @@
         {% set show_payments_info = settings.product_detail_installments and product.show_installments and product.display_price and installments_info %}
 
         {% if not home_main_product and (show_payments_info or hasDiscount) %}
-            <div {% if installments_info %}data-toggle="#installments-modal" data-modal-url="modal-fullscreen-payments"{% endif %} class="{% if installments_info %}js-modal-open js-fullscreen-modal-open{% endif %} js-product-payments-container my-3 px-0" {% if not product.display_price or not (product.get_max_installments and product.get_max_installments(false)) %}style="display: none;"{% endif %}>
+            <div {% if installments_info %}data-toggle="#installments-modal" data-modal-url="modal-fullscreen-payments"{% endif %} class="{% if installments_info %}js-modal-open js-fullscreen-modal-open{% endif %} js-product-payments-container pdp-payments-strip my-3 px-0" {% if not product.display_price or not (product.get_max_installments and product.get_max_installments(false)) %}style="display: none;"{% endif %}>
         {% endif %}
             {% if show_payments_info %}
                 {{ component('installments', {'location' : 'product_detail', container_classes: { installment: "font-small"}}) }}
@@ -221,7 +221,7 @@
         {% endset %}
 
         {% if not home_main_product %}
-        <div class="row mb-3 {% if settings.product_stock %}mb-md-2{% endif %} no-gutters">
+        <div class="row mb-3 pdp-qty-subscription-row {% if settings.product_stock %}mb-md-2{% endif %} no-gutters align-items-end">
             {% if show_product_quantity %}
                 {% include "snipplets/product/product-quantity.tpl" with {home_main_product: false} %}
             {% endif %}

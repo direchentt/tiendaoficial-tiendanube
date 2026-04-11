@@ -1,4 +1,4 @@
-<div class="js-product-variants {% if quickshop %}js-product-quickshop-variants{% endif %} form-row {% if settings.bullet_variants %}mb-1{% else %}mb-3{% endif %}">
+<div class="js-product-variants {% if quickshop %}js-product-quickshop-variants{% else %}pdp-variant-deck{% endif %} form-row {% if settings.bullet_variants %}mb-1{% else %}mb-3{% endif %}">
 	{% set has_size_variations = false %}
 	{% if settings.bullet_variants %}
 		{% set hidden_variant_select = ' d-none' %}

@@ -2255,6 +2255,9 @@ footer.section-footer-home {
 .theme-brand-phase1.template-category .category-controls,
 .theme-brand-phase1.template-search .category-controls {
   border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  padding-top: 0.35rem;
+  padding-bottom: 0.85rem;
+  margin-bottom: 0.35rem;
 }
 
 /*============================================================================
@@ -2512,6 +2515,31 @@ footer.section-footer-home {
   margin-bottom: 0.35rem;
 }
 
+/* PDP: variant deck, qty row, payments strip (full PDP only, not quickshop) */
+.theme-brand-phase1.template-product .pdp-variant-deck .js-product-variants-group {
+  margin-bottom: 0.35rem;
+}
+
+.theme-brand-phase1.template-product .pdp-qty-subscription-row {
+  margin-top: 0.15rem;
+}
+
+.theme-brand-phase1.template-product .pdp-payments-strip {
+  padding-top: 0.6rem;
+  padding-bottom: 0.6rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.theme-brand-phase1.template-product .pdp-payments-strip a {
+  text-decoration: none;
+}
+
+.theme-brand-phase1.template-product .pdp-variant-deck .btn-variant:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .theme-brand-phase1.template-product .pdp-chip--action {
     transition: none;
@@ -2601,6 +2629,32 @@ footer.section-footer-home {
   letter-spacing: 0.07em;
   text-transform: uppercase;
   font-weight: 500;
+}
+
+.theme-brand-phase1.template-cart .cart-app-lines > .cart-row.font-smallest {
+  letter-spacing: 0.1em;
+  opacity: 0.82;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+}
+
+.theme-brand-phase1.template-cart .cart-app-lines .js-ajax-cart-list .js-cart-item + .js-cart-item {
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  margin-top: 0.25rem;
+  padding-top: 1rem;
+}
+
+.theme-brand-phase1.template-cart .cart-app-lines .cart-item-image-md,
+.theme-brand-phase1.template-cart .cart-app-lines .cart-item-image {
+  border-radius: 4px;
+}
+
+@media (min-width: 992px) {
+  .theme-brand-phase1.template-cart .cart-app-summary {
+    position: sticky;
+    top: calc(4.5rem + 0.75rem);
+    align-self: flex-start;
+  }
 }
 
 /* Paginas institucionales */
