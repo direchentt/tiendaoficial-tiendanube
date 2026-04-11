@@ -8,6 +8,8 @@ WORKDIR /app
 RUN apt-get update -y && apt-get install -y openssl ca-certificates && rm -rf /var/lib/apt/lists/*
 
 COPY store-admin/package.json store-admin/package-lock.json ./
+# postinstall corre prisma generate: hace falta el schema antes de npm ci
+COPY store-admin/prisma ./prisma
 RUN npm ci
 
 COPY store-admin/ .
