@@ -76,7 +76,8 @@
         {{ component('structured-data') }}
 
     </head>
-    <body class="theme-brand-phase1 body-password">
+    {# Misma clase de marca que layout.tpl (snipplets/theme-brand-body-class.tpl) #}
+    <body class="{% include 'snipplets/theme-brand-body-class.tpl' %} body-password">
 
         {# Theme icons #}
 
