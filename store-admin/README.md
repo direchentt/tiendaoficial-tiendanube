@@ -26,6 +26,12 @@ Panel y API para reglas que van mas alla del admin estandar de Tiendanube, apoya
 
 - La API **Category** no expone “password” como campo nativo. Aqui: tabla `LockedCategory` + verificacion `POST /api/admin/category-gate/verify`. En el **tema**, un script en storefront debe pedir la clave y, si `ok`, mostrar contenido (o redirigir). El hash en BD es SHA256 de ejemplo: **sustituir por bcrypt** antes de produccion.
 
+## Panel web (UI)
+
+1. `npm run dev` y abri **http://localhost:3010/admin/login**
+2. Ingresa el valor de `ADMIN_SECRET` del `.env`
+3. Desde ahi: reglas de pago, listado de medios de pago, ajuste de precios, categorias bloqueadas
+
 ## Comandos
 
 ```bash
