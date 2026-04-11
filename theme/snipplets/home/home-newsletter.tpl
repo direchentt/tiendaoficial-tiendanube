@@ -4,20 +4,20 @@
 	<div class="container-fluid newsletter-content">
 		<div class="row align-items-end">
 			<div class="col-md">
-				<h2 class="h4-huge h1-huge-md mb-2	mb-md-0">{{ "Newsletter" | translate }}</h2>
+				<h2 class="h4-huge h1-huge-md mb-2	mb-md-0" id="home-newsletter-title">{{ "Newsletter" | translate }}</h2>
 				{% if settings.home_news_text %}
 					<p class="newsletter-description mb-3">{{ settings.home_news_text }}</p>
 				{% endif %}
 			</div>
 			<div class="col-md-auto">
 				<div class="js-newsletter newsletter mt-md-1 mb-md-3 ml-md-auto pb-md-1">
-					<form method="post" action="/winnie-pooh" onsubmit="this.setAttribute('action', '');" data-store="home-newsletter-form">
+					<form method="post" action="/winnie-pooh" onsubmit="this.setAttribute('action', '');" data-store="home-newsletter-form" aria-labelledby="home-newsletter-title">
 						<div class="input-append">
-							{% embed "snipplets/forms/form-input.tpl" with{input_for: 'email', type_email: true, input_name: 'email', input_id: 'email', input_placeholder: 'Email' | translate, input_custom_class: 'form-control-line font-md-big', input_group_custom_class: "mb-0",  input_aria_label: 'Email' | translate } %}
+							{% embed "snipplets/forms/form-input.tpl" with{input_for: 'email', type_email: true, input_name: 'email', input_id: 'home-newsletter-email', input_placeholder: 'Email' | translate, input_custom_class: 'form-control-line font-md-big', input_group_custom_class: "mb-0",  input_aria_label: 'Email' | translate } %}
 							{% endembed %}
 							<div class="winnie-pooh" style="display: none;">
-								<label for="winnie-pooh-newsletter">{{ "No completar este campo" | translate }}</label>
-								<input id="winnie-pooh-newsletter" type="text" name="winnie-pooh"/>
+								<label for="winnie-pooh-newsletter-home">{{ "No completar este campo" | translate }}</label>
+								<input id="winnie-pooh-newsletter-home" type="text" name="winnie-pooh" tabindex="-1" autocomplete="off"/>
 							</div>
 							<input type="hidden" name="name" value="{{ 'Sin nombre' | translate }}" />
 							<input type="hidden" name="message" value="{{ 'Pedido de inscripción a newsletter' | translate }}" />
@@ -27,9 +27,9 @@
 					</form>
 					{% if contact and contact.type == 'newsletter' %}
 						{% if contact.success %}
-							<div class="alert alert-success mt-3">{{ "¡Gracias por suscribirte! A partir de ahora vas a recibir nuestras novedades en tu email" | translate }}</div>
+							<div class="alert alert-success mt-3" role="status" aria-live="polite">{{ "¡Gracias por suscribirte! A partir de ahora vas a recibir nuestras novedades en tu email" | translate }}</div>
 						{% else %}
-							<div class="alert alert-danger mt-3">{{ "Necesitamos tu email para enviarte nuestras novedades." | translate }}</div>
+							<div class="alert alert-danger mt-3" role="alert" aria-live="assertive">{{ "Necesitamos tu email para enviarte nuestras novedades." | translate }}</div>
 						{% endif %}
 					{% endif %}
 				</div>

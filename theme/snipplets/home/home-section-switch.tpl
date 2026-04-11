@@ -1,24 +1,47 @@
+{# Home modular: one entry per admin "home_order_position_*". Help vs live content is centralized below. #}
+
+{% set home_help_catalog = show_help or (show_component_help and not has_products) %}
+{# Keys avoid Twig reserved words (e.g. "new"). Map: novelties -> section_select "new". #}
+{% set home_help = {
+  slider: show_help or (show_component_help and not (has_main_slider or has_mobile_slider)),
+  main_categories: show_help or (show_component_help and not has_main_categories),
+  welcome: show_help or (show_component_help and not has_welcome_message),
+  announcement: show_help or (show_component_help and not has_announcement_message),
+  institutional: show_help or (show_component_help and not has_institutional_message),
+  products: home_help_catalog,
+  novelties: home_help_catalog,
+  sale: home_help_catalog,
+  main_product: home_help_catalog,
+  informatives: show_help or (show_component_help and not has_informative_banners),
+  categories: show_help or (show_component_help and not has_banners),
+  video: show_help or (show_component_help and not has_video),
+  instafeed: show_help or (show_component_help and not has_instafeed),
+  promotional: show_help or (show_component_help and not has_promotional_banners),
+  news_banners: show_help or (show_component_help and not has_news_banners),
+  modules: show_help or (show_component_help and not has_image_and_text_module),
+  brands: show_help or (show_component_help and not has_brands),
+  testimonials: show_help or (show_component_help and not has_testimonials)
+} %}
+
 {% if section_select == 'slider' %}
-	{#  **** Home slider ****  #}
 
-		{% set has_mobile_slider = settings.toggle_slider_mobile and settings.slider_mobile and settings.slider_mobile is not empty %}
-		{% set head_transparent_section = (has_main_slider or has_mobile_slider) and settings.head_transparent %}
+	{% set has_mobile_slider = settings.toggle_slider_mobile and settings.slider_mobile and settings.slider_mobile is not empty %}
+	{% set head_transparent_section = (has_main_slider or has_mobile_slider) and settings.head_transparent %}
 
-		<section class="section-slider-home section-home-color" data-store="home-slider" data-transition="fade-in" {% if head_transparent_section %}data-header-type="transparent-on-section"{% endif %}>
-			{% if show_help or (show_component_help and not (has_main_slider or has_mobile_slider)) %}
-				{% snipplet 'defaults/home/slider_help.tpl' %}
-			{% else %}
-				{% include 'snipplets/home/home-slider.tpl' %}
-				{% if has_mobile_slider %}
-					{% include 'snipplets/home/home-slider.tpl' with {mobile: true} %}
-				{% endif %}
+	<section class="section-slider-home section-home-color" data-store="home-slider" data-transition="fade-in" {% if head_transparent_section %}data-header-type="transparent-on-section"{% endif %}>
+		{% if home_help.slider %}
+			{% snipplet 'defaults/home/slider_help.tpl' %}
+		{% else %}
+			{% include 'snipplets/home/home-slider.tpl' %}
+			{% if has_mobile_slider %}
+				{% include 'snipplets/home/home-slider.tpl' with {mobile: true} %}
 			{% endif %}
-		</section>
+		{% endif %}
+	</section>
 
 {% elseif section_select == 'main_categories' %}
 
-	{#  **** Main categories ****  #}
-	{% if show_help or (show_component_help and not has_main_categories) %}
+	{% if home_help.main_categories %}
 		{% snipplet 'defaults/home/main_categories_help.tpl' %}
 	{% else %}
 		{% include 'snipplets/home/home-categories.tpl' %}
@@ -26,8 +49,7 @@
 
 {% elseif section_select == 'welcome' %}
 
-	{#  **** Welcome message ****  #}
-	{% if show_help or (show_component_help and not has_welcome_message) %}
+	{% if home_help.welcome %}
 		{% include 'snipplets/defaults/home/institutional_message_help.tpl' with { title: 'Mensaje de bienvenida'| translate, data_store: 'home-welcome-message' }  %}
 	{% else %}
 		{% include 'snipplets/home/home-messages.tpl' with {'has_welcome': true} %}
@@ -35,8 +57,7 @@
 
 {% elseif section_select == 'announcement' %}
 
-	{#  **** Announcement message ****  #}
-	{% if show_help or (show_component_help and not has_announcement_message) %}
+	{% if home_help.announcement %}
 		{% include 'snipplets/defaults/home/institutional_message_help.tpl' with { title: 'Mensaje de anuncios'| translate, data_store: 'home-announcement-message' }  %}
 	{% else %}
 		{% include 'snipplets/home/home-messages.tpl' with {'has_announcement': true} %}
@@ -44,8 +65,7 @@
 
 {% elseif section_select == 'institutional' %}
 
-	{#  **** Welcome message ****  #}
-	{% if show_help or (show_component_help and not has_institutional_message) %}
+	{% if home_help.institutional %}
 		{% include 'snipplets/defaults/home/institutional_message_help.tpl' with { title: 'Mensaje institucional'| translate, institutional_message: true, data_store: 'home-institutional-message' }  %}
 	{% else %}
 		{% include 'snipplets/home/home-institutional-message.tpl' %}
@@ -53,8 +73,7 @@
 
 {% elseif section_select == 'products' %}
 
-	{#  **** Featured products ****  #}
-	{% if show_help or (show_component_help and not has_products) %}
+	{% if home_help.products %}
 		{% include 'snipplets/defaults/home/featured_products_help.tpl' with { products_title: 'Destacados' | translate, section_id: 'featured', slider: true }  %}
 	{% else %}
 		{% include 'snipplets/home/home-featured-products.tpl' with {'has_featured': true} %}
@@ -62,8 +81,7 @@
 
 {% elseif section_select == 'new' %}
 
-	{#  **** New products ****  #}
-	{% if show_help or (show_component_help and not has_products) %}
+	{% if home_help.novelties %}
 		{% include 'snipplets/defaults/home/featured_products_help.tpl' with { products_title: 'Novedades' | translate, section_id: 'new' }  %}
 	{% else %}
 		{% include 'snipplets/home/home-featured-products.tpl' with {'has_new': true} %}
@@ -71,8 +89,7 @@
 
 {% elseif section_select == 'sale' %}
 
-	{#  **** Sale products ****  #}
-	{% if show_help or (show_component_help and not has_products) %}
+	{% if home_help.sale %}
 		{% include 'snipplets/defaults/home/featured_products_help.tpl' with { products_title: 'Ofertas' | translate, section_id: 'sale' }  %}
 	{% else %}
 		{% include 'snipplets/home/home-featured-products.tpl' with {'has_sale': true} %}
@@ -80,8 +97,7 @@
 
 {% elseif section_select == 'informatives' %}
 
-	{#  **** Informative banners ****  #}
-	{% if show_help or (show_component_help and not has_informative_banners) %}
+	{% if home_help.informatives %}
 		{% snipplet 'defaults/home/informative_banners_help.tpl' %}
 	{% else %}
 		{% include 'snipplets/banner-services/banner-services.tpl' %}
@@ -89,8 +105,7 @@
 
 {% elseif section_select == 'categories' %}
 
-	{#  **** Categories banners ****  #}
-	{% if show_help or (show_component_help and not has_banners) %}
+	{% if home_help.categories %}
 		{% include 'snipplets/defaults/home/banners_help.tpl' with { banner_name: 'category', banner_title: 'Categoría' | translate, help_text: 'Podés destacar categorías de tu tienda desde' | translate, section_name: 'Banners de categorías' | translate, data_store: 'home-banner-categories' }  %}
 	{% else %}
 		{% include 'snipplets/home/home-banners.tpl' with {'has_banner': true} %}
@@ -98,8 +113,7 @@
 
 {% elseif section_select == 'main_product' %}
 
-	{#  **** Main product ****  #}
-	{% if show_help or (show_component_help and not has_products) %}
+	{% if home_help.main_product %}
 		{% snipplet 'defaults/home/main_product_help.tpl' %}
 	{% else %}
 		{% include 'snipplets/home/home-main-product.tpl' %}
@@ -107,8 +121,7 @@
 
 {% elseif section_select == 'video' %}
 
-	{#  **** Video embed ****  #}
-	{% if show_help or (show_component_help and not has_video) %}
+	{% if home_help.video %}
 		{% snipplet 'defaults/home/video_help.tpl' %}
 	{% else %}
 		{% include 'snipplets/home/home-video.tpl' %}
@@ -116,13 +129,11 @@
 
 {% elseif section_select == 'newsletter' %}
 
-	{#  **** Newsletter ****  #}
 	{% include 'snipplets/home/home-newsletter.tpl' %}
 
 {% elseif section_select == 'instafeed' %}
 
-	{#  **** Instafeed ****  #}
-	{% if show_help or (show_component_help and not has_instafeed) %}
+	{% if home_help.instafeed %}
 		{% snipplet 'defaults/home/instafeed_help.tpl' %}
 	{% else %}
 		{% include 'snipplets/home/home-instafeed.tpl' %}
@@ -130,8 +141,7 @@
 
 {% elseif section_select == 'promotional' %}
 
-	{#  **** Promotional banners ****  #}
-	{% if show_help or (show_component_help and not has_promotional_banners) %}
+	{% if home_help.promotional %}
 		{% include 'snipplets/defaults/home/banners_help.tpl' with { banner_name: 'promotional', banner_title: 'Promoción' | translate, help_text: 'Podés mostrar tus promociones desde' | translate, section_name: 'Banners promocionales' | translate, data_store: 'home-banner-promotional' }  %}
 	{% else %}
 		{% include 'snipplets/home/home-banners.tpl' with {'has_banner_promotional': true} %}
@@ -139,8 +149,7 @@
 
 {% elseif section_select == 'news_banners' %}
 
-	{#  **** News banners ****  #}
-	{% if show_help or (show_component_help and not has_news_banners) %}
+	{% if home_help.news_banners %}
 		{% include 'snipplets/defaults/home/banners_help.tpl' with { banner_name: 'news', banner_title: 'Nuevo' | translate, help_text: 'Podés mostrar tus últimas novedades desde' | translate, section_name: 'Banners de novedades' | translate, data_store: 'home-banner-news' }  %}
 	{% else %}
 		{% include 'snipplets/home/home-banners.tpl' with {'has_banner_news': true} %}
@@ -148,8 +157,7 @@
 
 {% elseif section_select == 'modules' %}
 
-	{#  **** Modules ****  #}
-	{% if show_help or (show_component_help and not has_image_and_text_module) %}
+	{% if home_help.modules %}
 		{% include 'snipplets/defaults/home/image_text_modules_help.tpl' %}
 	{% else %}
 		{% include 'snipplets/home/home-banners.tpl' with {'has_module': true} %}
@@ -157,8 +165,7 @@
 
 {% elseif section_select == 'brands' %}
 
-	{#  **** Brands slider ****  #}
-	{% if show_help or (show_component_help and not has_brands) %}
+	{% if home_help.brands %}
 		{% snipplet 'defaults/home/brands_help.tpl' %}
 	{% else %}
 		{% include 'snipplets/home/home-brands.tpl' %}
@@ -166,8 +173,7 @@
 
 {% elseif section_select == 'testimonials' %}
 
-	{#  **** Testimonials slider ****  #}
-	{% if show_help or (show_component_help and not has_testimonials) %}
+	{% if home_help.testimonials %}
 		{% snipplet 'defaults/home/testimonials_help.tpl' %}
 	{% else %}
 		{% include 'snipplets/home/home-testimonials.tpl' %}

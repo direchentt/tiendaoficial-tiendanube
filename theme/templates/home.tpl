@@ -18,7 +18,8 @@
 {% set has_testimonial_01 = settings.testimonial_01_description or settings.testimonial_01_name or "testimonial_01.jpg" | has_custom_image %}
 {% set has_testimonial_02 = settings.testimonial_02_description or settings.testimonial_02_name or "testimonial_02.jpg" | has_custom_image %}
 {% set has_testimonial_03 = settings.testimonial_03_description or settings.testimonial_03_name or "testimonial_03.jpg" | has_custom_image %}
-{% set has_testimonials = has_testimonial_01 or has_testimonial_02 or has_testimonial_03 %}
+{% set has_testimonial_04 = settings.testimonial_04_description or settings.testimonial_04_name or "testimonial_04.jpg" | has_custom_image %}
+{% set has_testimonials = has_testimonial_01 or has_testimonial_02 or has_testimonial_03 or has_testimonial_04 %}
 
 {% set show_help = not (has_main_slider or has_mobile_slider or has_video or has_main_categories or has_banners or has_promotional_banners or has_news_banners or has_image_and_text_module or has_brands or has_informative_banners or has_instafeed or has_testimonials or has_institutional_message or has_welcome_message or has_announcement_message) and not has_products %}
 
@@ -32,24 +33,25 @@
 	{% set admin_link = is_theme_draft ? '/admin/themes/settings/draft/' : '/admin/themes/settings/active/' %}
 {% endif %}
 
-{% set newArray = [] %}
-<div class="js-home-sections-container home-sections-container">
+{# Tracks sections already rendered so order slots do not duplicate the same block. #}
+{% set home_sections_rendered = [] %}
+<div class="js-home-sections-container home-sections-container" role="region" aria-label="{{ 'Página de inicio' | translate }}">
 	{% for i in 1..19 %}
 		{% set section = 'home_order_position_' ~ i %}
 		{% set section_select = attribute(settings, section) %}
 
-		{% if section_select not in newArray %}
+		{% if section_select not in home_sections_rendered %}
 			{% include 'snipplets/home/home-section-switch.tpl' %}
-			{% set newArray = newArray|merge([section_select]) %}
+			{% set home_sections_rendered = home_sections_rendered|merge([section_select]) %}
 		{% endif %}
 
 	{% endfor %}
 
-	{#  **** Hidden Sections ****  #}
+	{# Theme editor preview: mount missing section helps without showing them on the live store. #}
 	{% if show_component_help %}
-		<div style="display:none">
-			{% for section_select in ['slider', 'main_categories', 'welcome', 'announcement', 'institutional', 'products', 'new', 'sale', 'informatives', 'categories', 'main_product', 'video', 'newsletter', 'instafeed', 'promotional', 'news_banners', 'brands' , 'testimonials', 'modules'] %}
-				{% if section_select not in newArray %}
+		<div class="d-none" aria-hidden="true">
+			{% for section_select in ['slider', 'main_categories', 'welcome', 'announcement', 'institutional', 'products', 'new', 'sale', 'informatives', 'categories', 'main_product', 'video', 'newsletter', 'instafeed', 'promotional', 'news_banners', 'brands', 'testimonials', 'modules'] %}
+				{% if section_select not in home_sections_rendered %}
 					{% include 'snipplets/home/home-section-switch.tpl' %}
 				{% endif %}
 			{% endfor %}

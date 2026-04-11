@@ -1,18 +1,19 @@
 {% set newsletter_contact_error = contact.type == 'newsletter' and not contact.success %}
+{% set newsletter_form_aria = settings.news_title ? settings.news_title : ('Newsletter' | translate) %}
 
 {% if settings.news_show %}
     <div class="js-newsletter newsletter mb-4 pb-3 pr-3 pr-md-0">
         {% if settings.news_title %}
-            <div class="h4-huge h2-huge-md">{{ settings.news_title }}</div>
+            <div class="h4-huge h2-huge-md" id="footer-newsletter-heading">{{ settings.news_title }}</div>
         {% endif %}
-            
-        <form method="post" action="/winnie-pooh" onsubmit="this.setAttribute('action', '');" data-store="newsletter-form">
+
+        <form method="post" action="/winnie-pooh" onsubmit="this.setAttribute('action', '');" data-store="newsletter-form" aria-label="{{ newsletter_form_aria | escape('html_attr') }}" {% if settings.news_title %}aria-labelledby="footer-newsletter-heading"{% endif %}>
             <div class="newsletter-form input-append">
                 {% embed "snipplets/forms/form-input.tpl" with{input_for: 'email', type_email: true, input_name: 'email', input_id: 'email', input_placeholder: 'Email' | translate, input_group_custom_class: "mb-0", input_custom_class: 'form-control-line', input_aria_label: 'Email' | translate } %}
                 {% endembed %}
                 <div class="winnie-pooh" style="display: none;">
-                    <label for="winnie-pooh-newsletter">{{ "No completar este campo" | translate }}</label>
-                    <input id="winnie-pooh-newsletter" type="text" name="winnie-pooh"/>
+                    <label for="winnie-pooh-newsletter-footer">{{ "No completar este campo" | translate }}</label>
+                    <input id="winnie-pooh-newsletter-footer" type="text" name="winnie-pooh" tabindex="-1" autocomplete="off"/>
                 </div>
                 <input type="hidden" name="name" value="{{ "Sin nombre" | translate }}" />
                 <input type="hidden" name="message" value="{{ "Pedido de inscripción a newsletter" | translate }}" />
@@ -23,9 +24,9 @@
 
         {% if contact and contact.type == 'newsletter' %}
             {% if contact.success %}
-                <div class="alert alert-success mt-3">{{ "¡Gracias por suscribirte! A partir de ahora vas a recibir nuestras novedades en tu email" | translate }}</div>
+                <div class="alert alert-success mt-3" role="status" aria-live="polite">{{ "¡Gracias por suscribirte! A partir de ahora vas a recibir nuestras novedades en tu email" | translate }}</div>
             {% else %}
-                <div class="alert alert-danger mt-3">{{ "Necesitamos tu email para enviarte nuestras novedades." | translate }}</div>
+                <div class="alert alert-danger mt-3" role="alert" aria-live="assertive">{{ "Necesitamos tu email para enviarte nuestras novedades." | translate }}</div>
             {% endif %}
         {% endif %}
     </div>

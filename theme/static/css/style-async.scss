@@ -2353,6 +2353,12 @@ footer.section-footer-home {
   opacity: 0.92;
 }
 
+.theme-brand-phase1 .js-footer .footer-nav-primary ul,
+.theme-brand-phase1 .js-footer .footer-nav-secondary ul {
+  list-style: none;
+  padding-left: 0;
+}
+
 /*============================================================================
   #Fase 5 - Carrito, paginas, contacto, blog, cuenta, 404, contrasena tienda
 ==============================================================================*/
