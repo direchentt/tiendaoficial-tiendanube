@@ -8,3 +8,4 @@ store-admin/.next/
 store-admin/.env
 store-admin/prisma/*.db
 store-admin/prisma/*.db-journal
+store-admin/prisma/prisma/
