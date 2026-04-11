@@ -1,4 +1,4 @@
-<div id="single-product" class="js-has-new-shipping js-product-detail js-product-container js-shipping-calculator-container pb-4 pt-md-4 pb-md-3" data-variants="{{product.variants_object | json_encode }}" data-store="product-detail">
+<article id="single-product" class="js-has-new-shipping js-product-detail js-product-container js-shipping-calculator-container pb-4 pt-md-4 pb-md-3" data-variants="{{product.variants_object | json_encode }}" data-store="product-detail">
     <div class="container-fluid">
         <div class="row">
             <div class="col-md-auto product-image-column pb-4">
@@ -17,7 +17,7 @@
             {% endif %}
         </div>
     </div>
-</div>
+</article>
 
 {# Related products #}
 {% include 'snipplets/product/product-related.tpl' %}

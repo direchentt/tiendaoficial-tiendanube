@@ -59,6 +59,11 @@ pt "Ir para o conteúdo principal"
 en "Skip to main content"
 es_mx "Ir al contenido principal"
 
+es "Formulario del producto"
+pt "Formulário do produto"
+en "Product form"
+es_mx "Formulario del producto"
+
 es "Si"
 pt "Sim"
 en "Yes"

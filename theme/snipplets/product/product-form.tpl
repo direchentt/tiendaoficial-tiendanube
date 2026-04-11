@@ -146,7 +146,7 @@
 
     {# Product form, includes: Variants, CTA and Shipping calculator #}
 
-     <form id="product_form" class="js-product-form mt-4" method="post" action="{{ store.cart_url }}" data-store="product-form-{{ product.id }}">
+     <form id="product_form" class="js-product-form mt-4" method="post" action="{{ store.cart_url }}" data-store="product-form-{{ product.id }}" aria-label="{{ 'Formulario del producto' | translate }}: {{ product.name }}">
         <input type="hidden" name="add_to_cart" value="{{product.id}}" />
         {% if template == "product" %}
             {% set show_size_guide = true %}
@@ -161,12 +161,7 @@
             </div>
         {% endif %}
 
-        <div class="row mb-4 {% if settings.product_stock %}mb-md-3{% endif %}">
-            {% set product_quantity_home_product_value = home_main_product ? true : false %}
-            {% if show_product_quantity %}
-                {% include "snipplets/product/product-quantity.tpl" with {home_main_product: product_quantity_home_product_value} %}
-            {% endif %}
-
+        {% set subscription_selector_markup %}
             {{ component('subscriptions/subscription-selector', {
                 allow_subscription_only: is_subscription_only_product,
                 subscription_only_container: 'p-3',
@@ -213,6 +208,23 @@
 
                 legal_modal_close_icon_id: 'times',
             }) }}
+        {% endset %}
+
+        {% if not home_main_product %}
+        <div class="row mb-3 {% if settings.product_stock %}mb-md-2{% endif %} no-gutters">
+            {% if show_product_quantity %}
+                {% include "snipplets/product/product-quantity.tpl" with {home_main_product: false} %}
+            {% endif %}
+            {{ subscription_selector_markup }}
+        </div>
+        <div class="row mb-4 {% if settings.product_stock %}mb-md-3{% endif %} product-form-cta-row product-form-cta-row--sticky-mobile mx-0 no-gutters">
+        {% else %}
+        <div class="row mb-4 {% if settings.product_stock %}mb-md-3{% endif %}">
+            {% if show_product_quantity %}
+                {% include "snipplets/product/product-quantity.tpl" with {home_main_product: true} %}
+            {% endif %}
+            {{ subscription_selector_markup }}
+        {% endif %}
 
             {% set state = store.is_catalog ? 'catalog' : (product.available ? product.display_price ? 'cart' : 'contact' : 'nostock') %}
             {% set texts = {'cart': "Agregar al carrito", 'contact': "Consultar precio", 'nostock': "Sin stock", 'catalog': "Consultar"} %}

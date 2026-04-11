@@ -2034,6 +2034,17 @@ footer.section-footer-home {
   .product-image-limited {
     max-height: 210px;
   }
+
+  /* Ficha: CTA cantidad + compra pegada abajo en móvil (por encima del fondo, debajo del botón WhatsApp z-index 100) */
+  .template-product .product-form-cta-row--sticky-mobile {
+    position: sticky;
+    bottom: 0;
+    z-index: 95;
+    padding-top: 0.65rem;
+    padding-bottom: max(0.65rem, env(safe-area-inset-bottom, 0px));
+    background: var(--main-background);
+    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.08);
+  }
 }
 /*============================================================================
   #Critical path utilities

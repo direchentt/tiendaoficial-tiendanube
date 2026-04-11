@@ -44,8 +44,10 @@
 
 							<img 
 								{% if not apply_lazy_load %}fetchpriority="high"{% endif %}
+								decoding="async"
 								{% if apply_lazy_load %}data-{% endif %}src="{{ product_image_src }}"
 								{% if apply_lazy_load %}data-{% endif %}srcset='{{  media | product_image_url('large') }} 480w, {{  media | product_image_url('huge') }} 640w, {{  media | product_image_url('original') }} 1024w' 
+								{% if not apply_lazy_load %}sizes="(max-width: 767px) 100vw, (max-width: 1199px) 46vw, 560px"{% endif %}
 								class="js-product-slide-img product-slider-image img-absolute img-absolute-centered {% if apply_lazy_load %}lazyautosizes lazyload{% endif %}" 
 								{% if apply_lazy_load %}data-sizes="auto"{% endif %}
 								{% if media.dimensions.width and media.dimensions.height %}width="{{ media.dimensions.width }}" height="{{ media.dimensions.height }}"{% endif %}
