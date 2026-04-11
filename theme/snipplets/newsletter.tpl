@@ -1,5 +1,4 @@
 {% set newsletter_contact_error = contact.type == 'newsletter' and not contact.success %}
-{% set newsletter_form_aria = settings.news_title ? settings.news_title : ('Newsletter' | translate) %}
 
 {% if settings.news_show %}
     <div class="js-newsletter newsletter mb-4 pb-3 pr-3 pr-md-0">
@@ -7,7 +6,7 @@
             <div class="h4-huge h2-huge-md" id="footer-newsletter-heading">{{ settings.news_title }}</div>
         {% endif %}
 
-        <form method="post" action="/winnie-pooh" onsubmit="this.setAttribute('action', '');" data-store="newsletter-form" aria-label="{{ newsletter_form_aria | escape('html_attr') }}" {% if settings.news_title %}aria-labelledby="footer-newsletter-heading"{% endif %}>
+        <form method="post" action="/winnie-pooh" onsubmit="this.setAttribute('action', '');" data-store="newsletter-form" {% if settings.news_title %}aria-labelledby="footer-newsletter-heading"{% else %}aria-label="{{ 'Newsletter' | translate }}"{% endif %}>
             <div class="newsletter-form input-append">
                 {% embed "snipplets/forms/form-input.tpl" with{input_for: 'email', type_email: true, input_name: 'email', input_id: 'email', input_placeholder: 'Email' | translate, input_group_custom_class: "mb-0", input_custom_class: 'form-control-line', input_aria_label: 'Email' | translate } %}
                 {% endembed %}
