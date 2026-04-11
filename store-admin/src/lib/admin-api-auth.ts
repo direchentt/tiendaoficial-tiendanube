@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 import { COOKIE_NAME, verifySession } from "./admin-session";
 
 /** Rutas API admin: header x-admin-secret o cookie de sesion del panel. */
-export function isAdminRequest(req: Request): boolean {
+export async function isAdminRequest(req: Request): Promise<boolean> {
   const secret = process.env.ADMIN_SECRET;
   if (!secret) {
     return false;

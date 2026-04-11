@@ -1,27 +1,47 @@
-import { createHmac, timingSafeEqual } from "crypto";
-
 const COOKIE_NAME = "sa_sess";
 const SESSION_SALT = "store-admin-v1";
 
 export { COOKIE_NAME };
 
-export function getSessionToken(adminSecret: string): string {
-  return createHmac("sha256", adminSecret).update(SESSION_SALT).digest("hex");
+/**
+ * HMAC-SHA256 en hex. Web Crypto: valido en Edge (middleware) y en Node (route handlers).
+ */
+export async function getSessionToken(adminSecret: string): Promise<string> {
+  const enc = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    "raw",
+    enc.encode(adminSecret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+  const sig = await crypto.subtle.sign("HMAC", key, enc.encode(SESSION_SALT));
+  return Array.from(new Uint8Array(sig))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
 }
 
-export function verifySession(
+function timingSafeEqualUtf8(a: string, b: string): boolean {
+  const enc = new TextEncoder();
+  const ba = enc.encode(a);
+  const bb = enc.encode(b);
+  if (ba.length !== bb.length) {
+    return false;
+  }
+  let diff = 0;
+  for (let i = 0; i < ba.length; i++) {
+    diff |= ba[i]! ^ bb[i]!;
+  }
+  return diff === 0;
+}
+
+export async function verifySession(
   adminSecret: string | undefined,
   cookieValue: string | undefined
-): boolean {
+): Promise<boolean> {
   if (!adminSecret || !cookieValue) {
     return false;
   }
-  const expected = getSessionToken(adminSecret);
-  try {
-    const a = Buffer.from(cookieValue, "utf8");
-    const b = Buffer.from(expected, "utf8");
-    return a.length === b.length && timingSafeEqual(a, b);
-  } catch {
-    return false;
-  }
+  const expected = await getSessionToken(adminSecret);
+  return timingSafeEqualUtf8(cookieValue, expected);
 }

@@ -35,7 +35,7 @@ function parsePrice(p: string | null | undefined): number {
  * Proteger con ADMIN_SECRET; en produccion usar cola (Inngest, Bull) por rate limits de TN.
  */
 export async function POST(req: Request) {
-  if (!isAdminRequest(req)) {
+  if (!(await isAdminRequest(req))) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 

@@ -18,7 +18,7 @@ export async function loginAction(
   if (secret !== envSecret) {
     return { error: "Clave incorrecta." };
   }
-  const token = getSessionToken(envSecret);
+  const token = await getSessionToken(envSecret);
   cookies().set(COOKIE_NAME, token, {
     httpOnly: true,
     sameSite: "lax",

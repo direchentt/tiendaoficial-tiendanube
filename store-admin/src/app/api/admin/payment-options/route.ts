@@ -12,7 +12,7 @@ export const runtime = "nodejs";
  * Scope: read_payments. Documentacion: Business Rules + payment_providers/options.
  */
 export async function GET(req: Request) {
-  if (!isAdminRequest(req)) {
+  if (!(await isAdminRequest(req))) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
