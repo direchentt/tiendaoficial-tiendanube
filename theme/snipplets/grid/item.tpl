@@ -75,6 +75,7 @@
             {% set image_classes = 'js-item-image lazyautosizes ' ~ (not image_priority_high ? 'lazyload') ~ ' fade-in img-absolute img-absolute-centered' %}
             {% set data_expand = show_image_slider ? '50' : '-10' %}
 
+            {% set label_custom_class = settings.brand_labels_minimal ? 'labels--brand-minimal' : '' %}
             {% set floating_elements %}
                 {% if not reduced_item %}
                     {% include 'snipplets/labels.tpl' %}

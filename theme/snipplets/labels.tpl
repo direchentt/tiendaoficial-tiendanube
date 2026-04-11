@@ -1,3 +1,4 @@
+{% set label_custom_class = label_custom_class | default('') %}
 {% set label_accent_classes = 'label label-accent ' ~ (product_detail ? 'label-big ') %}
 
 {{ component(

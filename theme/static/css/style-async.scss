@@ -3143,6 +3143,56 @@ footer.section-footer-home {
 }
 
 /*============================================================================
+  #Phase 2 - Grilla (ratio), etiquetas minimal, hero editorial
+==============================================================================*/
+
+.theme-brand-phase1.brand-card-square .item-image .js-item-image-padding {
+  padding-bottom: 100% !important;
+}
+
+.theme-brand-phase1.brand-card-portrait .item-image .js-item-image-padding {
+  padding-bottom: 125% !important;
+}
+
+.theme-brand-phase1 .labels.labels--brand-minimal .label {
+  background: transparent !important;
+  border: 1px solid currentColor;
+  border-radius: 0;
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  padding: 0.2rem 0.45rem;
+  text-transform: uppercase;
+}
+
+.theme-brand-phase1 .section-slider--brand-editorial .swiper-text > .mb-1 {
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  opacity: 0.75;
+  text-transform: uppercase;
+}
+
+.theme-brand-phase1 .section-slider--brand-editorial .swiper-text h2 {
+  font-weight: 500;
+  letter-spacing: 0.035em;
+}
+
+/*============================================================================
+  #Phase 3 - PDP: relacionados, descripcion, promos
+==============================================================================*/
+
+.theme-brand-phase1.template-product .pdp-related-region--after-buybox {
+  border-top: 1px solid rgba(0, 0, 0, 0.07);
+  padding-top: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .theme-brand-phase1.template-product .pdp-related-region--after-buybox {
+    padding-top: 2rem;
+  }
+}
+
+/*============================================================================
   #Phase 7 - Editorial home accents (additive, no markup changes)
 ==============================================================================*/
 

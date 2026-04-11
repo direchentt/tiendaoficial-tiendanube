@@ -3,7 +3,7 @@
 
     <section class="pdp-section pdp-section--detail" aria-label="{{ 'Descripción del producto' | translate }}">
     {% if product.description is not empty %}
-        <details class="pdp-panel" open>
+        <details class="pdp-panel"{% if not settings.brand_pdp_description_closed %} open{% endif %}>
             <summary class="pdp-panel__summary">{{ "Descripción" | translate }}</summary>
             <div class="pdp-panel__body user-content">
                 {{ product.description }}

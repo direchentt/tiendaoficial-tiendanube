@@ -13,6 +13,12 @@
                 {% endif %}
             </div>
 
+            {% if settings.brand_pdp_related_position|default('below_page') == 'after_buybox' %}
+                <div class="col-12 pdp-related-region--after-buybox mt-md-4">
+                    {% include 'snipplets/product/product-related.tpl' %}
+                </div>
+            {% endif %}
+
             {% if settings.full_width_description %}
                 <div class="pdp-app-description-full w-100">
                     {% include 'snipplets/product/product-description.tpl' %}
@@ -22,5 +28,6 @@
     </div>
 </article>
 
-{# Related products #}
-{% include 'snipplets/product/product-related.tpl' %}
+{% if settings.brand_pdp_related_position|default('below_page') != 'after_buybox' %}
+    {% include 'snipplets/product/product-related.tpl' %}
+{% endif %}

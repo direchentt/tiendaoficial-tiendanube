@@ -1406,6 +1406,22 @@ Marca editorial (layout)
 	i18n_input
 		name = brand_editorial_url
 		description = Enlace del boton (URL)
+	collapse
+		title = Grilla y hero (fase 2)
+		backto = _top
+	dropdown
+		name = brand_product_card_ratio
+		description = Proporcion de la foto en listados (marca)
+		values
+			standard = Tema por defecto
+			square = Cuadrada 1:1
+			portrait = Retrato 4:5
+	checkbox
+		name = brand_labels_minimal
+		description = Etiquetas en listados tipo linea (menos pastilla)
+	checkbox
+		name = brand_slider_editorial
+		description = Carrusel principal: tipografia mas editorial
 
 Listado de productos
 	meta
@@ -1568,6 +1584,21 @@ Detalle de producto
 	i18n_input
 		description = Título para los productos complementarios
 		name = products_complementary_title
+	collapse
+		title = Marca — PDP (fase 3)
+		backto = _top
+	dropdown
+		name = brand_pdp_related_position
+		description = Ubicacion de relacionados y complementarios
+		values
+			below_page = Debajo de la ficha completa
+			after_buybox = Debajo del formulario de compra
+	checkbox
+		name = brand_pdp_description_closed
+		description = Acordeon Descripcion cerrado al cargar
+	checkbox
+		name = brand_pdp_promos_below_purchase
+		description = Promociones debajo del bloque de compra (CTA)
 
 Carrito de compras
 	meta

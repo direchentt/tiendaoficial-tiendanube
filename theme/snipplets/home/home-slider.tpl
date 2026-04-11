@@ -10,7 +10,7 @@
 <div class="js-home-main-slider-container {% if not has_main_slider %}hidden{% endif %}">
 {% endif %}
 	<div class="{% if mobile %}js-home-mobile-slider{% else %}js-home-main-slider{% endif %}-visibility {% if has_main_slider and has_mobile_slider %}{% if mobile %}d-md-none{% else %}d-none d-md-block{% endif %}{% elseif not settings.toggle_slider_mobile and mobile %}hidden{% endif %}">
-		<div class="section-slider position-relative">
+		<div class="section-slider position-relative{% if settings.brand_slider_editorial %} section-slider--brand-editorial{% endif %}">
 			<div class="js-home-slider{% if mobile %}-mobile{% endif %} h-100 swiper-container swiper-container-horizontal">
 				<div class="swiper-wrapper">
 					{% if mobile %}
