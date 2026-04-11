@@ -2035,6 +2035,10 @@ footer.section-footer-home {
   --brand-ui-pill: 9999px;
   --brand-elev-1: 0 1px 2px rgba(0, 0, 0, 0.04), 0 6px 20px rgba(0, 0, 0, 0.06);
   --brand-elev-2: 0 12px 40px rgba(0, 0, 0, 0.1);
+  --brand-border-subtle: rgba(0, 0, 0, 0.07);
+  --brand-border-medium: rgba(0, 0, 0, 0.08);
+  --brand-type-lh-tight: 1.18;
+  --brand-type-lh-body: 1.65;
 }
 
 .theme-brand-phase1 .btn-primary:not(.btn-link),
@@ -2139,6 +2143,34 @@ footer.section-footer-home {
 .theme-brand-phase1 .modal-nav-hamburger .list-subitems .nav-list-link {
   text-transform: none;
   letter-spacing: normal;
+}
+
+/* Skill TN UI/UX: foco visible (nav, busqueda, utilidades header) */
+.theme-brand-phase1 .nav-desktop .nav-desktop-list > .nav-item-desktop > .nav-item-container > .nav-list-link:focus-visible,
+.theme-brand-phase1 .nav-desktop .nav-desktop-list > .nav-item-desktop.item-with-subitems > .nav-item-container > .nav-list-link:focus-visible,
+.theme-brand-phase1 .nav-desktop .nav-desktop-list > .nav-item-desktop:not(.item-with-subitems) > .nav-list-link:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 3px;
+  opacity: 1;
+}
+
+.theme-brand-phase1 .modal-nav-hamburger .nav-list > .nav-item > .nav-list-link:focus-visible,
+.theme-brand-phase1 .modal-nav-hamburger .list-subitems .nav-list-link:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+.theme-brand-phase1 .head-main .search-form .form-control:focus-visible,
+.theme-brand-phase1 .head-main .search-form input[type="search"]:focus-visible,
+.theme-brand-phase1 .head-main .search-form input[type="text"]:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+.theme-brand-phase1 .head-main .col-utility a:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 3px;
+  border-radius: 2px;
 }
 
 /*============================================================================
@@ -2353,7 +2385,7 @@ footer.section-footer-home {
   font-size: clamp(1.2rem, 3.2vw, 1.7rem);
   letter-spacing: 0.02em;
   font-weight: 500;
-  line-height: 1.18;
+  line-height: var(--brand-type-lh-tight);
 }
 
 @media (min-width: 768px) {
@@ -2393,7 +2425,7 @@ footer.section-footer-home {
 }
 
 .theme-brand-phase1.template-product .pdp-panel__body.user-content {
-  line-height: 1.65;
+  line-height: var(--brand-type-lh-body);
   font-size: var(--font-small);
   padding-bottom: 0.25rem;
 }
@@ -2401,7 +2433,7 @@ footer.section-footer-home {
 .theme-brand-phase1.template-product .product-info-column > .pdp-description-stack {
   margin-top: 1.25rem;
   padding-top: 1.15rem;
-  border-top: 1px solid rgba(0, 0, 0, 0.07);
+  border-top: 1px solid var(--brand-border-subtle);
 }
 
 /* PDP app layout: gallery + sticky buy column (desktop) */
@@ -2794,6 +2826,12 @@ footer.section-footer-home {
 }
 
 /* Footer: separacion superior y tipografia legal mas limpia */
+.theme-brand-phase1 .js-footer .footer-menu-link:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
 .theme-brand-phase1 .js-footer.footer {
   border-top: 1px solid rgba(0, 0, 0, 0.07);
   padding-top: 0.25rem;
@@ -2869,7 +2907,7 @@ footer.section-footer-home {
 
 .theme-brand-phase1.template-cart .cart-app-lines .cart-item-image-md,
 .theme-brand-phase1.template-cart .cart-app-lines .cart-item-image {
-  border-radius: 4px;
+  border-radius: var(--brand-ui-r-sm);
 }
 
 @media (min-width: 992px) {
@@ -3156,6 +3194,12 @@ footer.section-footer-home {
   font-weight: 500;
 }
 
+.theme-brand-phase1 .btn-primary:focus-visible,
+.theme-brand-phase1 .btn.btn-primary:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--main-background), 0 0 0 4px var(--accent-color, currentColor);
+}
+
 .theme-brand-phase1 .btn-default,
 .theme-brand-phase1 .btn.btn-default {
   border-radius: 0;
@@ -3360,9 +3404,27 @@ footer.section-footer-home {
   }
 }
 
+/* Skill TN UI/UX: marco suave en grilla (sin overflow: clip de labels) */
+.theme-brand-phase1 .item-product .js-item-image-padding {
+  border-radius: var(--brand-ui-r-sm);
+  box-shadow: inset 0 0 0 1px var(--brand-border-subtle);
+}
+
 /*============================================================================
   #Phase 6b - Home editorial strip + wide section rhythm (settings-driven)
 ==============================================================================*/
+
+@keyframes brand-editorial-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
 .theme-brand-phase1 .section-brand-editorial {
   padding-top: var(--section-distance-huge);
@@ -3436,6 +3498,31 @@ footer.section-footer-home {
   padding: 0.65rem 1.35rem;
   border-radius: var(--brand-ui-r-sm);
   box-shadow: var(--brand-elev-1);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .theme-brand-phase1 .section-brand-editorial__inner > .section-brand-editorial__kicker,
+  .theme-brand-phase1 .section-brand-editorial__inner > .section-brand-editorial__title,
+  .theme-brand-phase1 .section-brand-editorial__inner > .section-brand-editorial__text,
+  .theme-brand-phase1 .section-brand-editorial__inner > .section-brand-editorial__btn {
+    animation: brand-editorial-rise 0.55s ease backwards;
+  }
+
+  .theme-brand-phase1 .section-brand-editorial__inner > .section-brand-editorial__kicker {
+    animation-delay: 0.04s;
+  }
+
+  .theme-brand-phase1 .section-brand-editorial__inner > .section-brand-editorial__title {
+    animation-delay: 0.1s;
+  }
+
+  .theme-brand-phase1 .section-brand-editorial__inner > .section-brand-editorial__text {
+    animation-delay: 0.16s;
+  }
+
+  .theme-brand-phase1 .section-brand-editorial__inner > .section-brand-editorial__btn {
+    animation-delay: 0.22s;
+  }
 }
 
 .theme-brand-phase1 .home-sections-container.brand-home-wide-sections > .section-home {
@@ -3599,6 +3686,29 @@ footer.section-footer-home {
   text-transform: uppercase;
   font-size: 0.75rem;
   font-weight: 500;
+}
+
+/*============================================================================
+  #Skill TN UI/UX - Motion: resto de transiciones marca bajo prefers-reduced-motion
+==============================================================================*/
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-brand-phase1 .nav-desktop .nav-desktop-list > .nav-item-desktop > .nav-item-container > .nav-list-link,
+  .theme-brand-phase1 .nav-desktop .nav-desktop-list > .nav-item-desktop.item-with-subitems > .nav-item-container > .nav-list-link,
+  .theme-brand-phase1 .nav-desktop .nav-desktop-list > .nav-item-desktop:not(.item-with-subitems) > .nav-list-link {
+    transition: none;
+  }
+
+  .theme-brand-phase1 .radio-button-item.card {
+    transition: none;
+  }
+
+  .theme-brand-phase1 .section-brand-editorial__inner > .section-brand-editorial__kicker,
+  .theme-brand-phase1 .section-brand-editorial__inner > .section-brand-editorial__title,
+  .theme-brand-phase1 .section-brand-editorial__inner > .section-brand-editorial__text,
+  .theme-brand-phase1 .section-brand-editorial__inner > .section-brand-editorial__btn {
+    animation: none;
+  }
 }
 
 /*============================================================================
