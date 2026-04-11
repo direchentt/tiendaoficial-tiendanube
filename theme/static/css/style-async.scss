@@ -2241,6 +2241,68 @@ footer.section-footer-home {
 }
 
 /*============================================================================
+  #Fase 3 — Categoría y búsqueda: grilla alineada al estilo marca
+==============================================================================*/
+
+.theme-brand-phase1.template-category .page-header h1,
+.theme-brand-phase1.template-search .page-header h1 {
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 500;
+  font-size: clamp(1.1rem, 2.5vw, 1.35rem);
+}
+
+.theme-brand-phase1.template-search .container-fluid > h2.font-body {
+  letter-spacing: 0.04em;
+  font-weight: 400;
+  font-size: var(--font-big);
+}
+
+.theme-brand-phase1.template-category .item-name,
+.theme-brand-phase1.template-search .item-name {
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  font-size: 0.8125rem;
+}
+
+@media (min-width: 768px) {
+  .theme-brand-phase1.template-category .item-name,
+  .theme-brand-phase1.template-search .item-name {
+    font-size: 0.875rem;
+  }
+}
+
+.theme-brand-phase1.template-category .item-price,
+.theme-brand-phase1.template-category .item-price-container .item-price,
+.theme-brand-phase1.template-search .item-price,
+.theme-brand-phase1.template-search .item-price-container .item-price {
+  letter-spacing: 0.04em;
+  font-size: 0.8125rem;
+}
+
+.theme-brand-phase1.template-category .item-description,
+.theme-brand-phase1.template-search .item-description {
+  padding-top: 0.85rem;
+}
+
+.theme-brand-phase1.template-category .js-product-table.row-grid .item-product,
+.theme-brand-phase1.template-search .js-product-table.row-grid .item-product {
+  margin-bottom: 1.75rem;
+}
+
+@media (min-width: 768px) {
+  .theme-brand-phase1.template-category .js-product-table.row-grid .item-product,
+  .theme-brand-phase1.template-search .js-product-table.row-grid .item-product {
+    margin-bottom: 2.25rem;
+  }
+}
+
+.theme-brand-phase1.template-category .category-controls,
+.theme-brand-phase1.template-search .category-controls {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+/*============================================================================
   #Critical path utilities
 ==============================================================================*/
 
