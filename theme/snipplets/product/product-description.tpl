@@ -1,6 +1,7 @@
 {% set description_content = product.description is not empty or settings.show_product_fb_comment_box %}
 <div class="pdp-description-stack {% if not description_content %}mt-2 mt-md-0{% endif %} {% if settings.full_width_description %}col-md-auto product-image-column pt-md-3{% endif %} pb-md-3" data-store="product-description-{{ product.id }}">
 
+    <section class="pdp-section pdp-section--detail" aria-label="{{ 'Descripción del producto' | translate }}">
     {% if product.description is not empty %}
         <details class="pdp-panel" open>
             <summary class="pdp-panel__summary">{{ "Descripción" | translate }}</summary>
@@ -27,4 +28,5 @@
     {% endif %}
 
     <div id="reviewsapp" class="pdp-reviews-slot"></div>
+    </section>
 </div>

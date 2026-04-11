@@ -915,6 +915,26 @@ pt "Informações principais do produto"
 en "Key product information"
 es_mx "Información clave del producto"
 
+es "Imágenes del producto"
+pt "Imagens do produto"
+en "Product images"
+es_mx "Imágenes del producto"
+
+es "Información del producto"
+pt "Informações do produto"
+en "Product information"
+es_mx "Información del producto"
+
+es "Opciones de compra"
+pt "Opções de compra"
+en "Purchase options"
+es_mx "Opciones de compra"
+
+es "Más productos para vos"
+pt "Mais produtos para você"
+en "More picks for you"
+es_mx "Más productos para ti"
+
 es "¿Qué te parecio el producto?"
 pt "O que você acha do produto?"
 en "What do you think of the product?"

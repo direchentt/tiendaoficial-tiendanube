@@ -1,26 +1,24 @@
-<div class="{% if home_main_product %}pt-md-4 mt-md-2 pt-3{% else %}pt-md-3{% endif %}">
-
-    {# Product name and breadcrumbs for product page #}
+<div class="pdp-buybox-stack {% if home_main_product %}pt-md-4 mt-md-2 pt-3{% else %}pt-md-3{% endif %}">
 
     {% if home_main_product %}
-        {# Product name #}
         <h2 class="h3-huge h2-huge-md mb-3">{{ product.name }}</h2>
+        {% if settings.product_sku and product.sku %}
+            <div class="font-small opacity-60 mb-3 pdp-sku-line">
+                {{ "SKU" | translate }}: <span class="js-product-sku font-weight-bold">{{ product.sku }}</span>
+            </div>
+        {% endif %}
     {% else %}
-        {% embed "snipplets/page-header.tpl" with {container: false, padding: false, page_header_title_class: 'js-product-name my-3'} %}
-            {% block page_header_text %}{{ product.name }}{% endblock page_header_text %}
-        {% endembed %}
-    {% endif %}
-
-    {# Product SKU #}
-
-    {% if settings.product_sku and product.sku %}
-        <div class="font-small opacity-60 mb-3 pdp-sku-line">
-            {{ "SKU" | translate }}: <span class="js-product-sku font-weight-bold">{{ product.sku }}</span>
-        </div>
-    {% endif %}
-
-    {% if not home_main_product %}
-        {% include 'snipplets/product/product-pdp-highlights.tpl' %}
+        <section class="pdp-section pdp-section--intro" aria-label="{{ 'Información del producto' | translate }}">
+            {% embed "snipplets/page-header.tpl" with {container: false, padding: false, page_header_title_class: 'js-product-name my-3'} %}
+                {% block page_header_text %}{{ product.name }}{% endblock page_header_text %}
+            {% endembed %}
+            {% if settings.product_sku and product.sku %}
+                <div class="font-small opacity-60 mb-3 pdp-sku-line">
+                    {{ "SKU" | translate }}: <span class="js-product-sku font-weight-bold">{{ product.sku }}</span>
+                </div>
+            {% endif %}
+            {% include 'snipplets/product/product-pdp-highlights.tpl' %}
+        </section>
     {% endif %}
 
     {# Subscription only detection #}
@@ -28,7 +26,8 @@
 
     {# Product price #}
 
-    <div class="price-container mb-3" data-store="product-price-{{ product.id }}">
+    <section class="pdp-section pdp-section--price" aria-label="{{ 'Precio' | translate }}">
+    <div class="price-container mb-3 pdp-price-card" data-store="product-price-{{ product.id }}">
         {% if not is_subscription_only_product %}
             {# Standard prices for normal products #}
             <div class="js-price-container">
@@ -128,12 +127,14 @@
             </div>
         {% endif %}
     </div>
+    </section>
 
     {# Promotional text #}
 
+    <section class="pdp-section pdp-section--promos" aria-label="{{ 'Promociones' | translate }}">
     {{ component('promotions-details', {
         promotions_details_classes: {
-            container: 'js-product-promo-container px-0 mb-2' ~ (not home_main_product ? ' col-md-8' : ''),
+            container: 'js-product-promo-container pdp-promo-stack px-0 mb-2' ~ (not home_main_product ? ' col-md-8' : ''),
             promotion_title: 'font-large mb-1 mt-4 text-accent',
             valid_scopes: 'font-small mb-0',
             categories_combinable: 'font-small mb-0',
@@ -147,10 +148,15 @@
         accordion_show_svg_id: 'chevron-down',
         accordion_hide_svg_id: 'chevron-down',
     }) }}
+    </section>
 
     {# Product form, includes: Variants, CTA and Shipping calculator #}
 
-     <form id="product_form" class="js-product-form mt-4" method="post" action="{{ store.cart_url }}" data-store="product-form-{{ product.id }}" aria-label="{{ 'Formulario del producto' | translate }}: {{ product.name }}">
+    {% if not home_main_product %}
+    <section class="pdp-section pdp-section--purchase" aria-labelledby="pdp-purchase-heading">
+        <h2 id="pdp-purchase-heading" class="pdp-heading-visually-hidden">{{ 'Opciones de compra' | translate }}</h2>
+    {% endif %}
+     <form id="product_form" class="js-product-form pdp-product-form mt-4" method="post" action="{{ store.cart_url }}" data-store="product-form-{{ product.id }}" aria-label="{{ 'Formulario del producto' | translate }}: {{ product.name }}">
         <input type="hidden" name="add_to_cart" value="{{product.id}}" />
         {% if template == "product" %}
             {% set show_size_guide = true %}
@@ -289,7 +295,7 @@
             {% set show_product_fulfillment = settings.shipping_calculator_product_page and (store.has_shipping or store.branches) and not product.free_shipping and not product.is_non_shippable %}
 
             {% if show_product_fulfillment %}
-                <div class="mb-4 pb-2">
+                <div class="pdp-shipping-card mb-4 pb-2" role="region" aria-label="{{ 'Envío' | translate }}">
                     {# Shipping calculator and branch link #}
 
                     <div id="product-shipping-container" class="product-shipping-calculator list" {% if not product.display_price or not product.has_stock %}style="display:none;"{% endif %} data-shipping-url="{{ store.shipping_calculator_url }}">
@@ -307,6 +313,9 @@
             {% endif %}
         {% endif %}
      </form>
+    {% if not home_main_product %}
+    </section>
+    {% endif %}
 </div>
 
 {% if not home_main_product %}

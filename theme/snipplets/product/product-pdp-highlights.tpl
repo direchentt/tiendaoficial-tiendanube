@@ -16,4 +16,12 @@
 	{% if show_payments_chip %}
 		<a href="#" class="pdp-chip pdp-chip--action js-modal-open js-fullscreen-modal-open" role="listitem" data-toggle="#installments-modal" data-modal-url="modal-fullscreen-payments">{{ "Medios de pago" | translate }}</a>
 	{% endif %}
+
+	{% if store.whatsapp %}
+		<a href="{{ store.whatsapp }}" class="pdp-chip pdp-chip--action pdp-chip--whatsapp" target="_blank" rel="noopener noreferrer" role="listitem" aria-label="{{ 'Comunicate por WhatsApp' | translate }}">{{ "WhatsApp" | translate }}</a>
+	{% endif %}
+
+	{% if store.email and template == 'product' %}
+		<a href="mailto:{{ store.email }}?subject={{ product.name | url_encode }}" class="pdp-chip pdp-chip--action pdp-chip--mail" role="listitem">{{ "Email" | translate }}</a>
+	{% endif %}
 </div>

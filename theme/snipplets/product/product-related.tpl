@@ -61,6 +61,10 @@
 
 {% set alternative_data_component = source_alternative == 'default' ? 'related-products' : 'alternative-products' %}
 
+{% if alternative_products or complementary_products %}
+<div class="pdp-discovery-region" role="region" aria-label="{{ 'Más productos para vos' | translate }}">
+{% endif %}
+
 {% if alternative_products %}
     {{ component(
         'products-section',{
@@ -123,4 +127,8 @@
             control_prev_svg_id: control_prev_svg_id,
         }) 
     }}
+{% endif %}
+
+{% if alternative_products or complementary_products %}
+</div>
 {% endif %}

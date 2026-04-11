@@ -2,7 +2,7 @@
     <div class="container-fluid">
         <div class="row align-items-start pdp-app-layout">
             <div class="col-md-auto product-image-column pb-4 pdp-app-gallery">
-                <div class="pdp-gallery-shell">
+                <div class="pdp-gallery-shell" role="region" aria-label="{{ 'Imágenes del producto' | translate }}">
                     {% include 'snipplets/product/product-image.tpl' %}
                 </div>
             </div>
