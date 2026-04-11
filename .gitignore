@@ -1,0 +1,4 @@
+node_modules/
+.env
+.tiendanube/
+.DS_Store
