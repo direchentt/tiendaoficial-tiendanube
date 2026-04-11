@@ -2275,6 +2275,10 @@ footer.section-footer-home {
   }
 }
 
+.theme-brand-phase1.template-product #single-product .js-price-container {
+  margin-bottom: 0.5rem;
+}
+
 .theme-brand-phase1.template-product #single-product .js-price-display.font-largest {
   letter-spacing: 0.04em;
   font-weight: 500;
@@ -2740,6 +2744,76 @@ footer.section-footer-home {
   }
 }
 
+/*============================================================================
+  #Phase 8 - Editorial polish (home modules, no markup changes)
+==============================================================================*/
+
+/* Top promo / ad strip */
+.theme-brand-phase1 .section-adbar .adbar-message {
+  letter-spacing: 0.055em;
+  font-weight: 500;
+}
+
+@media (max-width: 767px) {
+  .theme-brand-phase1 .section-adbar .adbar-message {
+    font-size: 0.6875rem;
+  }
+}
+
+/* Newsletter row title - same accent line as product sections */
+.theme-brand-phase1.template-home .section-newsletter-home .newsletter-content h2 {
+  padding-bottom: 0.35rem;
+}
+
+.theme-brand-phase1.template-home .section-newsletter-home .newsletter-content h2::after {
+  content: "";
+  display: block;
+  width: 2.25rem;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.28;
+  margin-top: 0.55rem;
+}
+
+/* Institutional block (static title) */
+.theme-brand-phase1.template-home [data-store="home-institutional-message"] h2 {
+  letter-spacing: 0.04em;
+  font-weight: 500;
+}
+
+/* Hero: light copy on dark slides - edge on busy photos */
+.theme-brand-phase1.template-home .swiper-text-light h2 {
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.35), 0 0 24px rgba(0, 0, 0, 0.2);
+}
+
+.theme-brand-phase1.template-home .swiper-text-light > .mb-1,
+.theme-brand-phase1.template-home .swiper-text-light > .mb-md-2 {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+}
+
+/* Informative services (shipping, etc.) */
+.theme-brand-phase1.template-home .section-informative-banners h3 {
+  letter-spacing: 0.05em;
+  font-weight: 500;
+}
+
+.theme-brand-phase1.template-home .section-informative-banners .service-text {
+  letter-spacing: 0.02em;
+  line-height: 1.55;
+}
+
+/* Testimonials */
+.theme-brand-phase1.template-home .section-testimonials-home .font-huge {
+  letter-spacing: 0.02em;
+  line-height: 1.45;
+}
+
+.theme-brand-phase1.template-home .section-testimonials-home h3.font-family-body {
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
 
 /*============================================================================
   #Critical path utilities
