@@ -4,7 +4,7 @@ const SESSION_SALT = "store-admin-v1";
 export { COOKIE_NAME };
 
 /**
- * HMAC-SHA256 en hex. Web Crypto: valido en Edge (middleware) y en Node (route handlers).
+ * HMAC-SHA256 en hex (Web Crypto, compatible con Node en Server Components y route handlers).
  */
 export async function getSessionToken(adminSecret: string): Promise<string> {
   const enc = new TextEncoder();
