@@ -2437,11 +2437,19 @@ footer.section-footer-home {
   gap: 0.45rem;
 }
 
+.theme-brand-phase1.template-product .pdp-highlights--brand-panel {
+  padding: 0.75rem 0.85rem;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(0, 0, 0, 0.02);
+  gap: 0.5rem;
+}
+
 .theme-brand-phase1.template-product .pdp-chip {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.4rem 0.7rem;
+  min-height: 2.25rem;
+  padding: 0.35rem 0.75rem;
   font-size: 0.625rem;
   font-weight: 500;
   letter-spacing: 0.08em;
@@ -2522,9 +2530,29 @@ footer.section-footer-home {
 }
 
 .theme-brand-phase1.template-product .pdp-shipping-card {
-  padding: 1rem 1.1rem;
+  padding: 1.15rem 1.15rem 1.25rem;
   margin-top: 0.5rem;
-  border: 1px dashed rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(0, 0, 0, 0.09);
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.theme-brand-phase1.template-product .pdp-shipping-card__label {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+  opacity: 0.85;
+}
+
+.theme-brand-phase1.template-product .pdp-shipping-card .shipping-calculator-head .font-weight-bold {
+  letter-spacing: 0.04em;
+  font-size: 0.8125rem;
+}
+
+.theme-brand-phase1.template-product .free-shipping-message {
+  padding: 0.65rem 0.85rem;
+  border: 1px solid rgba(0, 0, 0, 0.06);
   background: rgba(0, 0, 0, 0.02);
 }
 
@@ -2731,19 +2759,95 @@ footer.section-footer-home {
   }
 }
 
-/* Paginas institucionales */
+/* Paginas institucionales (landings editoriales) */
 .theme-brand-phase1.template-page .page-header h1 {
   letter-spacing: 0.05em;
   font-weight: 500;
   line-height: 1.25;
 }
 
-.theme-brand-phase1.template-page section.user-content {
-  line-height: 1.65;
+.theme-brand-phase1.template-page .brand-page-user-content {
+  line-height: 1.7;
 }
 
-.theme-brand-phase1.template-page section.user-content .col-md-8 {
+.theme-brand-phase1.template-page .brand-page-rail .user-content-body {
   font-size: var(--font-small);
+  padding-bottom: 1rem;
+}
+
+.theme-brand-phase1.template-page .user-content-body > *:first-child {
+  margin-top: 0;
+}
+
+.theme-brand-phase1.template-page .user-content-body h2,
+.theme-brand-phase1.template-page .user-content-body h3 {
+  font-family: var(--heading-font);
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  line-height: 1.25;
+}
+
+.theme-brand-phase1.template-page .user-content-body h2 {
+  font-size: 1.125rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.theme-brand-phase1.template-page .user-content-body h3 {
+  font-size: 1rem;
+  border-bottom: none;
+  margin-top: 1.5rem;
+}
+
+.theme-brand-phase1.template-page .user-content-body p {
+  margin-bottom: 1rem;
+}
+
+.theme-brand-phase1.template-page .user-content-body ul,
+.theme-brand-phase1.template-page .user-content-body ol {
+  margin-bottom: 1.25rem;
+  padding-left: 1.15rem;
+}
+
+.theme-brand-phase1.template-page .user-content-body li {
+  margin-bottom: 0.35rem;
+}
+
+.theme-brand-phase1.template-page .user-content-body img {
+  max-width: 100%;
+  height: auto;
+  margin: 1.25rem 0;
+}
+
+.theme-brand-phase1.template-page .user-content-body blockquote {
+  margin: 1.5rem 0;
+  padding: 0.85rem 1rem 0.85rem 1rem;
+  border-left: 3px solid rgba(0, 0, 0, 0.15);
+  font-size: var(--font-base);
+  opacity: 0.92;
+}
+
+.theme-brand-phase1.template-page .user-content-body table {
+  width: 100%;
+  margin: 1.25rem 0;
+  font-size: var(--font-smallest);
+  border-collapse: collapse;
+}
+
+.theme-brand-phase1.template-page .user-content-body table th,
+.theme-brand-phase1.template-page .user-content-body table td {
+  padding: 0.5rem 0.65rem;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.theme-brand-phase1.template-page .user-content-body table th {
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 500;
+  font-size: 0.625rem;
+  background: rgba(0, 0, 0, 0.03);
 }
 
 /* Contacto */
@@ -2761,6 +2865,41 @@ footer.section-footer-home {
 
 .theme-brand-phase1.template-contact .contact-page .btn-link {
   letter-spacing: 0.02em;
+}
+
+.theme-brand-phase1.template-contact .brand-contact-aside {
+  padding-right: 0.5rem;
+}
+
+@media (min-width: 768px) {
+  .theme-brand-phase1.template-contact .brand-contact-aside {
+    border-right: 1px solid rgba(0, 0, 0, 0.08);
+    padding-right: 1.75rem;
+  }
+}
+
+.theme-brand-phase1.template-contact .brand-contact-form-shell {
+  padding: 0;
+}
+
+@media (min-width: 768px) {
+  .theme-brand-phase1.template-contact .brand-contact-form-shell {
+    padding: 1.25rem 1.35rem 1.5rem;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    background: rgba(0, 0, 0, 0.015);
+  }
+}
+
+.theme-brand-phase1.template-contact .brand-contact-form-shell .alert {
+  border-radius: 0;
+}
+
+.theme-brand-phase1.template-contact .brand-contact-form-shell .form-label {
+  letter-spacing: 0.04em;
+  font-size: var(--font-smallest);
+  text-transform: uppercase;
+  font-weight: 500;
+  margin-bottom: 0.35rem;
 }
 
 /* Blog listado */

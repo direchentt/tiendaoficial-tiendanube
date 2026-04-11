@@ -9,12 +9,12 @@
 
 {% set has_contact_info = store.whatsapp or store.phone or store.email or store.address or store.blog or store.contact_intro %}
 {% set is_order_cancellation_without_id = params.order_cancellation_without_id == 'true' %}
-<section class="contact-page visible-when-content-ready mb-4">
+<section class="contact-page contact-page--brand visible-when-content-ready mb-5 pb-md-3">
 	<div class="container">
 		<div class="row">
 
 			{% if has_contact_info and not is_order_cancellation %}
-				<div class="col-md-4 mb-3">
+				<div class="col-md-4 mb-3 brand-contact-aside">
 					{% if store.contact_intro %}
 						<p class="mb-4">{{ store.contact_intro }}</p>
 					{% endif %}
@@ -22,7 +22,7 @@
 				</div>
 			{% endif %}
 			{% if is_order_cancellation %}
-				<div class="col-md-4 mb-3">
+				<div class="col-md-4 mb-3 brand-contact-aside">
 					<div class="text-center text-md-left mb-4">
 						<p data-component="order-cancellation-disclaimer">{{ "Si te arrepentiste, podés pedir la cancelación enviando este formulario. Tenés como máximo hasta 10 días corridos desde que recibiste el producto." | translate }} </p>
 						<a class="btn-link" href="{{ status_page_url_regret }}"><strong>{{'Ver detalle de la compra >' | translate}}</strong></a>
@@ -38,6 +38,7 @@
 				</div>	
 			{% endif %}
 			<div class="col-md-5">
+				<div class="brand-contact-form-shell">
 				{% if product %}  
 					<div class="row align-items-center mb-4">
 						<div class="col-auto">
@@ -110,6 +111,7 @@
 						{% endif %}
 					{% endblock %}
 				{% endembed %}
+				</div>
 			</div>
 		</div>
 	</div>

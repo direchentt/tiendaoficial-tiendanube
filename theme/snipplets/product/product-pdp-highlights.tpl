@@ -2,7 +2,7 @@
 {% set installments_info = product.installments_info_from_any_variant %}
 {% set show_payments_chip = settings.product_detail_installments and product.show_installments and product.display_price and installments_info %}
 
-<div class="pdp-highlights mb-3" role="list" aria-label="{{ 'Información clave del producto' | translate }}">
+<div class="pdp-highlights pdp-highlights--brand-panel mb-3" role="list" aria-label="{{ 'Información clave del producto' | translate }}">
 	{% if product.free_shipping %}
 		<span class="pdp-chip pdp-chip--accent" role="listitem">{{ "Envío gratis" | translate }}</span>
 	{% endif %}
