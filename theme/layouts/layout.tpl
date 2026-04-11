@@ -117,7 +117,7 @@
         {{ component('structured-data') }}
 
     </head>
-    <body class="{% if customer %}customer-logged-in{% endif %} template-{{ template | replace('.', '-') }}">
+    <body class="theme-brand-phase1 {% if customer %}customer-logged-in{% endif %} template-{{ template | replace('.', '-') }}">
 
         {# Theme icons #}
 

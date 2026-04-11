@@ -2051,6 +2051,99 @@ footer.section-footer-home {
 #catalog-product-list {
   scroll-margin-top: 1rem;
 }
+
+/*============================================================================
+  #Fase 1 — Header / navegación estilo marca minimal (fashion)
+  Quitá la clase theme-brand-phase1 del <body> en layout.tpl para desactivar.
+==============================================================================*/
+
+.theme-brand-phase1 .head-main .head-logo-row {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+  padding-top: 0.4rem;
+  padding-bottom: 0.4rem;
+}
+
+.theme-brand-phase1 .head-main.head-colors .head-logo-row {
+  border-bottom-color: rgba(255, 255, 255, 0.14);
+}
+
+.theme-brand-phase1 .head-nav {
+  padding-top: 0.2rem;
+  padding-bottom: 0.45rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+}
+
+.theme-brand-phase1 .head-main.head-colors .head-nav {
+  border-bottom-color: rgba(255, 255, 255, 0.14);
+}
+
+/* Desktop: ítems principales compactos, mayúsculas, tracking */
+.theme-brand-phase1 .nav-desktop .nav-desktop-list > .nav-item-desktop > .nav-item-container > .nav-list-link,
+.theme-brand-phase1 .nav-desktop .nav-desktop-list > .nav-item-desktop.item-with-subitems > .nav-item-container > .nav-list-link,
+.theme-brand-phase1 .nav-desktop .nav-desktop-list > .nav-item-desktop:not(.item-with-subitems) > .nav-list-link {
+  letter-spacing: 0.085em;
+  text-transform: uppercase;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  padding: 0.55rem 0.45rem;
+  font-family: var(--body-font);
+}
+
+.theme-brand-phase1 .nav-desktop-list > .nav-item-desktop {
+  padding-left: 0.4rem;
+  padding-right: 0.4rem;
+}
+
+/* Mega menú: panel más editorial */
+.theme-brand-phase1 .nav-desktop .desktop-dropdown-container {
+  padding-top: 1.25rem;
+  padding-bottom: 1.5rem;
+}
+
+.theme-brand-phase1 .nav-desktop .desktop-list-subitems .nav-list-link {
+  text-transform: none;
+  letter-spacing: normal;
+  font-size: var(--font-small);
+  font-weight: 400;
+  padding: 0.35rem 0;
+}
+
+/* Buscador en barra: línea inferior tipo editorial */
+.theme-brand-phase1 .head-main .search-form .form-control,
+.theme-brand-phase1 .head-main .search-form input[type="search"],
+.theme-brand-phase1 .head-main .search-form input[type="text"] {
+  border-radius: 0;
+  border: none;
+  border-bottom: 1px solid var(--header-foreground, var(--main-foreground));
+  background: transparent;
+  padding-left: 0.15rem;
+  padding-right: 0.15rem;
+}
+
+.theme-brand-phase1 .head-main.head-colors .search-form .form-control,
+.theme-brand-phase1 .head-main.head-colors .search-form input[type="search"],
+.theme-brand-phase1 .head-main.head-colors .search-form input[type="text"] {
+  border-bottom-color: var(--header-foreground);
+}
+
+.theme-brand-phase1 .head-main .col-utility {
+  padding-left: 0.4rem;
+  padding-right: 0.4rem;
+}
+
+/* Menú hamburguesa (móvil): primer nivel más compacto y label en mayúsculas */
+.theme-brand-phase1 .modal-nav-hamburger .nav-list > .nav-item > .nav-list-link {
+  font-size: var(--font-big);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding-top: 12px;
+  padding-bottom: 10px;
+}
+
+.theme-brand-phase1 .modal-nav-hamburger .list-subitems .nav-list-link {
+  text-transform: none;
+  letter-spacing: normal;
+}
 /*============================================================================
   #Critical path utilities
 ==============================================================================*/
