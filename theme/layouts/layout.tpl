@@ -117,7 +117,7 @@
         {{ component('structured-data') }}
 
     </head>
-    {# Marca visual: clase en snipplets/theme-brand-body-class.tpl + CSS partial _theme-brand-phase1.scss #}
+    {# Marca visual: snipplets/theme-brand-body-class.tpl + bloque en static/css/style-async.scss #}
     <body class="{% include 'snipplets/theme-brand-body-class.tpl' %} {% if customer %}customer-logged-in{% endif %} template-{{ template | replace('.', '-') }}">
 
         {# Theme icons #}
