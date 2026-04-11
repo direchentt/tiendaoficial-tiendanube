@@ -1,5 +1,5 @@
-# Monorepo: la app Next.js vive en store-admin/. Railway/Railpack desde la raiz no la encontraba.
-# Deja "Root Directory" VACIO en Railway (raiz del repo) para que use este Dockerfile.
+# Monorepo: Next.js en store-admin/. Root Directory vacio en Railway.
+# npm ci --ignore-scripts: evita postinstall "prisma generate" sin schema (orden de capas Docker).
 
 FROM node:20-bookworm-slim
 
@@ -8,9 +8,7 @@ WORKDIR /app
 RUN apt-get update -y && apt-get install -y openssl ca-certificates && rm -rf /var/lib/apt/lists/*
 
 COPY store-admin/package.json store-admin/package-lock.json ./
-# postinstall corre prisma generate: hace falta el schema antes de npm ci
-COPY store-admin/prisma ./prisma
-RUN npm ci
+RUN npm ci --ignore-scripts
 
 COPY store-admin/ .
 
