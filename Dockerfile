@@ -13,6 +13,8 @@ RUN npm ci --ignore-scripts
 COPY store-admin/ .
 
 ENV NEXT_TELEMETRY_DISABLED=1
+# Prisma valida env("DATABASE_URL") en generate; en build de imagen no hay Postgres aun (Railway la inyecta al correr).
+ENV DATABASE_URL="postgresql://build:build@127.0.0.1:5432/build?schema=public"
 
 RUN npx prisma generate && npm run build
 
