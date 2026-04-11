@@ -1,0 +1,18 @@
+# Desarrollo local: Postgres sin instalar nada mas
+# docker compose up -d
+# DATABASE_URL=postgresql://store:store@localhost:5433/storeadmin?schema=public
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: store
+      POSTGRES_PASSWORD: store
+      POSTGRES_DB: storeadmin
+    ports:
+      - "5433:5432"
+    volumes:
+      - store_admin_pg:/var/lib/postgresql/data
+
+volumes:
+  store_admin_pg:

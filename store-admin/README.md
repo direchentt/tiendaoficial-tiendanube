@@ -14,7 +14,7 @@ Panel y API para reglas que van mas alla del admin estandar de Tiendanube, apoya
 
 ## Cuotas / medios de pago
 
-- **Filtrar que opciones aparecen en checkout**: respuesta del callback con `command: "filter_payments_options"` (ver doc enlazada). Este repo implementa el endpoint y evalua reglas desde SQLite (Prisma).
+- **Filtrar que opciones aparecen en checkout**: respuesta del callback con `command: "filter_payments_options"` (ver doc enlazada). Este repo implementa el endpoint y evalua reglas desde **PostgreSQL** (Prisma).
 - **Texto de cuotas / ocultar cuotas en el selector** (gateways transparentes): [Checkout SDK](https://tiendanube.github.io/api-documentation/resources/checkout_sdk) — `changePaymentBenefit`, `hideInstallments`. Requiere **Script** en checkout (`write_scripts`) y un JS desplegado; no esta en este scaffold (se puede anadir otro archivo servido estaticamente).
 
 ## Precios dinamicos por %
@@ -32,13 +32,33 @@ Panel y API para reglas que van mas alla del admin estandar de Tiendanube, apoya
 2. Ingresa el valor de `ADMIN_SECRET` del `.env`
 3. Desde ahi: reglas de pago, listado de medios de pago, ajuste de precios, categorias bloqueadas
 
-## Comandos
+## Despliegue en Railway
+
+1. Subi el repo a GitHub (o conecta el repo que ya uses).
+2. En [Railway](https://railway.app): **New project** → **Deploy from GitHub** → elegi el repo.
+3. En el servicio generado abri **Settings** → **Root Directory** → `store-admin` → guardar.
+4. **Create** → **Database** → **Add PostgreSQL**.
+5. En la base Postgres: pestaña **Variables** → **Connect** (o **Raw** `DATABASE_URL`) y **referenciá** esa variable en el servicio web:
+   - En el servicio Next.js: **Variables** → **Add variable** → **Reference** → elegi Postgres → `DATABASE_URL`.
+6. En el mismo servicio web agrega variables **manuales**:
+   - `ADMIN_SECRET` — clave larga para el panel
+   - `TN_STORE_USER_ID`, `TN_ACCESS_TOKEN`, `TN_USER_AGENT`
+   - `NEXT_PUBLIC_APP_URL` — URL publica del servicio (ej. `https://store-admin-production-xxxx.up.railway.app`; copiala de **Settings → Networking → Generate domain**)
+7. **Deploy**: el build usa `npm run build`; el arranque ejecuta `prisma migrate deploy` y luego Next en el puerto que asigna Railway (`PORT`).
+
+Archivos relevantes: `railway.toml`, `package.json` (`start:railway`, `postinstall`).
+
+Callback Tiendanube (Business Rules): `https://TU_DOMINIO_RAILWAY/api/tn/payments-before-filter`
+
+## Comandos (local con Postgres)
 
 ```bash
 cd store-admin
+docker compose up -d
 cp .env.example .env
+# DATABASE_URL=postgresql://store:store@localhost:5433/storeadmin?schema=public
 npm install
-npx prisma db push
+npx prisma migrate deploy
 npm run dev
 ```
 
