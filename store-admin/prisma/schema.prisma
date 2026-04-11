@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+/// Tienda conectada (user_id = store_id de Tiendanube tras OAuth).
+model Store {
+  id              String         @id @default(cuid())
+  tiendanubeUserId String        @unique
+  accessToken     String
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  paymentRules    PaymentRule[]
+  pricePresets    PricePreset[]
+  lockedCategories LockedCategory[]
+}
+
+/// Reglas evaluadas en el callback payments/before-filter (Business Rules API).
+model PaymentRule {
+  id          String   @id @default(cuid())
+  storeId     String
+  store       Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  name        String
+  priority    Int      @default(0)
+  /// JSON: { minTotal?, maxTotal?, categoryIdsAny? }
+  conditions  String
+  /// JSON: [{ "providerId": "...", "optionId": "..." }, ...] a excluir si la condicion cumple
+  excludePairs String
+  enabled     Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([storeId])
+}
+
+/// Perfiles de ajuste de precio (subis/bajas % sobre lista actual de la tienda).
+model PricePreset {
+  id          String   @id @default(cuid())
+  storeId     String
+  store       Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  name        String
+  percent     Float
+  createdAt   DateTime @default(now())
+
+  @@index([storeId])
+}
+
+/// Categoria "bloqueada" en tu capa (no es campo nativo de Category en la API).
+model LockedCategory {
+  id          String   @id @default(cuid())
+  storeId     String
+  store       Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  categoryId  Int
+  passwordHash String
+  createdAt   DateTime @default(now())
+
+  @@unique([storeId, categoryId])
+}

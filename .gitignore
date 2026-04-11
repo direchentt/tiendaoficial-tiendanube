@@ -2,3 +2,9 @@ node_modules/
 .env
 .tiendanube/
 .DS_Store
+
+store-admin/node_modules/
+store-admin/.next/
+store-admin/.env
+store-admin/prisma/*.db
+store-admin/prisma/*.db-journal
