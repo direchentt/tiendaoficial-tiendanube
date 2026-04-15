@@ -4371,6 +4371,121 @@ footer.section-footer-home {
 }
 
 /*============================================================================
+  #Visitor product grid toolbar (density picker)
+==============================================================================*/
+
+.user-product-grid-toolbar {
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.96);
+}
+
+.user-product-grid-toolbar__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.6rem;
+}
+
+.user-product-grid-toolbar__title {
+  font-size: var(--font-small);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.user-product-grid-toolbar__reset {
+  gap: 0.35rem;
+  font-size: var(--font-smallest);
+  text-decoration: none;
+}
+
+.user-product-grid-toolbar__reset:hover {
+  text-decoration: underline;
+}
+
+.user-product-grid-toolbar__reset-icon {
+  flex-shrink: 0;
+  opacity: 0.85;
+}
+
+.user-product-grid-toolbar__row {
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.85rem;
+}
+
+.user-product-grid-toolbar__hint {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.55;
+  flex: 0 0 auto;
+}
+
+.user-product-grid-toolbar__chips {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.user-grid-density-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--main-foreground);
+  cursor: pointer;
+  line-height: 0;
+  transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+}
+
+.user-grid-density-btn:hover {
+  border-color: rgba(0, 0, 0, 0.28);
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.user-grid-density-btn:focus-visible {
+  outline: 2px solid var(--accent-color, #000);
+  outline-offset: 2px;
+}
+
+.user-grid-density-icon {
+  display: block;
+  pointer-events: none;
+}
+
+@media (min-width: 768px) {
+  .user-grid-density-btn {
+    min-width: 40px;
+    min-height: 40px;
+  }
+
+  .user-product-grid-toolbar__row--desktop {
+    margin-top: 0.35rem;
+  }
+}
+
+.theme-brand-phase1 .user-product-grid-toolbar {
+  border-color: var(--brand-border-subtle, rgba(0, 0, 0, 0.08));
+  box-shadow: var(--brand-elev-1, none);
+}
+
+.theme-brand-phase1 .user-grid-density-btn.active {
+  box-shadow: var(--brand-elev-1, none);
+}
+
+/*============================================================================
   #Critical path utilities
 ==============================================================================*/
 
