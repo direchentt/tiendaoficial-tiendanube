@@ -18,6 +18,16 @@
                 </div>
             {% endif %}
             {% include 'snipplets/product/product-pdp-highlights.tpl' %}
+
+            {% if template == 'product' %}
+                {% set pdp_show_fulfillment = settings.shipping_calculator_product_page and (store.has_shipping or store.branches) and not product.free_shipping and not product.is_non_shippable %}
+                <nav class="pdp-subnav" aria-label="{{ 'Secciones de la ficha' | translate }}">
+                    <a href="#pdp-visual-tabs" class="pdp-subnav__link">{{ "Detalles" | translate }}</a>
+                    {% if pdp_show_fulfillment %}
+                        <a href="#pdp-zone-shipping" class="pdp-subnav__link">{{ "Envío" | translate }}</a>
+                    {% endif %}
+                </nav>
+            {% endif %}
         </section>
     {% endif %}
 
@@ -284,7 +294,7 @@
             {% set show_product_fulfillment = settings.shipping_calculator_product_page and (store.has_shipping or store.branches) and not product.free_shipping and not product.is_non_shippable %}
 
             {% if show_product_fulfillment %}
-                <div class="pdp-shipping-card mb-4 pb-2" role="region" aria-label="{{ 'Envío' | translate }}">
+                <div id="pdp-zone-shipping" class="pdp-shipping-card mb-4 pb-2" role="region" aria-label="{{ 'Envío' | translate }}">
                     <p class="pdp-shipping-card__label mb-3">{{ "Envíos y locales" | translate }}</p>
                     {# Shipping calculator and branch link #}
 

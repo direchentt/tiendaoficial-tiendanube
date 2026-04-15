@@ -626,6 +626,36 @@ pt "Ver tudo desta categoria"
 en "See all this category"
 es_mx "Ver toda esta categoría"
 
+es "Como ver los productos"
+pt "Como ver os produtos"
+en "How products are shown"
+es_mx "Como ver los productos"
+
+es "En el celular"
+pt "No celular"
+en "On mobile"
+es_mx "En el celular"
+
+es "En pantalla grande"
+pt "Na tela grande"
+en "On large screens"
+es_mx "En pantalla grande"
+
+es "Restablecer vista"
+pt "Redefinir layout"
+en "Reset layout"
+es_mx "Restablecer vista"
+
+es "columna"
+pt "coluna"
+en "column"
+es_mx "columna"
+
+es "columnas"
+pt "colunas"
+en "columns"
+es_mx "columnas"
+
 es "Todos los productos"
 pt "Todos os produtos"
 en "All products"

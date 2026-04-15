@@ -918,8 +918,8 @@ DOMContentLoaded.addEventOrExecute(() => {
 
     {% set columns_desktop = settings.grid_columns_desktop %}
     {% set columns_mobile = settings.grid_columns_mobile %}
-    var slidesPerViewDesktopVal = {% if columns_desktop == 4 %}4{% elseif columns_desktop == 3 %}3{% else %}2{% endif %};
-    var slidesPerViewMobileVal = {% if columns_mobile == 1 %}1{% else %}2{% endif %};
+    var slidesPerViewDesktopVal = {% if columns_desktop == 5 %}5{% elseif columns_desktop == 4 %}4{% elseif columns_desktop == 3 %}3{% else %}2{% endif %};
+    var slidesPerViewMobileVal = {% if columns_mobile == 1 %}1{% elseif columns_mobile == 2 %}2{% elseif columns_mobile == 3 %}3{% else %}2{% endif %};
     var itemSwiperSpaceBetween = 15;
 
     {# Hide arrow controls when swiper is not swipable #}
@@ -1084,8 +1084,8 @@ DOMContentLoaded.addEventOrExecute(() => {
                 {% set featured_only_desktop_slider = settings.featured_products_format_desktop == 'slider' and settings.featured_products_format_mobile != 'slider' %}
                 {% set featured_columns_desktop = settings.featured_products_desktop %}
                 {% set featured_columns_mobile = settings.featured_products_mobile %}
-                var slidesPerViewFeaturedDesktopVal = {% if featured_columns_desktop == 2 %}2{% elseif featured_columns_desktop == 3 %}3{% else %}4{% endif %};
-                var slidesPerViewFeaturedMobileVal = {% if featured_columns_mobile == 1 %}1{% else %}2{% endif %};
+                var slidesPerViewFeaturedDesktopVal = {% if featured_columns_desktop == 2 %}2{% elseif featured_columns_desktop == 3 %}3{% elseif featured_columns_desktop == 4 %}4{% elseif featured_columns_desktop == 5 %}5{% else %}4{% endif %};
+                var slidesPerViewFeaturedMobileVal = {% if featured_columns_mobile == 1 %}1{% elseif featured_columns_mobile == 2 %}2{% elseif featured_columns_mobile == 3 %}3{% else %}2{% endif %};
 
                 {% if featured_only_mobile_slider %}
                     if (window.innerWidth < 768) {
@@ -1139,8 +1139,8 @@ DOMContentLoaded.addEventOrExecute(() => {
                 {% set new_only_desktop_slider = settings.new_products_format_desktop == 'slider' and settings.new_products_format_mobile != 'slider' %}
                 {% set new_columns_desktop = settings.new_products_desktop %}
                 {% set new_columns_mobile = settings.new_products_mobile %}
-                var slidesPerViewNewDesktopVal = {% if new_columns_desktop == 2 %}2{% elseif new_columns_desktop == 3 %}3{% else %}4{% endif %};
-                var slidesPerViewNewMobileVal = {% if new_columns_mobile == 1 %}1{% else %}2{% endif %};
+                var slidesPerViewNewDesktopVal = {% if new_columns_desktop == 2 %}2{% elseif new_columns_desktop == 3 %}3{% elseif new_columns_desktop == 4 %}4{% elseif new_columns_desktop == 5 %}5{% else %}4{% endif %};
+                var slidesPerViewNewMobileVal = {% if new_columns_mobile == 1 %}1{% elseif new_columns_mobile == 2 %}2{% elseif new_columns_mobile == 3 %}3{% else %}2{% endif %};
 
                 {% if new_only_mobile_slider %}
                     if (window.innerWidth < 768) {
@@ -1194,8 +1194,8 @@ DOMContentLoaded.addEventOrExecute(() => {
                 {% set sale_only_desktop_slider = settings.sale_products_format_desktop == 'slider' and settings.sale_products_format_mobile != 'slider' %}
                 {% set sale_columns_desktop = settings.sale_products_desktop %}
                 {% set sale_columns_mobile = settings.sale_products_mobile %}
-                var slidesPerViewSaleDesktopVal = {% if sale_columns_desktop == 2 %}2{% elseif sale_columns_desktop == 3 %}3{% else %}4{% endif %};
-                var slidesPerViewSaleMobileVal = {% if sale_columns_mobile == 1 %}1{% else %}2{% endif %};
+                var slidesPerViewSaleDesktopVal = {% if sale_columns_desktop == 2 %}2{% elseif sale_columns_desktop == 3 %}3{% elseif sale_columns_desktop == 4 %}4{% elseif sale_columns_desktop == 5 %}5{% else %}4{% endif %};
+                var slidesPerViewSaleMobileVal = {% if sale_columns_mobile == 1 %}1{% elseif sale_columns_mobile == 2 %}2{% elseif sale_columns_mobile == 3 %}3{% else %}2{% endif %};
 
                 {% if sale_only_mobile_slider %}
                     if (window.innerWidth < 768) {
@@ -2016,6 +2016,109 @@ DOMContentLoaded.addEventOrExecute(() => {
 
 	{% endif %}
 
+    {% if template == 'category' or template == 'search' or template == 'home' %}
+        (function initUserProductGridPicker() {
+            var STORAGE_PREFIX = 'tnUserGrid_';
+
+            function storageKey(ctx, axis) {
+                return STORAGE_PREFIX + ctx + '_' + axis;
+            }
+
+            function syncToolbar(wrap) {
+                var um = wrap.getAttribute('data-user-mobile') || '';
+                var ud = wrap.getAttribute('data-user-desktop') || '';
+                wrap.querySelectorAll('[data-user-grid-set-mobile]').forEach(function (btn) {
+                    var v = btn.getAttribute('data-user-grid-set-mobile');
+                    var on = um !== '' && v === um;
+                    btn.classList.toggle('active', on);
+                    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+                });
+                wrap.querySelectorAll('[data-user-grid-set-desktop]').forEach(function (btn) {
+                    var v = btn.getAttribute('data-user-grid-set-desktop');
+                    var on = ud !== '' && v === ud;
+                    btn.classList.toggle('active', on);
+                    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+                });
+                var resetBtn = wrap.querySelector('[data-user-grid-reset]');
+                if (resetBtn) {
+                    resetBtn.disabled = !(um || ud);
+                }
+            }
+
+            function applyFromStorage(wrap) {
+                var ctx = wrap.getAttribute('data-grid-context');
+                if (!ctx) {
+                    return;
+                }
+                try {
+                    var m = localStorage.getItem(storageKey(ctx, 'm'));
+                    var d = localStorage.getItem(storageKey(ctx, 'd'));
+                    if (m === '1' || m === '2' || m === '3') {
+                        wrap.setAttribute('data-user-mobile', m);
+                    }
+                    if (d === '2' || d === '3' || d === '4' || d === '5') {
+                        wrap.setAttribute('data-user-desktop', d);
+                    }
+                } catch (e) {
+                    /* ignore */
+                }
+                syncToolbar(wrap);
+            }
+
+            function clearOverride(wrap) {
+                var ctx = wrap.getAttribute('data-grid-context');
+                wrap.removeAttribute('data-user-mobile');
+                wrap.removeAttribute('data-user-desktop');
+                try {
+                    if (ctx) {
+                        localStorage.removeItem(storageKey(ctx, 'm'));
+                        localStorage.removeItem(storageKey(ctx, 'd'));
+                    }
+                } catch (e2) {
+                    /* ignore */
+                }
+                syncToolbar(wrap);
+            }
+
+            document.querySelectorAll('.js-user-product-grid').forEach(function (wrap) {
+                applyFromStorage(wrap);
+                wrap.addEventListener('click', function (e) {
+                    var t = e.target;
+                    if (!t || !t.closest) {
+                        return;
+                    }
+                    var mb = t.closest('[data-user-grid-set-mobile]');
+                    if (mb) {
+                        var vm = mb.getAttribute('data-user-grid-set-mobile');
+                        wrap.setAttribute('data-user-mobile', vm);
+                        try {
+                            localStorage.setItem(storageKey(wrap.getAttribute('data-grid-context'), 'm'), vm);
+                        } catch (e3) {
+                            /* ignore */
+                        }
+                        syncToolbar(wrap);
+                        return;
+                    }
+                    var db = t.closest('[data-user-grid-set-desktop]');
+                    if (db) {
+                        var vd = db.getAttribute('data-user-grid-set-desktop');
+                        wrap.setAttribute('data-user-desktop', vd);
+                        try {
+                            localStorage.setItem(storageKey(wrap.getAttribute('data-grid-context'), 'd'), vd);
+                        } catch (e4) {
+                            /* ignore */
+                        }
+                        syncToolbar(wrap);
+                        return;
+                    }
+                    if (t.closest('[data-user-grid-reset]')) {
+                        clearOverride(wrap);
+                    }
+                });
+            });
+        })();
+    {% endif %}
+
     {% set has_item_slider = settings.product_item_slider %}
 
     {% if template == 'category' or template == 'search' %}
@@ -2753,6 +2856,11 @@ DOMContentLoaded.addEventOrExecute(() => {
                                 }
                             {% endif %}
                         },
+                        slideChange: function () {
+                            {% if native_videos_enabled %}
+                                pauseAllVideos();
+                            {% endif %}
+                        },
                         {% if product.video_url and template == 'product' %}
                             slideChangeTransitionEnd: function () {
                                 const $parent = jQueryNuvem(this.el).closest(".js-product-detail");
@@ -2764,11 +2872,6 @@ DOMContentLoaded.addEventOrExecute(() => {
                                 }
                                 jQueryNuvem('.js-video').show();
                                 jQueryNuvem('.js-video-iframe').hide().find("iframe").remove();
-                            },
-                        {% endif %}
-                        {% if native_videos_enabled %}
-                            slideChange : function () {
-                                pauseAllVideos();
                             },
                         {% endif %}
                     },

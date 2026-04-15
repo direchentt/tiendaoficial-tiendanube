@@ -46,8 +46,8 @@
 {# Subscription only detection #}
 {% set is_subscription_only = product.isSubscriptionOnly() %}
 
-{% set columns_mobile_class = columns_mobile == 1 ? 'col-12' : columns_mobile == 2 ? 'col-6' : loop.index % 5 == 1 ? 'col-12' : 'col-6' %}
-{% set columns_desktop_class = columns_desktop == 2 ? 'col-md-6' : columns_desktop == 3 ? 'col-md-4' : 'col-md-3' %}
+{% set columns_mobile_class = columns_mobile == 1 ? 'col-12' : columns_mobile == 2 ? 'col-6' : columns_mobile == 3 ? 'col-4' : loop.index % 5 == 1 ? 'col-12' : 'col-6' %}
+{% set columns_desktop_class = columns_desktop == 2 ? 'col-md-6' : columns_desktop == 3 ? 'col-md-4' : columns_desktop == 4 ? 'col-md-3' : columns_desktop == 5 ? 'col-grid-md-5' : 'col-md-3' %}
 
     <div class="js-item-product{% if slide_item %} js-item-slide swiper-slide{% endif %} {{ columns_mobile_class }} {{ columns_desktop_class }} item-product {% if reduced_item %}item-product-reduced{% endif %} col-grid" data-product-type="list" data-product-id="{{ product.id }}" data-store="product-item-{{ product.id }}" data-component="product-list-item" data-component-value="{{ product.id }}">
         <div class="item {% if reduced_item %}mb-0{% endif %}">
@@ -60,11 +60,15 @@
 
             {% if columns_mobile == 2 %}
                 {% set mobile_image_viewport_space = '50' %}
+            {% elseif columns_mobile == 3 %}
+                {% set mobile_image_viewport_space = '33' %}
             {% else %}
                 {% set mobile_image_viewport_space = '100' %}
             {% endif %}
 
-            {% if columns_desktop == 4 %}
+            {% if columns_desktop == 5 %}
+                {% set desktop_image_viewport_space = '20' %}
+            {% elseif columns_desktop == 4 %}
                 {% set desktop_image_viewport_space = '25' %}
             {% elseif columns_desktop == 3 %}
                 {% set desktop_image_viewport_space = '33' %}

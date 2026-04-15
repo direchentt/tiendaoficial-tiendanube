@@ -7,6 +7,7 @@
 {% set product_grid_detail_md_class = product_grid_detail ? 'd-md-none' %}
 
 <div class="pdp-gallery-root" data-store="product-image-{{ product.id }}">
+	<div class="pdp-gallery-visual">
 	{% if product.media_count > 0 %}
 		{% if has_multiple_slides %}
 			<div class="swiper-buttons p-0 mr-2 {{ product_grid_detail_md_class }}">
@@ -69,4 +70,20 @@
 			</div>
 		</div>
 	{% endif %}
+
+	{% if template == 'product' and not home_main_product and product.media_count > 1 %}
+		<div class="pdp-thumbs" role="group" aria-label="{{ 'Galería de imágenes' | translate }}">
+			{% for media in product.media %}
+				{% if media.isImage %}
+				<button type="button" class="pdp-thumb js-pdp-thumb-btn" data-slide-index="{{ loop.index0 }}" aria-pressed="false" aria-label="{{ 'Ver imagen' | translate }} {{ loop.index }}">
+					<span class="pdp-thumb__crop">
+						<img src="{{ media | product_image_url('thumb') }}" alt="" loading="{% if loop.first %}eager{% else %}lazy{% endif %}" width="80" height="80" decoding="async" class="pdp-thumb__img" />
+					</span>
+				</button>
+				{% endif %}
+			{% endfor %}
+		</div>
+	{% endif %}
+
+	</div>
 </div>

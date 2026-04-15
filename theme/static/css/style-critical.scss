@@ -168,6 +168,60 @@ body{
   padding-left: var(--gutter-half);
 }
 
+/* 5 product columns on desktop (no native Bootstrap width for 5) */
+@media (min-width: 768px) {
+  .col-grid-md-5 {
+    flex: 0 0 20%;
+    max-width: 20%;
+  }
+}
+
+/* Visitor grid density: category, search, home (data-user-* from localStorage) */
+@media (max-width: 767.98px) {
+  .js-user-product-grid[data-user-mobile="1"] .row.row-grid > .js-item-product.item-product {
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+  }
+
+  .js-user-product-grid[data-user-mobile="2"] .row.row-grid > .js-item-product.item-product {
+    flex: 0 0 50% !important;
+    max-width: 50% !important;
+  }
+
+  .js-user-product-grid[data-user-mobile="3"] .row.row-grid > .js-item-product.item-product {
+    flex: 0 0 33.333333% !important;
+    max-width: 33.333333% !important;
+  }
+}
+
+@media (min-width: 768px) {
+  .js-user-product-grid[data-user-desktop="2"] .row.row-grid > .js-item-product.item-product {
+    flex: 0 0 50% !important;
+    max-width: 50% !important;
+  }
+
+  .js-user-product-grid[data-user-desktop="3"] .row.row-grid > .js-item-product.item-product {
+    flex: 0 0 33.333333% !important;
+    max-width: 33.333333% !important;
+  }
+
+  .js-user-product-grid[data-user-desktop="4"] .row.row-grid > .js-item-product.item-product {
+    flex: 0 0 25% !important;
+    max-width: 25% !important;
+  }
+
+  .js-user-product-grid[data-user-desktop="5"] .row.row-grid > .js-item-product.item-product {
+    flex: 0 0 20% !important;
+    max-width: 20% !important;
+  }
+}
+
+.user-product-grid-toolbar .btn-group-sm .btn.active {
+  color: #fff;
+  background-color: var(--accent-color, #000);
+  border-color: var(--accent-color, #000);
+}
+
 .col-btn {
   max-width: 33.333%;
 }

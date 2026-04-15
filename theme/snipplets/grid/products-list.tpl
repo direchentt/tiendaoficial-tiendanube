@@ -5,8 +5,12 @@
 <div id="catalog-product-list" class="col" role="region" aria-label="{{ 'Listado de productos' | translate }}" data-store="{{ list_data_store }}">
 {% endif %}
   {% if products %}
-    <div class="js-product-table row row-grid">
-      {% include 'snipplets/product_grid.tpl' %}
+    {% set grid_list_context = template == 'search' ? 'search' : 'category' %}
+    <div class="js-user-product-grid" data-grid-context="{{ grid_list_context }}" data-admin-mobile="{{ settings.grid_columns_mobile }}" data-admin-desktop="{{ settings.grid_columns_desktop }}">
+      {% include 'snipplets/grid/user-product-grid-toolbar.tpl' %}
+      <div class="js-product-table row row-grid">
+        {% include 'snipplets/product_grid.tpl' %}
+      </div>
     </div>
     {% set pagination_type_val = (settings.pagination == 'infinite') %}
     {% include "snipplets/grid/pagination.tpl" with { infinite_scroll: pagination_type_val } %}

@@ -90,7 +90,9 @@
                 <div class="js-swiper-{{ section_slider_id }} swiper-container">
                     <div class="swiper-wrapper {{ section_slider_classes }} row row-grid">
             {% else %}
-                <div class="row row-grid">
+                <div class="js-user-product-grid" data-grid-context="home-{{ section_slider_id }}" data-admin-mobile="{{ section_columns_mobile }}" data-admin-desktop="{{ section_columns_desktop }}">
+                    {% include 'snipplets/grid/user-product-grid-toolbar.tpl' %}
+                    <div class="row row-grid">
             {% endif %}
 
             {% for product in sections_products %}
@@ -105,6 +107,7 @@
                     </div>
                 </div>
             {% else %}
+                    </div>
                 </div>
             {% endif %}
         </div>

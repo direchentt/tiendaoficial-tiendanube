@@ -718,6 +718,7 @@ Página de inicio
 		values
 			1 = 1 producto
 			2 = 2 productos
+			3 = 3 productos
 	dropdown
 		name = featured_products_title_size_mobile
 		description = Tamaño del título de la sección en celulares:
@@ -739,6 +740,7 @@ Página de inicio
 			2 = 2 productos
 			3 = 3 productos
 			4 = 4 productos
+			5 = 5 productos
 	dropdown
 		name = featured_products_title_size_desktop
 		description = Tamaño del título de la sección en computadoras:
@@ -776,6 +778,7 @@ Página de inicio
 		values
 			1 = 1 producto
 			2 = 2 productos
+			3 = 3 productos
 	dropdown
 		name = new_products_title_size_mobile
 		description = Tamaño del título de la sección en celulares:
@@ -797,6 +800,7 @@ Página de inicio
 			2 = 2 productos
 			3 = 3 productos
 			4 = 4 productos
+			5 = 5 productos
 	dropdown
 		name = new_products_title_size_desktop
 		description = Tamaño del título de la sección en computadoras:
@@ -834,6 +838,7 @@ Página de inicio
 		values
 			1 = 1 producto
 			2 = 2 productos
+			3 = 3 productos
 	dropdown
 		name = sale_products_title_size_mobile
 		description = Tamaño del título de la sección en celulares:
@@ -855,6 +860,7 @@ Página de inicio
 			2 = 2 productos
 			3 = 3 productos
 			4 = 4 productos
+			5 = 5 productos
 	dropdown
 		name = sale_products_title_size_desktop
 		description = Tamaño del título de la sección en computadoras:
@@ -1451,6 +1457,7 @@ Listado de productos
 		values
 			1 = 1 producto
 			2 = 2 productos
+			3 = 3 productos
 			mixed = 1 y 2 productos (intercalados)
 	dropdown
 		name = grid_columns_desktop
@@ -1459,6 +1466,7 @@ Listado de productos
 			2 = 2 productos
 			3 = 3 productos
 			4 = 4 productos
+			5 = 5 productos
 	dropdown
 		name = pagination
 		description = Mostrar los productos usando:
