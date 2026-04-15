@@ -2024,6 +2024,21 @@ DOMContentLoaded.addEventOrExecute(() => {
                 return STORAGE_PREFIX + ctx + '_' + axis;
             }
 
+            function notifyLayoutAfterGridDensityChange() {
+                requestAnimationFrame(function () {
+                    window.dispatchEvent(new Event('resize'));
+                    var ls = window.lazySizes;
+                    if (ls) {
+                        if (ls.autoSizer && typeof ls.autoSizer.checkElems === 'function') {
+                            ls.autoSizer.checkElems();
+                        }
+                        if (ls.loader && typeof ls.loader.checkElems === 'function') {
+                            ls.loader.checkElems();
+                        }
+                    }
+                });
+            }
+
             function syncToolbar(wrap) {
                 var um = wrap.getAttribute('data-user-mobile') || '';
                 var ud = wrap.getAttribute('data-user-desktop') || '';
@@ -2078,9 +2093,11 @@ DOMContentLoaded.addEventOrExecute(() => {
                     /* ignore */
                 }
                 syncToolbar(wrap);
+                notifyLayoutAfterGridDensityChange();
             }
 
-            document.querySelectorAll('.js-user-product-grid').forEach(function (wrap) {
+            var userGridWraps = document.querySelectorAll('.js-user-product-grid');
+            userGridWraps.forEach(function (wrap) {
                 applyFromStorage(wrap);
                 wrap.addEventListener('click', function (e) {
                     var t = e.target;
@@ -2097,6 +2114,7 @@ DOMContentLoaded.addEventOrExecute(() => {
                             /* ignore */
                         }
                         syncToolbar(wrap);
+                        notifyLayoutAfterGridDensityChange();
                         return;
                     }
                     var db = t.closest('[data-user-grid-set-desktop]');
@@ -2109,6 +2127,7 @@ DOMContentLoaded.addEventOrExecute(() => {
                             /* ignore */
                         }
                         syncToolbar(wrap);
+                        notifyLayoutAfterGridDensityChange();
                         return;
                     }
                     if (t.closest('[data-user-grid-reset]')) {
@@ -2116,6 +2135,9 @@ DOMContentLoaded.addEventOrExecute(() => {
                     }
                 });
             });
+            if (userGridWraps.length) {
+                notifyLayoutAfterGridDensityChange();
+            }
         })();
     {% endif %}
 
@@ -2800,12 +2822,12 @@ DOMContentLoaded.addEventOrExecute(() => {
                     Thumbs: { autoStart: false },
                     on: {
                         shouldClose: (fancybox, slide) => {
-                            {% if settings.product_image_format != 'slider' %}
+                            {% if settings.product_image_format != 'slider' and template != 'product' %}
                                 if (window.innerWidth < 768) {
                             {% endif %}
                                 {# Update position of the slider #}
                                 productSwiper.slideTo( fancybox.getSlide().index, 0 );
-                            {% if settings.product_image_format != 'slider' %}
+                            {% if settings.product_image_format != 'slider' and template != 'product' %}
                                 }
                             {% endif %}
                         },
@@ -2842,7 +2864,8 @@ DOMContentLoaded.addEventOrExecute(() => {
                     },
                     breakpoints: {
                         768: {
-                            slidesPerView: 'auto',
+                            slidesPerView: {% if template == 'product' %}1{% else %}'auto'{% endif %},
+                            spaceBetween: {% if template == 'product' %}0{% else %}25{% endif %},
                         }
                     },
                     on: {

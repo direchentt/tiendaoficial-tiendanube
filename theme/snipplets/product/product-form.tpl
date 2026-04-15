@@ -9,6 +9,9 @@
         {% endif %}
     {% else %}
         <section class="pdp-section pdp-section--intro" aria-label="{{ 'Información del producto' | translate }}">
+            {% if template == 'product' and breadcrumbs %}
+                {% include 'snipplets/breadcrumbs.tpl' with { breadcrumbs_custom_class: 'pdp-breadcrumbs mb-2 mb-md-3' } %}
+            {% endif %}
             {% embed "snipplets/page-header.tpl" with {container: false, padding: false, page_header_class: 'pdp-page-header', page_header_title_class: 'js-product-name pdp-product-title mt-0 mb-2'} %}
                 {% block page_header_text %}{{ product.name }}{% endblock page_header_text %}
             {% endembed %}

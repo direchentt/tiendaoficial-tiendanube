@@ -181,16 +181,19 @@ body{
   .js-user-product-grid[data-user-mobile="1"] .row.row-grid > .js-item-product.item-product {
     flex: 0 0 100% !important;
     max-width: 100% !important;
+    min-width: 0 !important;
   }
 
   .js-user-product-grid[data-user-mobile="2"] .row.row-grid > .js-item-product.item-product {
     flex: 0 0 50% !important;
     max-width: 50% !important;
+    min-width: 0 !important;
   }
 
   .js-user-product-grid[data-user-mobile="3"] .row.row-grid > .js-item-product.item-product {
     flex: 0 0 33.333333% !important;
     max-width: 33.333333% !important;
+    min-width: 0 !important;
   }
 }
 
@@ -198,21 +201,25 @@ body{
   .js-user-product-grid[data-user-desktop="2"] .row.row-grid > .js-item-product.item-product {
     flex: 0 0 50% !important;
     max-width: 50% !important;
+    min-width: 0 !important;
   }
 
   .js-user-product-grid[data-user-desktop="3"] .row.row-grid > .js-item-product.item-product {
     flex: 0 0 33.333333% !important;
     max-width: 33.333333% !important;
+    min-width: 0 !important;
   }
 
   .js-user-product-grid[data-user-desktop="4"] .row.row-grid > .js-item-product.item-product {
     flex: 0 0 25% !important;
     max-width: 25% !important;
+    min-width: 0 !important;
   }
 
   .js-user-product-grid[data-user-desktop="5"] .row.row-grid > .js-item-product.item-product {
     flex: 0 0 20% !important;
     max-width: 20% !important;
+    min-width: 0 !important;
   }
 }
 

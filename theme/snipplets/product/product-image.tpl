@@ -3,11 +3,14 @@
 {% else %}
 	{% set has_multiple_slides = product.media_count > 1 or product.video_url %}
 {% endif %}
-{% set product_grid_detail = not home_main_product and settings.product_image_format == 'grid' %}
+{# En ficha producto (no home) siempre vitrina 1 imagen + thumbs, aunque el admin tenga "grid" (evita 2 columnas tipo TN y se alinea a referencias tipo EME). #}
+{% set product_grid_detail = not home_main_product and settings.product_image_format == 'grid' and template != 'product' %}
 {% set product_grid_detail_md_class = product_grid_detail ? 'd-md-none' %}
+{% set product_pdp_one_up = template == 'product' and not home_main_product %}
 
 <div class="pdp-gallery-root" data-store="product-image-{{ product.id }}">
-	<div class="pdp-gallery-visual">
+	<div class="pdp-gallery-visual{% if product_grid_detail %} pdp-gallery-visual--grid-md{% endif %}{% if product_pdp_one_up %} pdp-gallery-visual--pdp-one-up{% endif %}">
+		<div class="pdp-gallery-main-col">
 	{% if product.media_count > 0 %}
 		{% if has_multiple_slides %}
 			<div class="swiper-buttons p-0 mr-2 {{ product_grid_detail_md_class }}">
@@ -25,7 +28,7 @@
 			<div class="swiper-wrapper">
 				{% for media in product.media %}
 					{% if media.isImage %}
-					 <div class="js-product-slide swiper-slide{% if settings.product_image_format == 'slider' or home_main_product %} product-slide{% if home_main_product %}-small{% endif %}{% endif %} slider-slide{% if product_grid_detail %} col-md-6 px-0 px-md-2 mr-md-0 mb-md-3{% endif %}" data-image="{{media.id}}" data-image-position="{{loop.index0}}">
+					 <div class="js-product-slide swiper-slide{% if settings.product_image_format == 'slider' or home_main_product or product_pdp_one_up %} product-slide{% if home_main_product %}-small{% endif %}{% endif %} slider-slide{% if product_grid_detail %} col-md-6 px-0 px-md-2 mr-md-0 mb-md-3{% endif %}" data-image="{{media.id}}" data-image-position="{{loop.index0}}">
 						{% if home_main_product %}
 							<div class="js-product-slide-link d-block position-relative" style="padding-bottom: {{ media.dimensions['height'] / media.dimensions['width'] * 100}}%;">
 						{% else %}
@@ -70,6 +73,7 @@
 			</div>
 		</div>
 	{% endif %}
+		</div>
 
 	{% if template == 'product' and not home_main_product and product.media_count > 1 %}
 		<div class="pdp-thumbs" role="group" aria-label="{{ 'Galería de imágenes' | translate }}">
