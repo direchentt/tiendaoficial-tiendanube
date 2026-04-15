@@ -4032,6 +4032,15 @@ footer.section-footer-home {
     box-shadow: var(--brand-elev-2);
   }
 
+  /* Listados: hover mas contenido (menos “tarjeta flotante”) */
+  .theme-brand-phase1.template-category .item-product:hover .item,
+  .theme-brand-phase1.template-category .item-product:focus-within .item,
+  .theme-brand-phase1.template-search .item-product:hover .item,
+  .theme-brand-phase1.template-search .item-product:focus-within .item {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.07);
+  }
+
   .theme-brand-phase1 .item-product .item-image img {
     transition: transform var(--brand-motion-slow) var(--brand-ease-editorial);
   }
@@ -4063,10 +4072,26 @@ footer.section-footer-home {
   }
 }
 
-/* Skill TN UI/UX: marco suave en grilla (sin overflow: clip de labels) */
-.theme-brand-phase1 .item-product .js-item-image-padding {
-  border-radius: var(--brand-ui-r-sm);
-  box-shadow: inset 0 0 0 1px var(--brand-border-subtle);
+/* Grilla productos: look editorial (sin radius tipo lookbook / streetwear) */
+.theme-brand-phase1 .item-product:not(.item-product-reduced) .js-item-image-padding {
+  border-radius: 0;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+}
+
+/* Imagen al borde del ratio: deja de centrar con ancho auto (huecos laterales) */
+.theme-brand-phase1 .item-product .item-image:not(.item-image-slider) {
+  max-height: none;
+}
+
+.theme-brand-phase1 .item-product .item-image:not(.item-image-slider) .js-item-image.img-absolute.img-absolute-centered {
+  left: 0;
+  right: 0;
+  transform: none;
+  width: 100%;
+  height: 100%;
+  max-height: none;
+  object-fit: cover;
+  object-position: center top;
 }
 
 /*============================================================================
@@ -4378,7 +4403,7 @@ footer.section-footer-home {
   margin-bottom: 1rem;
   padding: 0.75rem 1rem;
   border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 10px;
+  border-radius: 2px;
   background: rgba(255, 255, 255, 0.96);
 }
 
@@ -4442,7 +4467,7 @@ footer.section-footer-home {
   min-height: 44px;
   padding: 0;
   border: 1px solid rgba(0, 0, 0, 0.14);
-  border-radius: 8px;
+  border-radius: 2px;
   background: transparent;
   color: var(--main-foreground);
   cursor: pointer;
