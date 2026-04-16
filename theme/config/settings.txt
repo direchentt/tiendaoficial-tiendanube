@@ -1713,6 +1713,17 @@ Listado de productos
 	checkbox
 		name = quick_shop
 		description = Permitir que tus clientes puedan agregar productos a su carrito rápidamente desde el listado de productos
+	dropdown
+		name = product_list_buy_cta
+		description = Cómo mostrar la compra rápida en cada producto del listado (no aplica si Compra rápida está desactivada)
+		values
+			text = Texto debajo del precio (ej. “Comprar”)
+			plus = Botón + sobre la imagen (misma acción; oculta el texto)
+	i18n_input
+		name = product_list_buy_label
+		description = Texto del botón en la grilla cuando el producto se puede comprar (solo modo “Texto debajo del precio”; si queda vacío se usa “Comprar”)
+	subtitle
+		subtitle = <span class='js-description-html legend d-block p-top-half'>Con “Botón +” la segunda foto en la grilla solo se muestra al pasar el mouse si tenés activada la opción “Segunda foto al posar el mouse”.</span>
 	title
 		title = Variantes de color
 	checkbox

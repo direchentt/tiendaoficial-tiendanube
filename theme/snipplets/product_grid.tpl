@@ -2,9 +2,11 @@
 	<div class="last-page" style="display:none;"></div>
 {% endif %}
 {% if products and (template == 'category' or template == 'search') %}
-	{% set products = products | shuffle %}
+	{% set products_for_grid = products | shuffle %}
+{% else %}
+	{% set products_for_grid = products %}
 {% endif %}
-{% for product in products %}
+{% for product in products_for_grid %}
     {% set image_priority_high_value = false %}
     {% if loop.index in [1, 2] %}
         {% set image_priority_high_value = true %}

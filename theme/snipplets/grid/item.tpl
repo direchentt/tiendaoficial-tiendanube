@@ -23,6 +23,9 @@
 {% endif %}
 
 {# Item image slider #}
+{# En listados a veces `other_images` viene vacío aunque haya más de una imagen; usamos también `product.images`. #}
+{% set product_has_extra_images = (product.other_images is not empty)
+    or ((product.images|default([]))|length > 1) %}
 
 {% set show_image_slider = 
     (template == 'category' or template == 'search')
@@ -30,7 +33,7 @@
     and not slide_item
     and not reduced_item 
     and not has_filters
-    and product.other_images
+    and product_has_extra_images
 %}
 
 {% if show_image_slider %}
@@ -39,10 +42,20 @@
     {% set control_prev_svg_id = 'arrow-long' %}
 {% endif %}
 
-{# Secondary images: hover y/o botón "segunda foto" en grilla (sin slider de imágenes en categoría) #}
-
-{% set show_flip_second = product.other_images is not empty and not reduced_item and not slide_item and not show_image_slider %}
-{% set show_secondary_image = settings.product_hover or show_flip_second %}
+{# Botón "ver otra foto": con carrusel por ítem dispara el siguiente slide; sin carrusel alterna imagen secundaria. #}
+{% set buy_label_custom = settings.product_list_buy_label | default('') | trim %}
+{% set show_list_flip_btn = product_has_extra_images and not reduced_item and not slide_item %}
+{# Compra rápida activa + producto con variantes: "+" y barra inline en home, categoría y carruseles (sin exigir "CTA tipo plus" en el panel). #}
+{% set show_qs_floating = settings.quick_shop
+    and not product.isSubscribable()
+    and product.available
+    and product.display_price
+    and product.variations
+    and not reduced_item
+%}
+{% set show_flip_floating = show_list_flip_btn and not settings.quick_shop %}
+{% set show_secondary_image = settings.product_hover or (show_list_flip_btn and not show_image_slider) %}
+{% set show_floating_photo_wrap = show_flip_floating or show_qs_floating %}
 
 {# Subscription only detection #}
 {% set is_subscription_only = product.isSubscriptionOnly() %}
@@ -50,7 +63,7 @@
 {% set columns_mobile_class = columns_mobile == 1 ? 'col-12' : columns_mobile == 2 ? 'col-6' : columns_mobile == 3 ? 'col-4' : loop.index % 5 == 1 ? 'col-12' : 'col-6' %}
 {% set columns_desktop_class = columns_desktop == 2 ? 'col-md-6' : columns_desktop == 3 ? 'col-md-4' : columns_desktop == 4 ? 'col-md-3' : columns_desktop == 5 ? 'col-grid-md-5' : 'col-md-3' %}
 
-    <div class="js-item-product{% if slide_item %} js-item-slide swiper-slide{% endif %} {{ columns_mobile_class }} {{ columns_desktop_class }} item-product {% if reduced_item %}item-product-reduced{% endif %} col-grid" data-product-type="list" data-product-id="{{ product.id }}" data-store="product-item-{{ product.id }}" data-component="product-list-item" data-component-value="{{ product.id }}">
+    <div class="js-item-product{% if slide_item %} js-item-slide swiper-slide{% endif %} {{ columns_mobile_class }} {{ columns_desktop_class }} item-product {% if reduced_item %}item-product-reduced{% endif %} col-grid" data-product-type="list" data-product-id="{{ product.id }}" data-store="product-item-{{ product.id }}" data-component="product-list-item" data-component-value="{{ product.id }}"{% if buy_label_custom != '' %} data-list-buy-label-cart="{{ buy_label_custom | e('html_attr') }}"{% endif %}>
         <div class="item {% if reduced_item %}mb-0{% endif %}">
             {% if (settings.quick_shop or settings.product_color_variants) and not reduced_item %}
                 <div class="js-product-container js-quickshop-container{% if product.variations %} js-quickshop-has-variants{% endif %} position-relative" data-variants="{{ product.variants_object | json_encode }}" data-quickshop-id="quick{{ product.id }}">
@@ -87,8 +100,11 @@
                 {% endif %}
             {% endset %}
 
-            {% if show_flip_second %}
-            <div class="position-relative js-item-image-flip-wrap">
+            {% if show_qs_floating %}
+            <div class="js-item-media-stack position-relative">
+            {% endif %}
+            {% if show_floating_photo_wrap %}
+            <div class="position-relative js-item-flip-photo-root{% if show_flip_floating and not show_image_slider %} js-item-image-flip-wrap{% endif %}">
             {% endif %}
             {{ component(
                 'product-item-image', {
@@ -126,12 +142,22 @@
                     control_prev_svg_id: control_prev_svg_id,
                 })
             }}
-            {% if show_flip_second %}
+            {% if show_flip_floating %}
                 <button type="button" class="js-item-img-flip btn item-img-flip-btn p-0" aria-label="{{ 'Ver otra foto' | translate }}" aria-pressed="false" title="{{ 'Ver otra foto' | translate }}">
                     <span class="item-img-flip-btn__inner" aria-hidden="true">
                         <svg class="icon-inline" width="14" height="14"><use xlink:href="#plus"/></svg>
                     </span>
                 </button>
+            {% endif %}
+            {% if show_qs_floating %}
+                               {# swiper-no-swiping: Swiper no debe tratar el toque como arrastre del carrusel. data-theme-grid-qs-plus: delegación en store.js (sin onclick: CSP). #}
+                <button type="button" class="js-item-qs-plus-floating swiper-no-swiping btn item-img-flip-btn p-0" data-theme-grid-qs-plus="1" aria-label="{{ 'Compra rápida' | translate }}" title="{{ 'Compra rápida' | translate }} {{ product.name }}">
+                    <span class="item-img-flip-btn__inner" aria-hidden="true">
+                        <svg class="icon-inline" width="14" height="14"><use xlink:href="#plus"/></svg>
+                    </span>
+                </button>
+            {% endif %}
+            {% if show_floating_photo_wrap %}
             </div>
             {% endif %}
     
@@ -143,7 +169,7 @@
                 and not reduced_item 
             %}
 
-                {# Hidden product form to update item image and variants: Also this is used for quickshop popup #}
+                {# Hidden product form: modal "Comprar" (LS.fillQuickshop) o barra en tarjeta si hay CTA "+" #}
 
                 <div class="js-item-variants hidden">
                     <form class="js-product-form" method="post" action="{{ store.cart_url }}">
@@ -177,6 +203,9 @@
                 </div>
 
             {% endif %}
+            {% if show_qs_floating %}
+            </div>
+            {% endif %}
             {% set show_labels = not product.has_stock or product.compare_at_price or product.hasVisiblePromotionLabel %}
             <div class="item-description pt-3" data-store="product-item-info-{{ product.id }}">
                 <a href="{{ product_url_with_selected_variant }}" title="{{ product.name }}" aria-label="{{ product.name }}" class="item-link">
@@ -190,14 +219,14 @@
                             {{ component('subscriptions/subscription-price', {
                                 location: 'product_list',
                                 subscription_classes: {
-                                    container: 'item-price-container' ~ (settings.quick_shop ? ' mb-3' : ''),
+                                    container: 'item-price-container' ~ (settings.quick_shop and not show_qs_floating ? ' mb-3' : ''),
                                     price_compare: 'price-compare',
                                     price_with_subscription: 'item-price',
                                 },
                             }) }}
                         {% else %}
                             {# Normal products: original price display #}
-                            <div class="item-price-container {% if settings.quick_shop %}mb-3{% endif %}" data-store="product-item-price-{{ product.id }}">
+                            <div class="item-price-container {% if settings.quick_shop and not show_qs_floating %}mb-3{% endif %}" data-store="product-item-price-{{ product.id }}">
                                 <span class="js-price-display item-price" data-product-price="{{ product.price }}">
                                     {{ product.price | money_nocents }}
                                 </span>
@@ -231,6 +260,7 @@
                             }) }}
                         {% endif %}
                     {% endif %}
+                </a>
                     {% if product.available and product.display_price and settings.quick_shop and not reduced_item %}
                         {% if settings.quick_shop %}
 
@@ -238,8 +268,9 @@
 
                             {% set state = store.is_catalog ? 'catalog' : (product.available ? product.display_price ? 'cart' : 'contact' : 'nostock') %}
                             {% set texts = {'cart': "Comprar", 'contact': "Consultar precio", 'nostock': "Sin stock", 'catalog': "Consultar"} %}
+                            {% set list_cta_wording = (state == 'cart' and buy_label_custom != '') ? buy_label_custom : (texts[state] | translate) %}
 
-                            <div class="item-actions d-block">
+                            <div class="item-actions d-block{% if show_qs_floating %} item-actions--qs-plus-proxy{% endif %}"{% if show_qs_floating %} aria-hidden="true"{% endif %}>
 
                                 {% if product.isSubscribable() %}
 
@@ -255,7 +286,7 @@
                                     {% else %}
                                         {# Subscribable (not subscription only): keep original span #}
                                         <span class="{{ quickshop_button_classes }}" title="{{ 'Compra rápida de' | translate }} {{ product.name }}" aria-label="{{ 'Compra rápida de' | translate }} {{ product.name }}">
-                                            {{ texts[state] | translate }}
+                                            {{ list_cta_wording }}
                                         </span>
                                     {% endif %}
 
@@ -266,7 +297,7 @@
                                         {# Open quickshop popup if has variants #}
 
                                         <span data-toggle="#quickshop-modal" class="js-quickshop-modal-open {% if slide_item %}js-quickshop-slide{% endif %} js-modal-open {{ quickshop_button_classes }}" title="{{ 'Compra rápida de' | translate }} {{ product.name }}" aria-label="{{ 'Compra rápida de' | translate }} {{ product.name }}" data-component="product-list-item.add-to-cart" data-component-value="{{product.id}}">
-                                            <span class="js-open-quickshop-wording">{{ 'Comprar' | translate }}</span>
+                                            <span class="js-open-quickshop-wording">{{ list_cta_wording }}</span>
                                         </span>
                                     {% else %}
                                         {# If not variants add directly to cart #}
@@ -274,7 +305,7 @@
                                             <input type="hidden" name="add_to_cart" value="{{product.id}}" />
                                             
                                             <div class="js-item-submit-container item-submit-container position-relative float-left d-inline-block w-100">
-                                                <input type="submit" class="js-addtocart js-prod-submit-form js-quickshop-icon-add {{ quickshop_button_classes }} {{ state }}" value="{{ texts[state] | translate }}" aria-label="{{ texts[state] | translate }}" {% if state == 'nostock' %}disabled{% endif %} data-component="product-list-item.add-to-cart" data-component-value="{{ product.id }}"/>
+                                                <input type="submit" class="js-addtocart js-prod-submit-form js-quickshop-icon-add {{ quickshop_button_classes }} {{ state }}" value="{{ list_cta_wording }}" aria-label="{{ list_cta_wording }}" {% if state == 'nostock' %}disabled{% endif %} data-component="product-list-item.add-to-cart" data-component-value="{{ product.id }}"/>
                                             </div>
 
                                             {# Fake add to cart CTA visible during add to cart event #}
@@ -287,7 +318,6 @@
                             </div>
                         {% endif %}
                     {% endif %}
-                </a>
             </div>
             {% if (settings.quick_shop or settings.product_color_variants) and not reduced_item %}
                 </div>{# This closes the quickshop tag #}

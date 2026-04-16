@@ -134,6 +134,7 @@ grid_columns_mobile = mixed
 grid_columns_desktop = 4
 product_image_format = grid
 product_hover = 1
+product_list_buy_cta = plus
 product_detail_installments = 1
 bullet_variants = 1
 full_width_description = 1

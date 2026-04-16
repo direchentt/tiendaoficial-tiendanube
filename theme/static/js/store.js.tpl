@@ -100,7 +100,6 @@ document.addEventListener('lazybeforeunveil', function(e){
 window.lazySizesConfig = window.lazySizesConfig || {};
 lazySizesConfig.hFac = 0.4;
 
-
 DOMContentLoaded.addEventOrExecute(() => {
 
 	{#/*============================================================================
@@ -121,16 +120,96 @@ DOMContentLoaded.addEventOrExecute(() => {
         jQueryNuvem(this).next(".js-tooltip").show();
     });
 
-    {# Segunda foto en ítems de grilla (sin abrir el producto) #}
+    {# Segunda foto en ítems de grilla: toggle hover secundaria o avanzar carrusel por ítem #}
     jQueryNuvem(document).on("click", ".js-item-img-flip", function (e) {
         e.preventDefault();
         e.stopPropagation();
         var $btn = jQueryNuvem(this);
         var $wrap = $btn.closest(".js-item-image-flip-wrap");
-        var on = !$wrap.hasClass("is-flipped");
-        $wrap.toggleClass("is-flipped", on);
-        $btn.attr("aria-pressed", on ? "true" : "false");
+        if ($wrap.length) {
+            var on = !$wrap.hasClass("is-flipped");
+            $wrap.toggleClass("is-flipped", on);
+            $btn.attr("aria-pressed", on ? "true" : "false");
+            return;
+        }
+        var $item = $btn.closest(".js-item-product");
+        var $next = $item.find(".item-image-slider .swiper-button-next").first();
+        if (!$next.length) {
+            $next = $item.find(".swiper-button-next").first();
+        }
+        if ($next.length) {
+            $next.trigger("click");
+        }
     });
+
+    {# Compra rápida "+": mismo comportamiento que "Comprar" (delegación .js-quickshop-modal-open: fillQuickshop, modal, slide, etc.). #}
+    function themeHandleGridQsPlus($btn) {
+        var $item = $btn.closest(".js-item-product");
+        if (!$item.length) {
+            return;
+        }
+        var $actions = $item.find(".item-actions");
+        var $open = $actions.find(".js-quickshop-modal-open").first();
+        {% if settings.quick_shop %}
+        if ($open.length) {
+            $open.trigger("click");
+            return;
+        }
+        {% endif %}
+        var $add = $actions.find("input.js-addtocart[type='submit']").first();
+        if (!$add.length) {
+            $add = $actions.find(".js-addtocart").first();
+        }
+        if ($add.length && $add[0]) {
+            $add[0].click();
+            return;
+        }
+        var $link = $actions.find("a[href]").first();
+        if ($link.length && $link[0]) {
+            $link[0].click();
+            return;
+        }
+        var $span = $actions.find("span.btn-link").first();
+        if ($span.length && $span[0]) {
+            $span[0].click();
+        }
+    }
+
+    jQueryNuvem(document).on("click", ".js-item-qs-plus-floating, [data-theme-grid-qs-plus='1']", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        themeHandleGridQsPlus(jQueryNuvem(this));
+    });
+
+    {# Orden aleatorio visible: barajar filas en el cliente (Twig/cache o scroll infinito) #}
+    (function () {
+        function themeFyShuffle(arr) {
+            var i, j, t;
+            for (i = arr.length - 1; i > 0; i--) {
+                j = Math.floor(Math.random() * (i + 1));
+                t = arr[i];
+                arr[i] = arr[j];
+                arr[j] = t;
+            }
+            return arr;
+        }
+        window.themeShuffleGridRow = function ($row) {
+            if (!$row || !$row.length) {
+                return;
+            }
+            var $kids = $row.children(".js-item-product");
+            if ($kids.length < 2) {
+                return;
+            }
+            var nodes = themeFyShuffle($kids.detach().get());
+            $row.append(nodes);
+        };
+        if (jQueryNuvem("body").hasClass("template-home")) {
+            jQueryNuvem(".js-home-sections-container .js-user-product-grid .row.row-grid").each(function () {
+                window.themeShuffleGridRow(jQueryNuvem(this));
+            });
+        }
+    })();
 
     {# Notifications variables #}
 
@@ -2215,6 +2294,10 @@ DOMContentLoaded.addEventOrExecute(() => {
     {% if template == 'category' or template == 'search' %}
 
         {# /* // Product item slider */ #}
+        {# Barajar ítems antes de inicializar Swiper por producto (reordenar después rompe el carrusel). #}
+        if (window.themeShuffleGridRow) {
+            window.themeShuffleGridRow(jQueryNuvem('.js-product-table.row.row-grid').first());
+        }
 
         {% if has_item_slider %}
 
@@ -2334,7 +2417,6 @@ DOMContentLoaded.addEventOrExecute(() => {
     {% if settings.quick_shop %}
 
         {# /* // Quickshop */ #}
-
         jQueryNuvem(document).on("click", ".js-quickshop-modal-open", function (e) {
             e.preventDefault();
             var $this = jQueryNuvem(this);
@@ -2360,6 +2442,80 @@ DOMContentLoaded.addEventOrExecute(() => {
             }
         });
 
+        {# Quick shop: al elegir talle (u otra variante que no sea solo color cuando también hay talle), agregar al carrito sin pulsar el botón #}
+        (function () {
+            var debounceModal = null;
+
+            function themeQsMarkModalOpenOnly() {
+                window.themeQsSuppressAutoUntil = Date.now() + 650;
+            }
+
+            jQueryNuvem(document).on("click", ".js-quickshop-modal-open", themeQsMarkModalOpenOnly);
+
+            function themeQuickshopForm() {
+                return jQueryNuvem("#quickshop-form").find("form.js-product-form").first();
+            }
+
+            function themeQuickshopHasNonColorVariantGroup($form) {
+                return $form.find(".js-product-variants-group").not(".js-color-variants-container").length > 0;
+            }
+
+            {# Si hay color + talle, no agregar solo al cambiar color; sí al cambiar talle (o producto solo-color). #}
+            function themeQuickshopShouldSkipAutoAddForGroup($form, $group) {
+                if (!$form || !$form.length || !$group || !$group.length) {
+                    return false;
+                }
+                return $group.hasClass("js-color-variants-container") && themeQuickshopHasNonColorVariantGroup($form);
+            }
+
+            function themeQuickshopAllVariantSelectsFilled($form) {
+                var ok = true;
+                $form.find("select.js-variation-option").each(function () {
+                    var v = jQueryNuvem(this).val();
+                    if (v === null || v === "" || typeof v === "undefined") {
+                        ok = false;
+                    }
+                });
+                return ok;
+            }
+
+            function themeQuickshopTryAutoAdd($form) {
+                if (Date.now() < (window.themeQsSuppressAutoUntil || 0)) {
+                    return;
+                }
+                if (!$form || !$form.length) {
+                    return;
+                }
+                if (!themeQuickshopAllVariantSelectsFilled($form)) {
+                    return;
+                }
+                var $btn = $form.find("input.js-addtocart.js-prod-submit-form[type='submit']").first();
+                if (!$btn.length || $btn.prop("disabled") || $btn.hasClass("nostock")) {
+                    return;
+                }
+                if ($form.data("themeQsSubmitting")) {
+                    return;
+                }
+                $form.data("themeQsSubmitting", true);
+                $btn.trigger("click");
+                setTimeout(function () {
+                    $form.removeData("themeQsSubmitting");
+                }, 1500);
+            }
+
+            jQueryNuvem(document).on("change", "#quickshop-modal select.js-variation-option", function () {
+                clearTimeout(debounceModal);
+                var $form = themeQuickshopForm();
+                var $group = jQueryNuvem(this).closest(".js-product-variants-group");
+                if (themeQuickshopShouldSkipAutoAddForGroup($form, $group)) {
+                    return;
+                }
+                debounceModal = setTimeout(function () {
+                    themeQuickshopTryAutoAdd($form);
+                }, 160);
+            });
+        })();
+
     {% endif %}
 
     {% if settings.bullet_variants or settings.product_color_variants or settings.image_color_variants %}
@@ -2368,11 +2524,13 @@ DOMContentLoaded.addEventOrExecute(() => {
             selector.addClass("selected");
             var option_id = selector.attr('data-option');
             var parent = selector.closest(parentSelector);
-            var selected_option = parent.find('.js-variation-option option').filter(function (el) {
-                return el.value == option_id;
+            var selected_option = parent.find('.js-variation-option option').filter(function () {
+                return String(this.value) === String(option_id);
             });
-            selected_option.prop('selected', true).trigger('change');
-            parent.find('.js-insta-variation-label').html(option_id);
+            selected_option.prop('selected', true);
+            parent.find('select.js-variation-option').first().trigger('change');
+            var labelText = selector.attr('title') || selector.find('.btn-variant-content').data('name') || option_id;
+            parent.find('.js-insta-variation-label').html(labelText);
         }
 
         {% if settings.bullet_variants or settings.image_color_variants %}
@@ -2656,7 +2814,9 @@ DOMContentLoaded.addEventOrExecute(() => {
                 button.val('{{ "Agregar al carrito" | translate }}');
                 button.addClass('cart');
                 button.removeAttr('disabled');
-                quickshopButtonWording.text('{{ "Comprar" | translate }}');
+                var $listRoot = parent.closest(".js-item-product");
+                var customCartLabel = ($listRoot.length && $listRoot.attr("data-list-buy-label-cart")) ? String($listRoot.attr("data-list-buy-label-cart")).trim() : "";
+                quickshopButtonWording.text(customCartLabel ? customCartLabel : '{{ "Comprar" | translate }}');
                 quickshopButtonIcon.addClass("d-md-inline");
                 $product_shipping_calculator.show();
             }
@@ -3231,12 +3391,14 @@ DOMContentLoaded.addEventOrExecute(() => {
                     $productContainer.find(".js-added-to-cart-product-message").slideDown();
 
                     if (isQuickShop) {
-                        jQueryNuvem("#quickshop-modal").removeClass('modal-show');
-                        jQueryNuvem(".js-modal-overlay[data-modal-id='#quickshop-modal']").hide();
-                        jQueryNuvem("body").removeClass("overflow-none");
-                        restoreQuickshopForm();
-                        if (window.innerWidth < 768) {
-                            cleanURLHash();
+                        if (jQueryNuvem("#quickshop-modal").hasClass("modal-show")) {
+                            jQueryNuvem("#quickshop-modal").removeClass('modal-show');
+                            jQueryNuvem(".js-modal-overlay[data-modal-id='#quickshop-modal']").hide();
+                            jQueryNuvem("body").removeClass("overflow-none");
+                            restoreQuickshopForm();
+                            if (window.innerWidth < 768) {
+                                cleanURLHash();
+                            }
                         }
                     }
 

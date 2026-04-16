@@ -264,7 +264,7 @@
 
                 {# Add to cart CTA #}
 
-                <input type="submit" class="js-addtocart js-prod-submit-form btn-add-to-cart btn btn-primary btn-big btn-block {{ state }}" value="{{ texts[state] | translate }}" aria-label="{{ texts[state] | translate }}: {{ product.name }}" {% if state == 'nostock' %}disabled{% endif %} data-store="product-buy-button" data-component="product.add-to-cart"/>
+                <input type="submit" class="js-addtocart js-prod-submit-form btn-add-to-cart btn btn-primary btn-big btn-block brand-pdp-cta {{ state }}" value="{{ texts[state] | translate }}" aria-label="{{ texts[state] | translate }}: {{ product.name }}" {% if state == 'nostock' %}disabled{% endif %} data-store="product-buy-button" data-component="product.add-to-cart"/>
 
                 {# Fake add to cart CTA visible during add to cart event #}
 

@@ -2004,16 +2004,16 @@ footer.section-footer-home {
     box-sizing: border-box;
     background: rgba(255, 255, 255, 0.86);
     border-top: 1px solid rgba(0, 0, 0, 0.06);
-    border-radius: var(--brand-ui-r) var(--brand-ui-r) 0 0;
-    box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.08);
+    border-radius: 0;
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.06);
     -webkit-backdrop-filter: blur(18px) saturate(1.15);
     backdrop-filter: blur(18px) saturate(1.15);
   }
 
   .theme-brand-phase1.template-product .product-form-cta-row--sticky-mobile .btn-add-to-cart {
     min-height: 48px;
-    letter-spacing: 0.06em;
-    border-radius: var(--brand-ui-r-sm);
+    letter-spacing: 0.08em;
+    border-radius: 0;
   }
 }
 
@@ -2899,26 +2899,7 @@ body.theme-brand-phase1 b {
   }
 }
 
-@media (hover: hover) and (prefers-reduced-motion: no-preference) {
-  /* Swiper slides (.swiper-slide) usan layout propio; no forzar overflow/hover de grilla */
-  .theme-brand-phase1.template-home .item-product:not(.swiper-slide) .js-item-image-padding,
-  .theme-brand-phase1.template-category .item-product:not(.swiper-slide) .js-item-image-padding,
-  .theme-brand-phase1.template-search .item-product:not(.swiper-slide) .js-item-image-padding {
-    overflow: hidden;
-  }
-
-  .theme-brand-phase1.template-home .item-product:not(.swiper-slide) .item-image .js-item-image,
-  .theme-brand-phase1.template-category .item-product:not(.swiper-slide) .item-image .js-item-image,
-  .theme-brand-phase1.template-search .item-product:not(.swiper-slide) .item-image .js-item-image {
-    transition: transform var(--brand-motion-slow) var(--brand-ease-editorial);
-  }
-
-  .theme-brand-phase1.template-home .item-product:not(.swiper-slide):hover .item-image .js-item-image,
-  .theme-brand-phase1.template-category .item-product:not(.swiper-slide):hover .item-image .js-item-image,
-  .theme-brand-phase1.template-search .item-product:not(.swiper-slide):hover .item-image .js-item-image {
-    transform: scale(1.04);
-  }
-}
+/* Grilla: sin zoom al hover (antes scale 1.04; se unifica con bloque UX mas abajo) */
 
 /*============================================================================
   #Fase 2 - Home: secciones editoriales + tarjetas de producto
@@ -2935,9 +2916,9 @@ body.theme-brand-phase1 b {
 }
 
 .theme-brand-phase1.template-home .section-slider-home .section-slider {
-  border-radius: var(--brand-ui-r);
+  border-radius: 0;
   overflow: hidden;
-  box-shadow: var(--brand-elev-1);
+  box-shadow: none;
 }
 
 .theme-brand-phase1.template-home .section-featured-home .section-title {
@@ -4838,6 +4819,249 @@ body.theme-brand-phase1 b {
   letter-spacing: 0.08em;
 }
 
+/* Quick shop: drawer lateral (no popup centrado); mobile-first ancho completo */
+.theme-brand-phase1 #quickshop-modal.quickshop-drawer.modal {
+  border-radius: 0;
+  top: 0;
+  bottom: 0;
+  height: 100%;
+  max-height: 100vh;
+  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.12);
+}
+
+@media (max-width: 767.98px) {
+  .theme-brand-phase1 #quickshop-modal.quickshop-drawer.modal.modal-right {
+    width: 100%;
+    max-width: 100%;
+    left: auto;
+  }
+
+  .theme-brand-phase1 #quickshop-modal.quickshop-drawer.modal-right.modal-show {
+    right: 0;
+  }
+}
+
+@media (min-width: 768px) {
+  .theme-brand-phase1 #quickshop-modal.quickshop-drawer.modal.modal-right-md {
+    width: min(100vw - 1rem, 22rem);
+    max-width: 22rem;
+  }
+}
+
+.theme-brand-phase1 #quickshop-modal.quickshop-drawer .modal-body {
+  height: 100%;
+  max-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.theme-brand-phase1 #quickshop-modal .quickshop-drawer__scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: none;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.theme-brand-phase1 #quickshop-modal .quickshop-drawer__panel {
+  min-height: min(100%, 100vh);
+}
+
+.theme-brand-phase1 #quickshop-modal .quickshop-image-container--responsive {
+  position: relative;
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.theme-brand-phase1 #quickshop-modal .quickshop-drawer__media .quickshop-image-padding--responsive {
+  position: relative;
+  width: 100%;
+  padding-bottom: 72%;
+  max-height: 14rem;
+}
+
+.theme-brand-phase1 #quickshop-modal .quickshop-image--responsive {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center center;
+}
+
+.theme-brand-phase1 #quickshop-modal #quickshop-form .btn-add-to-cart {
+  width: 100%;
+}
+
+.theme-brand-phase1 #quickshop-modal .quickshop-modal-prices {
+  line-height: 1.35;
+}
+
+.theme-brand-phase1 #quickshop-modal #quickshop-form.quickshop-form--tap-add .row.mt-3 {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+  white-space: nowrap;
+}
+
+/* Variantes: color arriba (thumbs); talles en grid tipo XS–XXL */
+.theme-brand-phase1 #quickshop-modal #quickshop-form .js-product-variants.form-row {
+  display: block;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.theme-brand-phase1 #quickshop-modal #quickshop-form .js-product-variants-group {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.theme-brand-phase1 #quickshop-modal #quickshop-form .js-product-variants .form-label {
+  margin-bottom: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.theme-brand-phase1 #quickshop-modal #quickshop-form .js-color-variants-container .js-insta-variant {
+  margin-bottom: 0.35rem;
+}
+
+.theme-brand-phase1 #quickshop-modal #quickshop-form .js-product-variants-group:not(.js-color-variants-container) {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(2.65rem, 1fr));
+  gap: 0.35rem 0.45rem;
+  align-items: stretch;
+}
+
+.theme-brand-phase1 #quickshop-modal #quickshop-form .js-product-variants-group:not(.js-color-variants-container) .form-label {
+  grid-column: 1 / -1;
+}
+
+.theme-brand-phase1 #quickshop-modal #quickshop-form .js-product-variants-group:not(.js-color-variants-container) .js-insta-variant {
+  margin: 0 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.5rem;
+  padding: 0.35rem 0.4rem;
+  border-radius: 0;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  background: var(--main-background, #fff);
+}
+
+.theme-brand-phase1 #quickshop-modal #quickshop-form .js-product-variants-group:not(.js-color-variants-container) .js-insta-variant.selected {
+  border-color: var(--main-foreground, #111);
+  font-weight: 600;
+}
+
+/* PDP: CTA principal alineada a botones tipo video (contorno, sin radio) */
+.theme-brand-phase1.template-product #single-product .btn-add-to-cart.brand-pdp-cta.btn-primary:not(:disabled) {
+  background: transparent;
+  color: var(--main-foreground);
+  border: 1px solid var(--main-foreground);
+  border-radius: 0;
+  box-shadow: none;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 500;
+  font-size: 0.75rem;
+  padding-top: 0.85rem;
+  padding-bottom: 0.85rem;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.theme-brand-phase1.template-product #single-product .btn-add-to-cart.brand-pdp-cta.btn-primary:not(:disabled):hover {
+  background: var(--main-foreground);
+  color: var(--main-background);
+  border-color: var(--main-foreground);
+}
+
+.theme-brand-phase1.template-product #single-product .btn-add-to-cart.brand-pdp-cta.btn-primary:disabled,
+.theme-brand-phase1.template-product #single-product .btn-add-to-cart.brand-pdp-cta.btn-primary.nostock {
+  opacity: 0.45;
+  background: transparent;
+  color: var(--main-foreground);
+  border-color: rgba(0, 0, 0, 0.25);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-brand-phase1.template-product #single-product .btn-add-to-cart.brand-pdp-cta.btn-primary:not(:disabled) {
+    transition: none;
+  }
+}
+
+.theme-brand-phase1.template-product .product-form-cta-row--sticky-mobile .btn-add-to-cart.brand-pdp-cta.btn-primary:not(:disabled),
+.theme-brand-phase1.template-product .pdp-app--visual .btn-add-to-cart.brand-pdp-cta.btn-primary:not(:disabled) {
+  background: transparent;
+  color: var(--main-foreground);
+  border: 1px solid var(--main-foreground);
+  border-radius: 0;
+  box-shadow: none;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 500;
+  font-size: 0.75rem;
+  padding-top: 0.85rem;
+  padding-bottom: 0.85rem;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  filter: none;
+}
+
+.theme-brand-phase1.template-product .product-form-cta-row--sticky-mobile .btn-add-to-cart.brand-pdp-cta.btn-primary:not(:disabled):hover,
+.theme-brand-phase1.template-product .pdp-app--visual .btn-add-to-cart.brand-pdp-cta.btn-primary:not(:disabled):hover {
+  background: var(--main-foreground);
+  color: var(--main-background);
+  border-color: var(--main-foreground);
+  filter: none;
+  transform: none;
+}
+
+.theme-brand-phase1.template-product .product-form-cta-row--sticky-mobile .btn-add-to-cart.brand-pdp-cta.btn-primary:disabled,
+.theme-brand-phase1.template-product .product-form-cta-row--sticky-mobile .btn-add-to-cart.brand-pdp-cta.btn-primary.nostock,
+.theme-brand-phase1.template-product .pdp-app--visual .btn-add-to-cart.brand-pdp-cta.btn-primary:disabled,
+.theme-brand-phase1.template-product .pdp-app--visual .btn-add-to-cart.brand-pdp-cta.btn-primary.nostock {
+  opacity: 0.45;
+  background: transparent;
+  color: var(--main-foreground);
+  border-color: rgba(0, 0, 0, 0.25);
+}
+
+/* Listados: labels mas compactas, arriba a la izquierda, menos tapado del producto */
+.theme-brand-phase1.template-home .item-image .labels,
+.theme-brand-phase1.template-category .item-image .labels,
+.theme-brand-phase1.template-search .item-image .labels {
+  top: 0.55rem;
+  left: 0.55rem;
+  right: auto;
+  transform: none;
+  max-width: calc(100% - 2.75rem);
+}
+
+.theme-brand-phase1.template-home .item-image .labels .label,
+.theme-brand-phase1.template-category .item-image .labels .label,
+.theme-brand-phase1.template-search .item-image .labels .label {
+  margin-bottom: 0.3rem !important;
+  padding: 0.2rem 0.45rem;
+  font-size: 0.625rem;
+  line-height: 1.25;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+/* Grilla marca: cover + sin translateX al hover (incluye ítems en Swiper / home) */
+.theme-brand-phase1 .item-product:not(.item-product-reduced) .item-image:not(.item-image-slider):hover img,
+.theme-brand-phase1 .item-product:not(.item-product-reduced) .item-image-slider:hover .swiper-slide-active img {
+  transform: none !important;
+}
+
 /* Alertas y avisos */
 .theme-brand-phase1 .alert {
   border-radius: 0;
@@ -4946,26 +5170,22 @@ body.theme-brand-phase1 b {
 
 @media (min-width: 768px) {
   .theme-brand-phase1 .item-product:not(.swiper-slide) .item {
-    transition:
-      transform var(--brand-motion-slow) var(--brand-ease-editorial),
-      box-shadow var(--brand-motion-base) var(--brand-ease-smooth);
+    transition: border-color var(--brand-motion-base) var(--brand-ease-smooth);
   }
 
   .theme-brand-phase1 .item-product:not(.swiper-slide):hover .item,
   .theme-brand-phase1 .item-product:not(.swiper-slide):focus-within .item {
-    transform: translateY(-5px);
-    box-shadow: var(--brand-elev-2);
+    transform: none;
+    box-shadow: none;
   }
 
-  /* Listados: hover mas contenido (menos “tarjeta flotante”) */
   .theme-brand-phase1.template-category .item-product:not(.swiper-slide):hover .item,
   .theme-brand-phase1.template-category .item-product:not(.swiper-slide):focus-within .item,
   .theme-brand-phase1.template-search .item-product:not(.swiper-slide):hover .item,
   .theme-brand-phase1.template-search .item-product:not(.swiper-slide):focus-within .item {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.07);
+    transform: none;
+    box-shadow: none;
   }
-
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -4979,25 +5199,25 @@ body.theme-brand-phase1 b {
     box-shadow: none;
   }
 
-  .theme-brand-phase1 .item-product:not(.swiper-slide) .item-image:not(.item-image-slider) .js-item-image.img-absolute.img-absolute-centered {
+  .theme-brand-phase1 .item-product:not(.item-product-reduced):not(.swiper-slide) .item-image:not(.item-image-slider) img.img-absolute.img-absolute-centered {
     transition: none;
   }
 
-  .theme-brand-phase1 .item-product:not(.swiper-slide):hover .item-image:not(.item-image-slider) .js-item-image.img-absolute.img-absolute-centered,
-  .theme-brand-phase1 .item-product:not(.swiper-slide):focus-within .item-image:not(.item-image-slider) .js-item-image.img-absolute.img-absolute-centered {
+  .theme-brand-phase1 .item-product:not(.item-product-reduced):not(.swiper-slide):hover .item-image:not(.item-image-slider) img.img-absolute.img-absolute-centered,
+  .theme-brand-phase1 .item-product:not(.item-product-reduced):not(.swiper-slide):focus-within .item-image:not(.item-image-slider) img.img-absolute.img-absolute-centered {
     transform: none;
   }
 }
 
-/* Grilla productos: look editorial (sin radius tipo lookbook / streetwear) */
+/* Grilla productos: look editorial (sin radius). Excluir .swiper-slide: el ratio TN (padding-bottom) se rompe si .item-image pasa a absolute + 100% height. */
 .theme-brand-phase1 .item-product:not(.item-product-reduced):not(.swiper-slide) .js-item-image-padding {
   border-radius: 0;
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+  box-shadow: none;
   overflow: hidden;
 }
 
-/* Contenedor de imagen llena el ratio (padding-bottom del TN); no en slides Swiper */
-.theme-brand-phase1 .item-product:not(.swiper-slide) .item-image:not(.item-image-slider) {
+/* Contenedor de imagen llena el ratio (padding-bottom del TN) — solo fuera de carruseles Swiper de ítem */
+.theme-brand-phase1 .item-product:not(.item-product-reduced):not(.swiper-slide) .item-image:not(.item-image-slider) {
   position: absolute;
   left: 0;
   top: 0;
@@ -5006,30 +5226,45 @@ body.theme-brand-phase1 b {
   max-height: none;
 }
 
-/* Imagen al borde: cover (huecos laterales del img-absolute-centered) */
-.theme-brand-phase1 .item-product:not(.swiper-slide) .item-image:not(.item-image-slider) .js-item-image.img-absolute.img-absolute-centered {
+/* Imagen al borde: cover (principal y secundaria) — listados; no slides (home destacados, etc.) */
+.theme-brand-phase1 .item-product:not(.item-product-reduced):not(.swiper-slide) .item-image:not(.item-image-slider) .js-item-image.img-absolute.img-absolute-centered,
+.theme-brand-phase1 .item-product:not(.item-product-reduced):not(.swiper-slide) .item-image:not(.item-image-slider) img.item-image-featured.img-absolute.img-absolute-centered,
+.theme-brand-phase1 .item-product:not(.item-product-reduced):not(.swiper-slide) .item-image:not(.item-image-slider) img.item-image-secondary.img-absolute.img-absolute-centered,
+.theme-brand-phase1 .item-product:not(.item-product-reduced):not(.swiper-slide) .item-image:not(.item-image-slider) img.item-image-secondary.img-absolute,
+.theme-brand-phase1 .item-product:not(.item-product-reduced):not(.swiper-slide) .item-image:not(.item-image-slider) img.item-image-secondary {
+  position: absolute;
   left: 0;
+  top: 0;
   right: 0;
-  transform: none;
-  width: 100%;
-  height: 100%;
-  max-height: none;
+  bottom: 0;
+  transform: none !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
   object-fit: cover;
-  object-position: center top;
 }
 
-@media (min-width: 768px) {
-  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
-    .theme-brand-phase1 .item-product:not(.swiper-slide) .item-image:not(.item-image-slider) .js-item-image.img-absolute.img-absolute-centered {
-      transition: transform var(--brand-motion-slow) var(--brand-ease-editorial);
-    }
-
-    .theme-brand-phase1 .item-product:not(.swiper-slide):hover .item-image:not(.item-image-slider) .js-item-image.img-absolute.img-absolute-centered,
-    .theme-brand-phase1 .item-product:not(.swiper-slide):focus-within .item-image:not(.item-image-slider) .js-item-image.img-absolute.img-absolute-centered {
-      transform: scale(1.03);
-    }
-  }
+.theme-brand-phase1 .item-product:not(.item-product-reduced):not(.swiper-slide) .item-image:not(.item-image-slider) .js-item-image.img-absolute.img-absolute-centered,
+.theme-brand-phase1 .item-product:not(.item-product-reduced):not(.swiper-slide) .item-image:not(.item-image-slider) img.item-image-featured.img-absolute.img-absolute-centered {
+  object-position: center center;
 }
+
+/* Carruseles (swiper-slide): sin tocar el ratio TN; solo encuadre más equilibrado que el default */
+.theme-brand-phase1 .item-product.swiper-slide:not(.item-product-reduced) .item-image:not(.item-image-slider) .js-item-image.img-absolute.img-absolute-centered,
+.theme-brand-phase1 .item-product.swiper-slide:not(.item-product-reduced) .item-image:not(.item-image-slider) img.item-image-featured.img-absolute.img-absolute-centered,
+.theme-brand-phase1 .item-product.swiper-slide:not(.item-product-reduced) .item-image:not(.item-image-slider) img.item-image-secondary {
+  object-fit: cover;
+  object-position: center center;
+}
+
+.theme-brand-phase1 .item-product:not(.item-product-reduced):not(.swiper-slide) .item-image:not(.item-image-slider) img.item-image-secondary,
+.theme-brand-phase1 .item-product:not(.item-product-reduced):not(.swiper-slide) .item-image:not(.item-image-slider) img.item-image-secondary.img-absolute,
+.theme-brand-phase1 .item-product:not(.item-product-reduced):not(.swiper-slide) .item-image:not(.item-image-slider) img.item-image-secondary.img-absolute.img-absolute-centered {
+  object-position: center center;
+}
+
+/* Sin zoom extra en la foto al hover (coherente con linea editorial) */
 
 /*============================================================================
   #Phase 6b - Home editorial strip + wide section rhythm (settings-driven)
@@ -5160,11 +5395,11 @@ body.theme-brand-phase1 b {
   #Phase 2 - Grilla (ratio), etiquetas minimal, hero editorial
 ==============================================================================*/
 
-.theme-brand-phase1.brand-card-square .item-product:not(.swiper-slide) .item-image .js-item-image-padding {
+.theme-brand-phase1.brand-card-square .item-product:not(.item-product-reduced):not(.swiper-slide) .item-image .js-item-image-padding {
   padding-bottom: 100% !important;
 }
 
-.theme-brand-phase1.brand-card-portrait .item-product:not(.swiper-slide) .item-image .js-item-image-padding {
+.theme-brand-phase1.brand-card-portrait .item-product:not(.item-product-reduced):not(.swiper-slide) .item-image .js-item-image-padding {
   padding-bottom: 125% !important;
 }
 
@@ -6395,37 +6630,183 @@ body.theme-brand-phase1 b {
   }
 }
 
+@keyframes brand-qs-plus-hint {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.08);
+  }
+
+  50% {
+    box-shadow: 0 0 0 5px rgba(0, 0, 0, 0.04);
+  }
+}
+
 /*============================================================================
   #Grilla: botón para alternar a la segunda foto (móvil / sin hover)
 ==============================================================================*/
 
-.js-item-image-flip-wrap {
-  .item-img-flip-btn {
+.js-item-flip-photo-root {
+  isolation: isolate;
+  z-index: 4;
+
+  .item-img-flip-btn,
+  .js-item-qs-plus-floating {
     position: absolute;
     right: 0.45rem;
     bottom: 0.45rem;
-    z-index: 6;
+    z-index: 20;
+    pointer-events: auto;
+    touch-action: manipulation;
+  }
+
+  .item-img-flip-btn {
     width: 2rem;
     height: 2rem;
     border-radius: 50%;
-    border: none;
-    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.42);
     color: var(--main-foreground);
-    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: transform 0.2s ease, background 0.2s ease;
+    -webkit-backdrop-filter: blur(8px) saturate(1.1);
+    backdrop-filter: blur(8px) saturate(1.1);
+    transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+  }
+
+  .js-item-qs-plus-floating {
+    animation: brand-qs-plus-hint 2.5s ease-in-out 2;
+  }
+
+  /* Por encima de capas Swiper en destacados / carruseles */
+  .item-product.swiper-slide & .js-item-qs-plus-floating {
+    z-index: 50;
   }
 
   .item-img-flip-btn:hover,
   .item-img-flip-btn:focus {
     transform: scale(1.06);
     outline: none;
-    background: #fff;
+    background: rgba(255, 255, 255, 0.72);
   }
+}
 
+@media (prefers-reduced-motion: reduce) {
+  .js-item-flip-photo-root .js-item-qs-plus-floating {
+    animation: none;
+  }
+}
+
+/* Quick shop en la grilla (CTA "+"): barra sobre la foto, estilo Scuffers — sin modal */
+.js-item-media-stack.is-inline-qs-open,
+.js-item-flip-photo-root.is-inline-qs-open,
+.js-product-container.is-inline-qs-open {
+  z-index: 8;
+}
+
+.js-item-inline-qs {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 22;
+  padding: 0.5rem 2.1rem 0.6rem 0.45rem;
+  background: rgba(255, 255, 255, 0.93);
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  -webkit-backdrop-filter: blur(12px) saturate(1.08);
+  backdrop-filter: blur(12px) saturate(1.08);
+}
+
+.js-item-inline-qs.is-open {
+  display: block !important;
+}
+
+.js-item-inline-qs .item-inline-qs__close {
+  position: absolute;
+  top: 0.2rem;
+  right: 0.25rem;
+  z-index: 3;
+  border: none;
+  margin: 0;
+  padding: 0.2rem 0.45rem;
+  background: transparent;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  color: inherit;
+  opacity: 0.72;
+}
+
+.js-item-inline-qs .js-product-variants {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0.35rem 0.55rem;
+  margin-bottom: 0 !important;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+.js-item-inline-qs .js-product-variants-group {
+  flex: 0 0 auto;
+  margin-bottom: 0 !important;
+}
+
+.js-item-inline-qs .form-label {
+  display: none;
+}
+
+.js-item-inline-qs:has(.js-insta-variant:not(.btn-variant-color)) .js-color-variants-container {
+  display: none !important;
+}
+
+/* Cantidad + Agregar al carrito visibles en la barra (ocultarlos dejaba la barra vacía o “sin reacción”) */
+.js-item-inline-qs .row.mt-3 {
+  position: relative;
+  left: auto;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  clip-path: none;
+  opacity: 1;
+  margin-top: 0.5rem !important;
+  margin-bottom: 0 !important;
+}
+
+.js-item-inline-qs .row.mt-3 .btn-add-to-cart {
+  width: 100%;
+}
+
+.js-item-inline-qs a.js-fullscreen-modal-open {
+  display: none !important;
+}
+
+.theme-brand-phase1 .js-item-inline-qs .js-insta-variant {
+  margin: 0 0.12rem 0 0 !important;
+}
+
+/* CTA de compra rápida fuera de pantalla (no display:none: el + y LS.fillQuickshop necesitan nodos “activos”) */
+.item-actions.item-actions--qs-plus-proxy {
+  position: fixed !important;
+  left: -120vw !important;
+  top: 0 !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.js-item-image-flip-wrap {
   &.is-flipped .product-item-secondary-images-loaded:not(.product-item-secondary-images-disabled) .item-image-featured {
     opacity: 0;
     transition-delay: 0.05s;
