@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:fb="http://www.facebook.com/2008/fbml" xmlns:og="http://opengraphprotocol.org/schema/">
     <head>
+        {% include 'snipplets/theme-color-scheme-head.tpl' %}
         <link rel="preconnect" href="{{ store_resource_hints }}" />
         <link rel="dns-prefetch" href="{{ store_resource_hints }}" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -10,7 +11,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>{{ page_title }}</title>
         <meta name="description" content="{{ page_description }}" />
-        <link rel="preload" as="style" href="{{ [settings.font_headings, settings.font_rest] | google_fonts_url('400,700') }}" />
+        <link rel="preload" as="style" href="{{ [settings.font_headings, settings.font_rest] | google_fonts_url('400,500,600,700') }}" />
         <link rel="preload" href="{{ 'css/style-critical.scss' | static_url }}" as="style" />
         <link rel="preload" href="{{ 'js/external-no-dependencies.js.tpl' | static_url }}" as="script" />
         
@@ -27,7 +28,7 @@
 
             {{ component(
                 'fonts',{
-                    font_weights: '400,700',
+                    font_weights: '400,500,600,700',
                     font_settings: 'settings.font_headings, settings.font_rest'
                 })
             }}
@@ -91,6 +92,11 @@
 
         <header class="head-main">
             <div class="container">
+                <div class="row justify-content-md-center align-items-center">
+                    <div class="col text-right py-2">
+                        {% include 'snipplets/header/header-theme-toggle.tpl' %}
+                    </div>
+                </div>
                 <div class="row justify-content-md-center">
                     <div class="col-md-8 text-center">
                         <div class="my-3">

@@ -35,8 +35,8 @@ Clothing
 	institutional_foreground_color = #000000
 	banner_services_background_color = #F4F4F4
 	banner_services_foreground_color = #000000
-	font_headings = "Big Shoulders Display", sans-serif
-	font_rest = "Chivo", sans-serif
+	font_headings = "Instrument Sans", sans-serif
+	font_rest = "Instrument Sans", sans-serif
 	logo_position_mobile = center
 	logo_position_desktop = center
 	featured_products_format_mobile = slider

@@ -21,8 +21,10 @@
 {% set has_testimonial_04 = settings.testimonial_04_description or settings.testimonial_04_name or "testimonial_04.jpg" | has_custom_image %}
 {% set has_testimonials = has_testimonial_01 or has_testimonial_02 or has_testimonial_03 or has_testimonial_04 %}
 {% set has_brand_editorial = ('brand_editorial_image.jpg' | has_custom_image) or settings.brand_editorial_title or settings.brand_editorial_kicker or settings.brand_editorial_text or (settings.brand_editorial_btn and settings.brand_editorial_url) %}
+{% set has_brand_split_video = settings.brand_split_video_enable and (settings.brand_split_video_1_url or settings.brand_split_video_1_url_es or settings.brand_split_video_1_url_pt or settings.brand_split_video_1_url_en or settings.brand_split_video_1_url_es_mx) %}
+{% set has_brand_category_triptych = settings.brand_category_triptych_enable and (('brand_category_triptych_1.jpg' | has_custom_image) or ('brand_category_triptych_2.jpg' | has_custom_image) or ('brand_category_triptych_3.jpg' | has_custom_image)) %}
 
-{% set show_help = not (has_main_slider or has_mobile_slider or has_video or has_main_categories or has_banners or has_promotional_banners or has_news_banners or has_image_and_text_module or has_brands or has_informative_banners or has_instafeed or has_testimonials or has_institutional_message or has_welcome_message or has_announcement_message or has_brand_editorial) and not has_products %}
+{% set show_help = not (has_main_slider or has_mobile_slider or has_video or has_main_categories or has_banners or has_promotional_banners or has_news_banners or has_image_and_text_module or has_brands or has_informative_banners or has_instafeed or has_testimonials or has_institutional_message or has_welcome_message or has_announcement_message or has_brand_editorial or has_brand_split_video or has_brand_category_triptych) and not has_products %}
 
 {% set show_component_help = params.preview %}
 
@@ -51,7 +53,7 @@
 	{# Theme editor preview: mount missing section helps without showing them on the live store. #}
 	{% if show_component_help %}
 		<div class="d-none" aria-hidden="true">
-			{% for section_select in ['slider', 'main_categories', 'welcome', 'announcement', 'institutional', 'products', 'new', 'sale', 'informatives', 'categories', 'main_product', 'video', 'newsletter', 'instafeed', 'promotional', 'news_banners', 'brands', 'testimonials', 'modules', 'brand_editorial'] %}
+			{% for section_select in ['slider', 'main_categories', 'welcome', 'announcement', 'institutional', 'products', 'new', 'sale', 'informatives', 'categories', 'main_product', 'video', 'newsletter', 'instafeed', 'promotional', 'news_banners', 'brands', 'testimonials', 'modules', 'brand_editorial', 'brand_split_video', 'brand_category_triptych'] %}
 				{% if section_select not in home_sections_rendered %}
 					{% include 'snipplets/home/home-section-switch.tpl' %}
 				{% endif %}

@@ -16,6 +16,8 @@
 
 {% set related_section_id = 'related-products-notification' %}
 
+{% set related_products_list = related_products_list | default([]) %}
+{% set related_products_list = related_products_list | shuffle %}
 {% set related_products = related_products_list | length > 0 %}
 
 {% if related_products %}

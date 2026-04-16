@@ -47,7 +47,7 @@
         <small class="js-subtotal-shipping-wording" {% if not (cart.has_shippable_products or show_calculator_on_cart) %}style="display: none"{% endif %}>{{ " (sin envío)" | translate }}</small>
         :
       </span>
-      <span class="js-ajax-cart-total js-cart-subtotal font-weight-bold {% if not cart_page %}col{% endif %} text-right" data-priceraw="{{ cart.subtotal }}" data-component="cart.subtotal" data-component-value={{ cart.subtotal }}>{{ cart.subtotal | money }}</span>
+      <span class="js-ajax-cart-total js-cart-subtotal font-weight-bold {% if not cart_page %}col{% endif %} text-right" data-priceraw="{{ cart.subtotal }}" data-component="cart.subtotal" data-component-value={{ cart.subtotal }}>{{ cart.subtotal | money_nocents }}</span>
     </div>
 
     {{ component('price-without-taxes', {
@@ -124,7 +124,7 @@
         <span class="col-auto pl-md-0">
           {{ "Subtotal" | translate }}:
         </span>
-        <span class="js-ajax-cart-total js-cart-subtotal col text-right pr-md-0" data-priceraw="{{ cart.subtotal }}">{{ cart.subtotal | money }}</span>
+        <span class="js-ajax-cart-total js-cart-subtotal col text-right pr-md-0" data-priceraw="{{ cart.subtotal }}">{{ cart.subtotal | money_nocents }}</span>
       </div>
 
       {{ component('price-without-taxes', {
@@ -211,7 +211,7 @@
     <div class="js-cart-total-container js-visible-on-cart-filled" {% if cart.items_count == 0 %}style="display:none;"{% endif %} data-store="cart-total">
       <div class="row {% if cart_page %}no-gutters{% endif %} mb-3 h4 font-large font-family-body">
         <span class="col-auto {% if cart_page %}pl-md-0{% endif %}">{{ "Total" | translate }}:</span>
-        <span class="js-cart-total {% if cart.free_shipping.cart_has_free_shipping %}js-free-shipping-achieved{% endif %} {% if cart.shipping_data.selected %}js-cart-saved-shipping{% endif %} col text-right {% if cart_page %}pr-md-0{% endif %}" data-component="cart.total" data-component-value={{ cart.total }}>{{ cart.total | money }}</span>
+        <span class="js-cart-total {% if cart.free_shipping.cart_has_free_shipping %}js-free-shipping-achieved{% endif %} {% if cart.shipping_data.selected %}js-cart-saved-shipping{% endif %} col text-right {% if cart_page %}pr-md-0{% endif %}" data-component="cart.total" data-component-value={{ cart.total }}>{{ cart.total | money_nocents }}</span>
         <span class="col-12 {% if cart_page %}pr-md-0{% endif %}">
           {{ component('payment-discount-price', {
               visibility_condition: settings.payment_discount_price,
@@ -227,7 +227,7 @@
 
       {# IMPORTANT Do not remove this hidden total, it is used by JS to calculate cart total #}
       <div class='total-price hidden'>
-        {{ "Total" | translate }}: {{ cart.total | money }}
+        {{ "Total" | translate }}: {{ cart.total | money_nocents }}
       </div>
     </div>
 

@@ -145,6 +145,12 @@
                     {% include "snipplets/header/header-utilities.tpl" with {use_account: true, login_only: true} %}
                 </div>
 
+                {# Tema claro/oscuro (View Transitions) #}
+
+                <div class="js-utility-col col-auto col-utility desktop-utility-col">
+                    {% include 'snipplets/header/header-theme-toggle.tpl' %}
+                </div>
+
                 {# Cart icon #}
 
                 <div class="js-utility-col col-auto col-utility desktop-utility-col order-last">

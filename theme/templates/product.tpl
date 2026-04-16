@@ -1,4 +1,5 @@
-<article id="single-product" class="js-has-new-shipping js-product-detail js-product-container js-shipping-calculator-container pb-4 pt-3 pt-md-4 pb-md-3 pdp-app pdp-app--enhanced pdp-app--visual" data-variants="{{ product.variants_object | json_encode }}" data-store="product-detail">
+{% include 'snipplets/brand/brand-split-video-hero.tpl' %}
+<article id="single-product" class="js-has-new-shipping js-product-detail js-product-container js-shipping-calculator-container pb-4 pt-3 pt-md-4 pb-md-3 pdp-app pdp-app--enhanced pdp-app--visual pdp-app--represent" data-variants="{{ product.variants_object | json_encode }}" data-store="product-detail">
     <div class="container-fluid">
         <div class="row align-items-start pdp-app-layout">
             <div class="col-md-auto product-image-column pb-4 pdp-app-gallery">
@@ -33,3 +34,34 @@
 {% endif %}
 
 {% include 'snipplets/product/product-pdp-thumbs-bridge.tpl' %}
+
+{% set product_end_video_url = settings.brand_split_video_1_url|default('')|trim %}
+{% if product_end_video_url is empty %}
+    {% set product_end_video_url = attribute(settings, 'brand_split_video_1_url_es')|default('')|trim %}
+{% endif %}
+{% if product_end_video_url is empty %}
+    {% set product_end_video_url = attribute(settings, 'brand_split_video_1_url_pt')|default('')|trim %}
+{% endif %}
+{% if product_end_video_url is empty %}
+    {% set product_end_video_url = attribute(settings, 'brand_split_video_1_url_en')|default('')|trim %}
+{% endif %}
+{% if product_end_video_url is empty %}
+    {% set product_end_video_url = attribute(settings, 'brand_split_video_1_url_es_mx')|default('')|trim %}
+{% endif %}
+
+{% if product_end_video_url %}
+    <section class="theme-brand-phase1 brand-split-video-hero" data-store="product-end-video" aria-label="{{ 'Video' | translate }}">
+        {% include 'snipplets/brand/brand-video-block.tpl' with {
+            block_raw_url: product_end_video_url,
+            block_kicker: settings.brand_split_video_1_kicker,
+            block_title: settings.brand_split_video_1_title,
+            block_btn1: settings.brand_split_video_1_btn1,
+            block_btn1_url: settings.brand_split_video_1_btn1_url,
+            block_btn2: settings.brand_split_video_1_btn2,
+            block_btn2_url: settings.brand_split_video_1_btn2_url,
+            block_autoplay: settings.brand_split_video_autoplay,
+            block_muted: settings.brand_split_video_muted,
+            block_video_class: 'js-brand-split-video-file'
+        } %}
+    </section>
+{% endif %}

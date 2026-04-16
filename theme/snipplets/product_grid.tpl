@@ -1,6 +1,9 @@
 {% if products and pages.is_last %}
 	<div class="last-page" style="display:none;"></div>
 {% endif %}
+{% if products and (template == 'category' or template == 'search') %}
+	{% set products = products | shuffle %}
+{% endif %}
 {% for product in products %}
     {% set image_priority_high_value = false %}
     {% if loop.index in [1, 2] %}

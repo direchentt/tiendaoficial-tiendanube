@@ -111,7 +111,7 @@
                                                 {{'Envío' | translate}}: <strong> {{ (order.shipping_status == 'fulfilled'? 'Enviado' : 'No enviado') | translate }} </strong>
                                             </p>
                                             <div class="mb-3 font-weight-bold">
-                                                {{'Total' | translate}} {{ order.total | money }}
+                                                {{'Total' | translate}} {{ order.total | money_nocents }}
                                             </div>
                                             <a class="btn-link font-small d-block" href="{{ store.customer_order_url(order) }}">{{'Ver detalle >' | translate}}</a>
                                         </div>

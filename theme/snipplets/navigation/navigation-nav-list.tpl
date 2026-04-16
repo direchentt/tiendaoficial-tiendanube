@@ -23,7 +23,7 @@
 			{% endif %}
 			{% if megamenu and not subitem %}
 				<div class="js-desktop-dropdown nav-dropdown-content desktop-dropdown">
-					<div class="container-fluid desktop-dropdown-container">
+					<div class="container-fluid desktop-dropdown-container brand-nav-mega">
 			{% endif %}
 						<ul class="{% if megamenu %}{% if not subitem %}desktop-list-subitems{% endif %} {% else %}js-menu-panel nav-list-panel nav-list-panel-right {{ hamburger_desktop_subpanels_position }} {% endif %} list-subitems" {% if hamburger %}style="display:none;"{% endif %}>
 							{% if hamburger %}

@@ -20,3 +20,41 @@ function createSwiper(selector, swiperParams, callback = null) {
         }
     }, 0);
 }
+
+/**
+ * Tema claro/oscuro con View Transitions API (document.startViewTransition).
+ * El CSS de la transición está en style-async.scss (máscara GIF tipo theme-toggle.rdsx.dev).
+ */
+(function () {
+    function applyColorScheme(next) {
+        document.documentElement.setAttribute('data-color-scheme', next);
+        try {
+            localStorage.setItem('store-color-scheme', next);
+        } catch (e) {}
+    }
+
+    function runToggle() {
+        var el = document.documentElement;
+        var cur = el.getAttribute('data-color-scheme') || 'light';
+        var next = cur === 'dark' ? 'light' : 'dark';
+        var fn = function () {
+            applyColorScheme(next);
+        };
+        if (typeof document.startViewTransition === 'function') {
+            document.startViewTransition(fn);
+        } else {
+            fn();
+        }
+    }
+
+    document.addEventListener('click', function (e) {
+        var t = e.target;
+        if (!t || !t.closest) {
+            return;
+        }
+        if (t.closest('.js-color-scheme-toggle')) {
+            e.preventDefault();
+            runToggle();
+        }
+    });
+})();

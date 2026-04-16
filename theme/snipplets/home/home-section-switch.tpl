@@ -21,7 +21,9 @@
   modules: show_help or (show_component_help and not has_image_and_text_module),
   brands: show_help or (show_component_help and not has_brands),
   testimonials: show_help or (show_component_help and not has_testimonials),
-  brand_editorial: show_help or (show_component_help and not has_brand_editorial)
+  brand_editorial: show_help or (show_component_help and not has_brand_editorial),
+  brand_split_video: show_help or (show_component_help and not has_brand_split_video),
+  brand_category_triptych: show_help or (show_component_help and not has_brand_category_triptych)
 } %}
 
 {% if section_select == 'slider' %}
@@ -186,6 +188,22 @@
 		{% snipplet 'defaults/home/brand_editorial_help.tpl' %}
 	{% else %}
 		{% include 'snipplets/home/home-brand-editorial.tpl' %}
+	{% endif %}
+
+{% elseif section_select == 'brand_split_video' %}
+
+	{% if home_help.brand_split_video %}
+		{% include 'snipplets/defaults/home/banners_help.tpl' with { banner_name: 'brand-video', banner_title: 'Video' | translate, help_text: 'Podés configurar este video desde' | translate, section_name: 'Video hero — General' | translate, data_store: 'home-brand-split-video' }  %}
+	{% else %}
+		{% include 'snipplets/brand/brand-split-video-hero.tpl' with { force_show: true } %}
+	{% endif %}
+
+{% elseif section_select == 'brand_category_triptych' %}
+
+	{% if home_help.brand_category_triptych %}
+		{% include 'snipplets/defaults/home/banners_help.tpl' with { banner_name: 'brand-category-triptych', banner_title: 'Categoría' | translate, help_text: 'Podés configurar estos banners desde' | translate, section_name: 'Banners de categorías marca (3 bloques)' | translate, data_store: 'home-brand-category-triptych' }  %}
+	{% else %}
+		{% include 'snipplets/home/home-brand-category-triptych.tpl' %}
 	{% endif %}
 
 {% endif %}

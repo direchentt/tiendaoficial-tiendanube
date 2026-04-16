@@ -348,6 +348,81 @@ Encabezado
 		name = search_big_desktop
 		description = Mostrar el buscador grande
 	collapse
+		title = Menú hamburguesa (layout marca)
+		backto = _top
+	description
+		description = Vista ampliada del modal: enlaces del menú sin subitems arriba, pestañas por cada entrada con subcategorías, bloque HTML opcional, pastillas con categorías que tengan imagen cargada en el administrador (documentación: imagen de categoría), pie con enlace opcional. Si ninguna entrada del menú tiene subitems, se muestra el menú clásico.
+	checkbox
+		name = brand_hamburger_drawer_enable
+		description = Activar este layout en el modal del menú
+	checkbox
+		name = brand_hamburger_pills_shuffle
+		description = Orden aleatorio de las pastillas en cada carga
+	dropdown
+		name = brand_hamburger_pills_count
+		description = Cantidad de pastillas
+		values
+			4 = 4
+			6 = 6
+			8 = 8
+	i18n_input
+		name = brand_hamburger_pills_title
+		description = Título sobre las pastillas (ej. Los más deseados)
+	textarea
+		name = brand_hamburger_drawer_middle_html
+		description = HTML entre el menú y las pastillas (solo personal de confianza; se inserta sin escapar)
+	i18n_input
+		name = brand_hamburger_footer_link_text
+		description = Texto del enlace inferior (opcional)
+	i18n_input
+		name = brand_hamburger_footer_link_url
+		description = URL del enlace inferior (opcional, misma URL en todos los idiomas si no completás variantes)
+	collapse
+		title = Iconos del encabezado (menú, buscar, cuenta, carrito)
+		backto = _top
+	description
+		description = Estilo tipo boutique: texto traducido, icono minimal del tema, o SVG propio pegado (solo etiqueta <svg>...</svg>). Para replicar un sitio de referencia, copia su SVG y pegalo en el campo correspondiente.
+	dropdown
+		name = header_menu_display
+		description = Boton menu (hamburguesa)
+		values
+			text = Texto (Menú)
+			icon = Icono minimal del tema
+			icon_custom = SVG personalizado (abajo)
+	textarea
+		name = header_menu_svg
+		description = SVG personalizado menu (opcional, solo si elegiste SVG personalizado)
+	dropdown
+		name = header_search_display
+		description = Boton buscar (cuando no es buscador grande)
+		values
+			text = Texto (Buscar)
+			icon = Icono minimal del tema
+			icon_custom = SVG personalizado (abajo)
+	textarea
+		name = header_search_svg
+		description = SVG personalizado buscar (opcional)
+	dropdown
+		name = header_account_display
+		description = Boton cuenta / login
+		values
+			text = Texto (Login / Mi cuenta)
+			icon = Icono minimal del tema
+			icon_custom = SVG personalizado (abajo)
+	textarea
+		name = header_account_svg
+		description = SVG personalizado cuenta (opcional)
+	dropdown
+		name = header_cart_display
+		description = Boton carrito
+		values
+			text = Texto (Carrito)
+			icon = Icono minimal del tema
+			icon_custom = SVG personalizado (abajo)
+	textarea
+		name = header_cart_svg
+		description = SVG personalizado carrito (opcional)
+	collapse
 		title = Barra de anuncio
 	checkbox
 		name = ad_bar
@@ -1362,6 +1437,8 @@ Página de inicio
 			brands = Marcas
 			newsletter = Newsletter
 			video = Video
+			brand_split_video = Video hero marca (1 o 2 bloques)
+			brand_category_triptych = Banners de categorías marca (3 bloques)
 			main_product = Producto principal
 			instafeed = Publicaciones de Instagram
 			testimonials = Testimonios
@@ -1428,6 +1505,164 @@ Marca editorial (layout)
 	checkbox
 		name = brand_slider_editorial
 		description = Carrusel principal: tipografia mas editorial
+	collapse
+		title = Video hero — General
+		backto = _top
+	description
+		description = Dos bloques de configuracion abajo: Bloque 1 y Bloque 2. Solo Bloque 1 con enlace = un video a todo el ancho. Bloque 1 y Bloque 2 con enlace = dos videos mitad y mitad (50/50). YouTube, Vimeo o .mp4/.webm por https.
+	checkbox
+		name = brand_split_video_enable
+		description = Activar seccion de video(s)
+	checkbox
+		name = brand_split_video_show_home
+		description = Mostrar en inicio
+	checkbox
+		name = brand_split_video_show_category
+		description = Mostrar en categorias
+	checkbox
+		name = brand_split_video_show_pdp
+		description = Mostrar en ficha de producto (PDP)
+	checkbox
+		name = brand_split_video_autoplay
+		description = Reproducir automaticamente (mute recomendado)
+	checkbox
+		name = brand_split_video_muted
+		description = Silenciar por defecto
+	collapse
+		title = Video hero — Bloque 1 (izquierda / pantalla completa si solo hay uno)
+		backto = _top
+	description
+		description = Obligatorio: sin enlace del video no se muestra la seccion. Si dejas el Bloque 2 sin enlace, este video ocupa el 100% del ancho.
+	i18n_input
+		name = brand_split_video_1_url
+		description = Enlace del video (YouTube, Vimeo o URL directa .mp4/.webm/.mov). Si la tienda tiene varios idiomas, completa el enlace en cada pestaña o al menos en el idioma por defecto de la vitrina.
+	i18n_input
+		name = brand_split_video_1_kicker
+		description = Antetitulo sobre el titulo (ej. Ahora en directo)
+	i18n_input
+		name = brand_split_video_1_title
+		description = Titulo principal
+	i18n_input
+		name = brand_split_video_1_btn1
+		description = Texto boton 1
+	i18n_input
+		name = brand_split_video_1_btn1_url
+		description = Enlace boton 1 (URL)
+	i18n_input
+		name = brand_split_video_1_btn2
+		description = Texto boton 2
+	i18n_input
+		name = brand_split_video_1_btn2_url
+		description = Enlace boton 2 (URL)
+	collapse
+		title = Video hero — Bloque 2 (derecha / solo si queres dos columnas 50-50)
+		backto = _top
+	description
+		description = Opcional: si completas el enlace del video, la tienda muestra Bloque 1 y Bloque 2 lado a lado (50% cada uno). En celular se apilan uno debajo del otro.
+	i18n_input
+		name = brand_split_video_2_url
+		description = Enlace del video (YouTube, Vimeo o URL directa .mp4/.webm/.mov). Mismo criterio multi-idioma que el bloque 1.
+	i18n_input
+		name = brand_split_video_2_kicker
+		description = Antetitulo
+	i18n_input
+		name = brand_split_video_2_title
+		description = Titulo principal
+	i18n_input
+		name = brand_split_video_2_btn1
+		description = Texto boton 1
+	i18n_input
+		name = brand_split_video_2_btn1_url
+		description = Enlace boton 1 (URL)
+	i18n_input
+		name = brand_split_video_2_btn2
+		description = Texto boton 2
+	i18n_input
+		name = brand_split_video_2_btn2_url
+		description = Enlace boton 2 (URL)
+	collapse
+		title = Banners de categorías marca (3 bloques)
+		backto = _top
+	description
+		description = Seccion reusable de 3 bloques con botones estilo video. Activa esta seccion y luego ordenala desde "Pagina de inicio" (drag and drop) con el nombre "Banners de categorias marca (3 bloques)".
+	checkbox
+		name = brand_category_triptych_enable
+		description = Activar seccion de 3 banners de categorias
+	subtitle
+		subtitle = Bloque 1
+	image
+		original = brand_category_triptych_1.jpg
+		title = Imagen bloque 1 (JPG, GIF, PNG)
+		width = 900
+		height = 1200
+	i18n_input
+		name = brand_category_triptych_1_kicker
+		description = Antetitulo
+	i18n_input
+		name = brand_category_triptych_1_title
+		description = Titulo
+	i18n_input
+		name = brand_category_triptych_1_btn1
+		description = Texto boton 1 (obligatorio)
+	i18n_input
+		name = brand_category_triptych_1_btn1_url
+		description = Enlace boton 1 (URL)
+	i18n_input
+		name = brand_category_triptych_1_btn2
+		description = Texto boton 2 (opcional)
+	i18n_input
+		name = brand_category_triptych_1_btn2_url
+		description = Enlace boton 2 (URL)
+	subtitle
+		subtitle = Bloque 2
+	image
+		original = brand_category_triptych_2.jpg
+		title = Imagen bloque 2 (JPG, GIF, PNG)
+		width = 900
+		height = 1200
+	i18n_input
+		name = brand_category_triptych_2_kicker
+		description = Antetitulo
+	i18n_input
+		name = brand_category_triptych_2_title
+		description = Titulo
+	i18n_input
+		name = brand_category_triptych_2_btn1
+		description = Texto boton 1 (obligatorio)
+	i18n_input
+		name = brand_category_triptych_2_btn1_url
+		description = Enlace boton 1 (URL)
+	i18n_input
+		name = brand_category_triptych_2_btn2
+		description = Texto boton 2 (opcional)
+	i18n_input
+		name = brand_category_triptych_2_btn2_url
+		description = Enlace boton 2 (URL)
+	subtitle
+		subtitle = Bloque 3
+	image
+		original = brand_category_triptych_3.jpg
+		title = Imagen bloque 3 (JPG, GIF, PNG)
+		width = 900
+		height = 1200
+	i18n_input
+		name = brand_category_triptych_3_kicker
+		description = Antetitulo
+	i18n_input
+		name = brand_category_triptych_3_title
+		description = Titulo
+	i18n_input
+		name = brand_category_triptych_3_btn1
+		description = Texto boton 1 (obligatorio)
+	i18n_input
+		name = brand_category_triptych_3_btn1_url
+		description = Enlace boton 1 (URL)
+	i18n_input
+		name = brand_category_triptych_3_btn2
+		description = Texto boton 2 (opcional)
+	i18n_input
+		name = brand_category_triptych_3_btn2_url
+		description = Enlace boton 2 (URL)
 
 Listado de productos
 	meta

@@ -8,30 +8,32 @@
             </div>
         {% endif %}
     {% else %}
-        <section class="pdp-section pdp-section--intro" aria-label="{{ 'Información del producto' | translate }}">
-            {% if template == 'product' and breadcrumbs %}
+        {% if template == 'product' %}
+            <div class="pdp-represent-head">
                 {% include 'snipplets/breadcrumbs.tpl' with { breadcrumbs_custom_class: 'pdp-breadcrumbs mb-2 mb-md-3' } %}
-            {% endif %}
-            {% embed "snipplets/page-header.tpl" with {container: false, padding: false, page_header_class: 'pdp-page-header', page_header_title_class: 'js-product-name pdp-product-title mt-0 mb-2'} %}
-                {% block page_header_text %}{{ product.name }}{% endblock page_header_text %}
-            {% endembed %}
-            {% if settings.product_sku and product.sku %}
-                <div class="font-small opacity-60 mb-3 pdp-sku-line">
-                    {{ "SKU" | translate }}: <span class="js-product-sku font-weight-bold">{{ product.sku }}</span>
-                </div>
-            {% endif %}
-            {% include 'snipplets/product/product-pdp-highlights.tpl' %}
-
-            {% if template == 'product' %}
-                {% set pdp_show_fulfillment = settings.shipping_calculator_product_page and (store.has_shipping or store.branches) and not product.free_shipping and not product.is_non_shippable %}
-                <nav class="pdp-subnav" aria-label="{{ 'Secciones de la ficha' | translate }}">
-                    <a href="#pdp-visual-tabs" class="pdp-subnav__link">{{ "Detalles" | translate }}</a>
-                    {% if pdp_show_fulfillment %}
-                        <a href="#pdp-zone-shipping" class="pdp-subnav__link">{{ "Envío" | translate }}</a>
+                <div class="pdp-represent-head-line">
+                <section class="pdp-section pdp-section--intro" aria-label="{{ 'Información del producto' | translate }}">
+                    <div class="page-header pdp-page-header pb-0">
+                        <h1 class="js-product-name pdp-product-title pdp-represent-product-title mt-0 mb-0">{{ product.name }}</h1>
+                    </div>
+                    {% if settings.product_sku and product.sku %}
+                        <div class="font-small opacity-60 mb-2 pdp-sku-line">
+                            {{ "SKU" | translate }}: <span class="js-product-sku font-weight-bold">{{ product.sku }}</span>
+                        </div>
                     {% endif %}
-                </nav>
-            {% endif %}
-        </section>
+                </section>
+        {% else %}
+                <section class="pdp-section pdp-section--intro" aria-label="{{ 'Información del producto' | translate }}">
+                    {% embed "snipplets/page-header.tpl" with {container: false, padding: false, breadcrumbs: true, breadcrumbs_custom_class: 'pdp-breadcrumbs mb-2 mb-md-3', page_header_class: 'pdp-page-header', page_header_title_class: 'js-product-name pdp-product-title mt-0 mb-2'} %}
+                        {% block page_header_text %}{{ product.name }}{% endblock page_header_text %}
+                    {% endembed %}
+                    {% if settings.product_sku and product.sku %}
+                        <div class="font-small opacity-60 mb-2 pdp-sku-line">
+                            {{ "SKU" | translate }}: <span class="js-product-sku font-weight-bold">{{ product.sku }}</span>
+                        </div>
+                    {% endif %}
+                </section>
+        {% endif %}
     {% endif %}
 
     {# Subscription only detection #}
@@ -45,10 +47,10 @@
             {# Standard prices for normal products #}
             <div class="js-price-container">
                 <span class="d-inline-block mr-1">
-                    <div class="js-price-display font-largest" id="price_display" {% if not product.display_price %}style="display:none;"{% endif %} data-product-price="{{ product.price }}">{% if product.display_price %}{{ product.price | money }}{% endif %}</div>
+                    <div class="js-price-display font-largest" id="price_display" {% if not product.display_price %}style="display:none;"{% endif %} data-product-price="{{ product.price }}">{% if product.display_price %}{{ product.price | money_nocents }}{% endif %}</div>
                 </span>
                 <span class="d-inline-block font-big">
-                <div id="compare_price_display" class="js-compare-price-display price-compare" {% if not product.compare_at_price or not product.display_price %}style="display:none;"{% else %} style="display:block;"{% endif %}>{% if product.compare_at_price and product.display_price %}{{ product.compare_at_price | money }}{% endif %}</div>
+                <div id="compare_price_display" class="js-compare-price-display price-compare" {% if not product.compare_at_price or not product.display_price %}style="display:none;"{% else %} style="display:block;"{% endif %}>{% if product.compare_at_price and product.display_price %}{{ product.compare_at_price | money_nocents }}{% endif %}</div>
                 </span>
                 
                 {{ component('price-discount-disclaimer', {
@@ -141,6 +143,25 @@
         {% endif %}
     </div>
     </section>
+
+        {% if template == 'product' and not home_main_product %}
+                </div>
+            </div>
+        {% endif %}
+
+    {% if template != 'product' %}
+        {% include 'snipplets/product/product-pdp-highlights.tpl' %}
+    {% endif %}
+
+    {% if template == 'product' %}
+        {% set pdp_show_fulfillment = settings.shipping_calculator_product_page and (store.has_shipping or store.branches) and not product.free_shipping and not product.is_non_shippable %}
+        <nav class="pdp-subnav mb-2 mb-md-0" aria-label="{{ 'Secciones de la ficha' | translate }}">
+            <a href="#pdp-visual-tabs" class="pdp-subnav__link">{{ "Detalles" | translate }}</a>
+            {% if pdp_show_fulfillment %}
+                <a href="#pdp-zone-shipping" class="pdp-subnav__link">{{ "Envío" | translate }}</a>
+            {% endif %}
+        </nav>
+    {% endif %}
 
     {# Promotional text: arriba del formulario o debajo del CTA (setting brand_pdp_promos_below_purchase) #}
 
@@ -314,6 +335,8 @@
                 </div>
 
             {% endif %}
+
+            {% include 'snipplets/product/product-pdp-highlights.tpl' %}
         {% endif %}
      </form>
     {% if not home_main_product %}

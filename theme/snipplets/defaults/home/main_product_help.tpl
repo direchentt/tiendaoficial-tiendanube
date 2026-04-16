@@ -52,19 +52,19 @@
                     {% if store.country == 'BR' %}
                         <div class="price-container mb-3">
                             <span class="d-inline-block">
-                                <div class="js-price-display h3 font-family-body" id="price_display">{{"18200" | money }}</div>
+                                <div class="js-price-display h3 font-family-body" id="price_display">{{"18200" | money_nocents }}</div>
                             </span>
                             <span class="d-inline-block font-big">
-                               <div id="compare_price_display" class="js-compare-price-display price-compare" style="display:block;">{{"28000" | money }}</div>
+                               <div id="compare_price_display" class="js-compare-price-display price-compare" style="display:block;">{{"28000" | money_nocents }}</div>
                             </span>
                         </div>
                     {% else %}
                         <div class="price-container mb-3">
                             <span class="d-inline-block">
-                                <div class="js-price-display h3 font-family-body" id="price_display">{{"182000" | money }}</div>
+                                <div class="js-price-display h3 font-family-body" id="price_display">{{"182000" | money_nocents }}</div>
                             </span>
                             <span class="d-inline-block font-big">
-                               <div id="compare_price_display" class="js-compare-price-display price-compare" style="display:block;">{{"280000" | money }}</div>
+                               <div id="compare_price_display" class="js-compare-price-display price-compare" style="display:block;">{{"280000" | money_nocents }}</div>
                             </span>
                         </div>
                     {% endif %}

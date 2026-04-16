@@ -249,6 +249,21 @@
 
   --main-text-transform: {{ main_text_transform }};
 
+  {# Pesos semanticos (misma familia en titulos y cuerpo, p. ej. Instrument Sans) #}
+
+  {% set w_heading_xl = settings.headings_bold ? '700' : '600' %}
+  {% set w_heading_lg = settings.headings_bold ? '700' : '600' %}
+  {% set w_heading_md = '600' %}
+  {% set w_heading_sm = '500' %}
+
+  --font-weight-body: 400;
+  --font-weight-body-medium: 500;
+  --font-weight-body-strong: 600;
+  --font-weight-heading-sm: {{ w_heading_sm }};
+  --font-weight-heading-md: {{ w_heading_md }};
+  --font-weight-heading-lg: {{ w_heading_lg }};
+  --font-weight-heading-xl: {{ w_heading_xl }};
+
   {#/*============================================================================
     #Spacing
   ==============================================================================*/#}

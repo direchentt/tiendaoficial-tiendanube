@@ -4,7 +4,7 @@
 {% set related_products_ids_from_app = product.metafields.related_products.related_products_ids %}
 {% set has_related_products_from_app = related_products_ids_from_app | get_products | length > 0 %}
 {% if has_related_products_from_app %}
-    {% set related_products = related_products_ids_from_app | get_products %}
+    {% set related_products = related_products_ids_from_app | get_products | shuffle %}
 {% endif %}
 {% if related_products is empty %}
     {% set max_related_products_length = 8 %}
@@ -13,7 +13,7 @@
     {% set max_related_products_without_achieved = false %}
 
     {% if related_tag %}
-        {% set products_from_category = related_products_from_controller %}
+        {% set products_from_category = related_products_from_controller | shuffle %}
     {% else %}
         {% set products_from_category = category.products | shuffle %}
     {% endif %}
@@ -36,6 +36,9 @@
     {% endif %}
 {% endif %}
 
+{% if complementary_product_list | length > 0 %}
+    {% set complementary_product_list = complementary_product_list | shuffle %}
+{% endif %}
 {% set complementary_products = complementary_product_list | length > 0 %}
 
 {# Show alternative products when there are default category alternatives with no complementaries or manually selected alternatives #}

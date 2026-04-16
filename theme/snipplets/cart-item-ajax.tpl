@@ -50,7 +50,7 @@
       {% if not cart_page %}
         {# Cart item subtotal #}
         <span class="col cart-item-subtotal">
-          <span class="js-cart-item-subtotal font-weight-bold {% if cart_page %}d-md-flex align-self-center{% endif %}" data-line-item-id="{{ item.id }}" data-component="subtotal.value" data-component-value={{ item.subtotal | money }}'>{{ item.subtotal | money }}</span>
+          <span class="js-cart-item-subtotal font-weight-bold {% if cart_page %}d-md-flex align-self-center{% endif %}" data-line-item-id="{{ item.id }}" data-component="subtotal.value" data-component-value={{ item.subtotal }}>{{ item.subtotal | money_nocents }}</span>
         </span>
       {% endif %}
 
@@ -95,12 +95,12 @@
       {% if cart_page %}
         {# Cart item unit price #}
         <span class="col-3 d-none d-md-flex justify-content-center">
-          <span class="js-cart-item-unit-price d-flex align-self-center" data-line-item-id="{{ item.id }}">{{ item.unit_price | money }}</span>
+          <span class="js-cart-item-unit-price d-flex align-self-center" data-line-item-id="{{ item.id }}">{{ item.unit_price | money_nocents }}</span>
         </span>
 
         {# Cart item subtotal #}
         <span class="col col-md-3 d-flex justify-content-end justify-content-md-center text-right">
-          <span class="js-cart-item-subtotal font-weight-bold {% if cart_page %}d-md-flex align-self-center{% endif %}" data-line-item-id="{{ item.id }}" data-component="subtotal.value" data-component-value={{ item.subtotal | money }}'>{{ item.subtotal | money }}</span>
+          <span class="js-cart-item-subtotal font-weight-bold {% if cart_page %}d-md-flex align-self-center{% endif %}" data-line-item-id="{{ item.id }}" data-component="subtotal.value" data-component-value={{ item.subtotal }}>{{ item.subtotal | money_nocents }}</span>
         </span>
       {% endif %}
 

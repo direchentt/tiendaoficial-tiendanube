@@ -11,6 +11,8 @@
 
 {% if not show_help %}
 
+{% include 'snipplets/brand/brand-split-video-hero.tpl' %}
+
 {% set category_banner = (category.images is not empty) or ("banner-products.jpg" | has_custom_image) %}
 {% set has_category_description_without_banner = not category_banner and category.description %}
 

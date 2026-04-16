@@ -48,7 +48,7 @@
 							{{ 'producto' | translate }}):
 						</span>
 					</span>
-					<span class="js-cart-total col text-right">{{ cart.total | money }}</span>
+					<span class="js-cart-total col text-right">{{ cart.total | money_nocents }}</span>
 				</div>
 			</div>
 			<a href="#" data-toggle="#modal-cart" data-modal-url="modal-fullscreen-cart" class="js-modal-close js-modal-open js-fullscreen-modal-open btn btn-primary btn-big d-block">{{ 'Ver carrito' | translate }}</a>

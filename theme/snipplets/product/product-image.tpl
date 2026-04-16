@@ -8,10 +8,13 @@
 {% set product_grid_detail_md_class = product_grid_detail ? 'd-md-none' %}
 {% set product_pdp_one_up = template == 'product' and not home_main_product %}
 
-<div class="pdp-gallery-root" data-store="product-image-{{ product.id }}">
+<div class="pdp-gallery-root" data-store="product-image-{{ product.id }}"{% if has_multiple_slides %} data-pdp-gallery-multiple="1"{% endif %}>
 	<div class="pdp-gallery-visual{% if product_grid_detail %} pdp-gallery-visual--grid-md{% endif %}{% if product_pdp_one_up %} pdp-gallery-visual--pdp-one-up{% endif %}">
 		<div class="pdp-gallery-main-col">
 	{% if product.media_count > 0 %}
+		{% if product_pdp_one_up %}
+		<div class="pdp-gallery-stage position-relative w-100">
+		{% endif %}
 		{% if has_multiple_slides %}
 			<div class="swiper-buttons p-0 mr-2 {{ product_grid_detail_md_class }}">
 				<div class="js-swiper-product-prev swiper-button-prev svg-icon-text">
@@ -56,6 +59,9 @@
 								{% if apply_lazy_load %}data-sizes="auto"{% endif %}
 								{% if media.dimensions.width and media.dimensions.height %}width="{{ media.dimensions.width }}" height="{{ media.dimensions.height }}"{% endif %}
 								{% if media.alt %}alt="{{media.alt}}"{% endif %} />
+							{% if template == 'product' and not home_main_product %}
+								<span class="pdp-gallery-zoom-hint" aria-hidden="true">+</span>
+							{% endif %}
 
 						{% if home_main_product %}
 							</div>
@@ -72,6 +78,15 @@
 				{% endif %}
 			</div>
 		</div>
+		{% if product_pdp_one_up and has_multiple_slides %}
+		<div class="pdp-gallery-swipe-peek d-md-none" aria-hidden="true">
+			<span class="pdp-gallery-swipe-peek__rail"></span>
+			<span class="pdp-gallery-swipe-peek__knob"></span>
+		</div>
+		{% endif %}
+		{% if product_pdp_one_up %}
+		</div>
+		{% endif %}
 	{% endif %}
 		</div>
 

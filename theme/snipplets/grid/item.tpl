@@ -39,9 +39,10 @@
     {% set control_prev_svg_id = 'arrow-long' %}
 {% endif %}
 
-{# Secondary images #}
+{# Secondary images: hover y/o botón "segunda foto" en grilla (sin slider de imágenes en categoría) #}
 
-{% set show_secondary_image = settings.product_hover %}
+{% set show_flip_second = product.other_images is not empty and not reduced_item and not slide_item and not show_image_slider %}
+{% set show_secondary_image = settings.product_hover or show_flip_second %}
 
 {# Subscription only detection #}
 {% set is_subscription_only = product.isSubscriptionOnly() %}
@@ -86,6 +87,9 @@
                 {% endif %}
             {% endset %}
 
+            {% if show_flip_second %}
+            <div class="position-relative js-item-image-flip-wrap">
+            {% endif %}
             {{ component(
                 'product-item-image', {
                     image_lazy: true,
@@ -122,6 +126,14 @@
                     control_prev_svg_id: control_prev_svg_id,
                 })
             }}
+            {% if show_flip_second %}
+                <button type="button" class="js-item-img-flip btn item-img-flip-btn p-0" aria-label="{{ 'Ver otra foto' | translate }}" aria-pressed="false" title="{{ 'Ver otra foto' | translate }}">
+                    <span class="item-img-flip-btn__inner" aria-hidden="true">
+                        <svg class="icon-inline" width="14" height="14"><use xlink:href="#plus"/></svg>
+                    </span>
+                </button>
+            </div>
+            {% endif %}
     
             {% if 
                 ((settings.quick_shop and not product.isSubscribable()) or settings.product_color_variants)
@@ -187,11 +199,11 @@
                             {# Normal products: original price display #}
                             <div class="item-price-container {% if settings.quick_shop %}mb-3{% endif %}" data-store="product-item-price-{{ product.id }}">
                                 <span class="js-price-display item-price" data-product-price="{{ product.price }}">
-                                    {{ product.price | money }}
+                                    {{ product.price | money_nocents }}
                                 </span>
                                 {% if not reduced_item %}
                                     <span class="js-compare-price-display price-compare" {% if not product.compare_at_price or not product.display_price %}style="display:none;"{% else %}style="display:inline-block;"{% endif %}>
-                                        {{ product.compare_at_price | money }}
+                                        {{ product.compare_at_price | money_nocents }}
                                     </span>
                                 {% endif %}
 

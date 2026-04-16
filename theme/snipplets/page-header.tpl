@@ -6,7 +6,7 @@
 {% set use_container_fluid = container_fluid is defined ? container_fluid : false %}
 
 {% if show_breadcrumbs %}
-	{% include 'snipplets/breadcrumbs.tpl' %}
+	{% include 'snipplets/breadcrumbs.tpl' with { breadcrumbs_custom_class: breadcrumbs_custom_class | default('') } %}
 {% endif %}
 
 <div class="page-header{{ page_header_class is defined ? ' ' ~ page_header_class : '' }}{{ use_padding ? ' pb-3' : '' }}">

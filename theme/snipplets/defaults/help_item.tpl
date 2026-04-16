@@ -69,99 +69,99 @@
                     {% if help_item_1 %}
                         {% if store.country == 'BR' %}
                             <span id="price_display" class="item-price">
-                                {{"9600" | money }}
+                                {{"9600" | money_nocents }}
                             </span>
                             <span id="compare_price_display" class="price-compare">
-                                {{"120000" | money }}
+                                {{"120000" | money_nocents }}
                             </span>
                         {% else %}
                             <span id="price_display" class="item-price">
-                                {{"96000" | money }}
+                                {{"96000" | money_nocents }}
                             </span>
                             <span id="compare_price_display" class="price-compare">
-                                {{"1200000" | money }}
+                                {{"1200000" | money_nocents }}
                             </span>
                         {% endif %}
                     {% elseif help_item_2 %}
                         {% if store.country == 'BR' %}
                             <span id="price_display" class="item-price">
-                                {{"68000" | money }}
+                                {{"68000" | money_nocents }}
                             </span>
                         {% else %}
                             <span id="price_display" class="item-price">
-                                {{"680000" | money }}
+                                {{"680000" | money_nocents }}
                             </span>
                         {% endif %}
                     {% elseif help_item_3 %}
                         {% if store.country == 'BR' %}
                             <span id="price_display" class="item-price">
-                                {{"18200" | money }}
+                                {{"18200" | money_nocents }}
                             </span>
                             <span id="compare_price_display" class="price-compare">
-                                {{"28000" | money }}
+                                {{"28000" | money_nocents }}
                             </span>
                         {% else %}
                             <span id="price_display" class="item-price">
-                                {{"182000" | money }}
+                                {{"182000" | money_nocents }}
                             </span>
                             <span id="compare_price_display" class="price-compare">
-                                {{"280000" | money }}
+                                {{"280000" | money_nocents }}
                             </span>
                         {% endif %}
                     {% elseif help_item_4 %}
                         {% if store.country == 'BR' %}
                             <span id="price_display" class="item-price">
-                                {{"32000" | money }}
+                                {{"32000" | money_nocents }}
                             </span>
                         {% else %}
                             <span id="price_display" class="item-price">
-                                {{"320000" | money }}
+                                {{"320000" | money_nocents }}
                             </span>
                         {% endif %}
                     {% elseif help_item_5 %}
                         {% if store.country == 'BR' %}
                             <span id="price_display" class="item-price">
-                                {{"24900" | money }}
+                                {{"24900" | money_nocents }}
                             </span>
                         {% else %}
                             <span id="price_display" class="item-price">
-                                {{"249000" | money }}
+                                {{"249000" | money_nocents }}
                             </span>
                         {% endif %}
                     {% elseif help_item_6 %}
                         {% if store.country == 'BR' %}
                             <span id="price_display" class="item-price">
-                                {{"42000" | money }}
+                                {{"42000" | money_nocents }}
                             </span>
                         {% else %}
                             <span id="price_display" class="item-price">
-                                {{"420000" | money }}
+                                {{"420000" | money_nocents }}
                             </span>
                         {% endif %}
                     {% elseif help_item_7 %}
                         {% if store.country == 'BR' %}
                             <span id="price_display" class="item-price">
-                                {{"36800" | money }}
+                                {{"36800" | money_nocents }}
                             </span>
                             <span id="compare_price_display" class="price-compare">
-                                {{"46000" | money }}
+                                {{"46000" | money_nocents }}
                             </span>
                         {% else %}
                             <span id="price_display" class="item-price">
-                                {{"368000" | money }}
+                                {{"368000" | money_nocents }}
                             </span>
                             <span id="compare_price_display" class="price-compare">
-                                {{"460000" | money }}
+                                {{"460000" | money_nocents }}
                             </span>
                         {% endif %}
                     {% elseif help_item_8 %}
                         {% if store.country == 'BR' %}
                             <span id="price_display" class="item-price">
-                                {{"12200" | money }}
+                                {{"12200" | money_nocents }}
                             </span>
                         {% else %}
                             <span id="price_display" class="item-price">
-                                {{"122000" | money }}
+                                {{"122000" | money_nocents }}
                             </span>
                         {% endif %}
                     {% endif %}

@@ -68,6 +68,19 @@ window.urls = {
     "shippingUrl": "{{ store.shipping_calculator_url | escape('js') }}"
 }
 
+/** Montos enteros redondeados (alineado a Twig | money_nocents). */
+function formatMoneyRoundedNumber(value) {
+    if (value === null || value === undefined || value === '') {
+        return '';
+    }
+    var n = Math.round(Number(value));
+    if (isNaN(n)) {
+        return String(value);
+    }
+    var sym = (window.LS && LS.currency && LS.currency.display_short) ? LS.currency.display_short : '$';
+    return sym + n.toLocaleString('de-DE', { maximumFractionDigits: 0, minimumFractionDigits: 0 });
+}
+
 {#/*============================================================================
   #Lazy load
 ==============================================================================*/ #}
@@ -106,6 +119,17 @@ DOMContentLoaded.addEventOrExecute(() => {
     jQueryNuvem(document).on("click", ".js-tooltip-open", function(e) {
         e.preventDefault();
         jQueryNuvem(this).next(".js-tooltip").show();
+    });
+
+    {# Segunda foto en ítems de grilla (sin abrir el producto) #}
+    jQueryNuvem(document).on("click", ".js-item-img-flip", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var $btn = jQueryNuvem(this);
+        var $wrap = $btn.closest(".js-item-image-flip-wrap");
+        var on = !$wrap.hasClass("is-flipped");
+        $wrap.toggleClass("is-flipped", on);
+        $btn.attr("aria-pressed", on ? "true" : "false");
     });
 
     {# Notifications variables #}
@@ -694,6 +718,51 @@ DOMContentLoaded.addEventOrExecute(() => {
     jQueryNuvem(".js-toggle-menu-close, .js-modal-overlay[data-modal-id='#nav-hamburger'").click(function () {
         closeHamburgerSubpanels();
     });
+
+    {% set _brand_hamburger_nav_tabs = [] %}
+    {% for item in navigation %}
+        {% if item.subitems %}
+            {% set _brand_hamburger_nav_tabs = _brand_hamburger_nav_tabs | merge([item]) %}
+        {% endif %}
+    {% endfor %}
+    {% if settings.brand_hamburger_drawer_enable and _brand_hamburger_nav_tabs | length > 0 %}
+    jQueryNuvem(document).on("click", ".js-brand-hamburger-tab", function (e) {
+        e.preventDefault();
+        var $btn = jQueryNuvem(this);
+        var idx = $btn.data("brandTab");
+        if (typeof idx === "undefined") {
+            return;
+        }
+        var $root = $btn.closest(".js-brand-hamburger-drawer");
+        if (!$root.length) {
+            return;
+        }
+        $root.find(".js-brand-hamburger-tab").removeClass("is-active").attr("aria-selected", "false");
+        $root.find(".js-brand-hamburger-panel").removeClass("is-active").attr("hidden", true);
+        $btn.addClass("is-active").attr("aria-selected", "true");
+        $root.find('.js-brand-hamburger-panel[data-brand-panel="' + idx + '"]').addClass("is-active").removeAttr("hidden");
+    });
+
+    jQueryNuvem(document).on("click", ".js-brand-hamburger-accordion-toggle", function (e) {
+        e.preventDefault();
+        var $btn = jQueryNuvem(this);
+        var $branch = $btn.closest(".brand-hamburger-drawer__branch");
+        var $panel = $branch.find(".js-brand-hamburger-accordion-panel").first();
+        if (!$panel.length) {
+            return;
+        }
+        var open = $btn.attr("aria-expanded") === "true";
+        if (open) {
+            $btn.attr("aria-expanded", "false");
+            $branch.removeClass("is-open");
+            $panel.attr("hidden", true);
+        } else {
+            $btn.attr("aria-expanded", "true");
+            $branch.addClass("is-open");
+            $panel.removeAttr("hidden");
+        }
+    });
+    {% endif %}
 
     {# Nav subitems desktop #}
 
@@ -2387,7 +2456,7 @@ DOMContentLoaded.addEventOrExecute(() => {
 	function get_max_installments_without_interests(number_of_installment, installment_data, max_installments_without_interests) {
 	    if (parseInt(number_of_installment) > parseInt(max_installments_without_interests[0])) {
 	        if (installment_data.without_interests) {
-	            return [number_of_installment, installment_data.installment_value.toFixed(2)];
+	            return [number_of_installment, installment_data.installment_value];
 	        }
 	    }
 	    return max_installments_without_interests;
@@ -2398,7 +2467,7 @@ DOMContentLoaded.addEventOrExecute(() => {
 	function get_max_installments_with_interests(number_of_installment, installment_data, max_installments_with_interests) {
 	    if (parseInt(number_of_installment) > parseInt(max_installments_with_interests[0])) {
 	        if (installment_data.without_interests == false) {
-	            return [number_of_installment, installment_data.installment_value.toFixed(2)];
+	            return [number_of_installment, installment_data.installment_value];
 	        }
 	    }
 	    return max_installments_with_interests;
@@ -2409,7 +2478,7 @@ DOMContentLoaded.addEventOrExecute(() => {
 	function refreshInstallmentv2(price){
         jQueryNuvem(".js-modal-installment-price" ).each(function( el ) {
 	        const installment = Number(jQueryNuvem(el).data('installment'));
-	        jQueryNuvem(el).text(LS.currency.display_short + (price/installment).toLocaleString('de-DE', {maximumFractionDigits: 2, minimumFractionDigits: 2}));
+	        jQueryNuvem(el).text(formatMoneyRoundedNumber(price / installment));
 	    });
 	}
 
@@ -2458,11 +2527,11 @@ DOMContentLoaded.addEventOrExecute(() => {
 	    var installment_helper = function($element, amount, price){
 	        $element.find('.js-installment-amount').text(amount);
 	        $element.find('.js-installment-price').attr("data-value", price);
-	        $element.find('.js-installment-price').text(LS.currency.display_short + parseFloat(price).toLocaleString('de-DE', { minimumFractionDigits: 2 }));
-	        if(variant.price_short && Math.abs(variant.price_number - price * amount) < 1) {
-	            $element.find('.js-installment-total-price').text((variant.price_short).toLocaleString('de-DE', { minimumFractionDigits: 2 }));
+	        $element.find('.js-installment-price').text(formatMoneyRoundedNumber(price));
+	        if(variant.price_number != null && Math.abs(variant.price_number - price * amount) < 1) {
+	            $element.find('.js-installment-total-price').text(formatMoneyRoundedNumber(variant.price_number));
 	        } else {
-	            $element.find('.js-installment-total-price').text(LS.currency.display_short + (price * amount).toLocaleString('de-DE', { minimumFractionDigits: 2 }));
+	            $element.find('.js-installment-total-price').text(formatMoneyRoundedNumber(price * amount));
 	        }
 	    };
 
@@ -2495,7 +2564,7 @@ DOMContentLoaded.addEventOrExecute(() => {
 	                }
 
 	                if(!parent.hasClass("js-quickshop-container")){
-	                    installment_helper(jQueryNuvem(installment_container_selector), number_of_installment, installment_data.installment_value.toFixed(2));
+	                    installment_helper(jQueryNuvem(installment_container_selector), number_of_installment, installment_data.installment_value);
 	                }
 	            }
 	        }
@@ -2530,11 +2599,17 @@ DOMContentLoaded.addEventOrExecute(() => {
 	    }
 
 	    if(!parent.hasClass("js-quickshop-container")){
-            jQueryNuvem('#installments-modal .js-installments-one-payment').text(variant.price_short).attr("data-value", variant.price_number);
+            var onePay = (variant.price_number != null && variant.price_number !== '' && !isNaN(Number(variant.price_number)))
+                ? formatMoneyRoundedNumber(variant.price_number)
+                : variant.price_short;
+            jQueryNuvem('#installments-modal .js-installments-one-payment').text(onePay).attr("data-value", variant.price_number);
 		}
 
 	    if (variant.price_short){
-	        parent.find('.js-price-display').text(variant.price_short).show();
+	        var priceLabel = (variant.price_number != null && variant.price_number !== '' && !isNaN(Number(variant.price_number)))
+	            ? formatMoneyRoundedNumber(variant.price_number)
+	            : variant.price_short;
+	        parent.find('.js-price-display').text(priceLabel).show();
 	        parent.find('.js-price-display').attr("content", variant.price_number).data('productPrice', variant.price_number_raw);
             
             parent.find('.js-price-without-taxes').text(variant.price_without_taxes);
@@ -2544,7 +2619,12 @@ DOMContentLoaded.addEventOrExecute(() => {
 	    }
 
 	    if ((variant.compare_at_price_short) && !(parent.find(".js-price-display").css("display") == "none")) {
-	        parent.find('.js-compare-price-display').text(variant.compare_at_price_short).show();
+	        var compareRaw = variant.compare_at_price_number != null ? variant.compare_at_price_number : variant.compare_at_price;
+	        if (compareRaw != null && !isNaN(Number(compareRaw))) {
+	            parent.find('.js-compare-price-display').text(formatMoneyRoundedNumber(compareRaw)).show();
+	        } else {
+	            parent.find('.js-compare-price-display').text(variant.compare_at_price_short).show();
+	        }
 	    } else {
 	        parent.find('.js-compare-price-display').hide();
 	    }
@@ -2851,9 +2931,10 @@ DOMContentLoaded.addEventOrExecute(() => {
                     lazy: true,
                     slidesPerView: 1,
                     threshold: 5,
-                    centerInsufficientSlides: true,
+                    centerInsufficientSlides: {% if template == 'product' %}false{% else %}true{% endif %},
                     watchOverflow: true,
-                    spaceBetween: 25,
+                    {% if template == 'product' %}roundLengths: true,
+                    {% endif %}spaceBetween: {% if template == 'product' %}0{% else %}25{% endif %},
                     pagination: {
                         el: '.js-swiper-product-pagination',
                         type: 'fraction',
@@ -2872,6 +2953,9 @@ DOMContentLoaded.addEventOrExecute(() => {
                         init: function () {
                             jQueryNuvem(".js-product-slider-placeholder").hide();
                             jQueryNuvem(".js-swiper-product").css("visibility", "visible").css("height", "auto");
+                            {% if template == 'product' %}
+                                this.update();
+                            {% endif %}
                             {% if product.video_url and template == 'product' %}
                                 if (window.innerWidth < 768) {
                                     productSwiperHeight = jQueryNuvem(".js-swiper-product").height();
@@ -2883,9 +2967,14 @@ DOMContentLoaded.addEventOrExecute(() => {
                             {% if native_videos_enabled %}
                                 pauseAllVideos();
                             {% endif %}
+                            {% if template == 'product' %}
+                                this.update();
+                            {% endif %}
                         },
-                        {% if product.video_url and template == 'product' %}
+                        {% if template == 'product' %}
                             slideChangeTransitionEnd: function () {
+                                this.update();
+                                {% if product.video_url %}
                                 const $parent = jQueryNuvem(this.el).closest(".js-product-detail");
                                 const $labelsFloatingGroup = $parent.find(".js-labels-floating-group");
                                 if(jQueryNuvem(".js-product-video-slide").hasClass("swiper-slide-active")){
@@ -2895,6 +2984,7 @@ DOMContentLoaded.addEventOrExecute(() => {
                                 }
                                 jQueryNuvem('.js-video').show();
                                 jQueryNuvem('.js-video-iframe').hide().find("iframe").remove();
+                                {% endif %}
                             },
                         {% endif %}
                     },
@@ -3520,7 +3610,7 @@ DOMContentLoaded.addEventOrExecute(() => {
         LS.addToTotal(shippingPrice);
 
         let total = (LS.data.cart.total / 100) + parseFloat(shippingPrice);
-        jQueryNuvem(".js-cart-widget-total").html(LS.formatToCurrency(total));
+        jQueryNuvem(".js-cart-widget-total").html(formatMoneyRoundedNumber(total));
 
         selectShippingOption(this, false);
     });
@@ -3620,6 +3710,52 @@ DOMContentLoaded.addEventOrExecute(() => {
         jQueryNuvem(".js-price-filter-btn").addClass("price-btn-ios");
         jQueryNuvem(".js-price-filter-empty").addClass("input-clear-content-ios");
     }
+
+    {#/*============================================================================
+      #Brand split video hero (archivos .mp4 / .webm directos)
+    ==============================================================================*/ #}
+
+    {% if settings.brand_split_video_enable %}
+        (function () {
+            var nodes = document.querySelectorAll('.js-brand-split-video-file');
+            if (!nodes || !nodes.length) {
+                return;
+            }
+            var tryPlay = function (video) {
+                if (!video || typeof video.play !== 'function') {
+                    return;
+                }
+                var p = video.play();
+                if (p && typeof p.catch === 'function') {
+                    p.catch(function () {});
+                }
+            };
+            for (var i = 0; i < nodes.length; i++) {
+                (function (video) {
+                    video.addEventListener('loadeddata', function () {
+                        tryPlay(video);
+                    }, { once: true });
+                    tryPlay(video);
+                })(nodes[i]);
+            }
+        })();
+    {% endif %}
+
+    {% if settings.brand_category_triptych_enable %}
+        if (window.innerWidth < 768 && document.querySelector('.js-swiper-brand-category-triptych')) {
+            createSwiper('.js-swiper-brand-category-triptych', {
+                slidesPerView: 1.08,
+                centeredSlides: true,
+                spaceBetween: 10,
+                speed: 550,
+                watchOverflow: true,
+                pagination: {
+                    el: '.js-swiper-brand-category-triptych-pagination',
+                    clickable: true,
+                },
+            });
+        }
+    {% endif %}
 
     {#/*============================================================================
       #Footer

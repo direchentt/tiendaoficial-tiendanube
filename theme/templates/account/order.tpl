@@ -69,7 +69,7 @@
                                 </div>
                                 <div class="col-2 d-none d-md-flex align-self-stretch justify-content-center">
                                     <span class="d-flex align-self-center">
-                                        {{ item.unit_price | money }}
+                                        {{ item.unit_price | money_nocents }}
                                     </span>
                                 </div>
                                 <div class="col-2 d-none d-md-flex align-self-stretch justify-content-center">
@@ -79,7 +79,7 @@
                                 </div>
                                 <div class="col-5 col-md-2 d-flex px-3 align-self-stretch justify-content-end justify-content-center-md">
                                     <span class="d-flex align-self-center">
-                                        {{ item.subtotal | money }}
+                                        {{ item.subtotal | money_nocents }}
                                     </span>
                                 </div>
                             </div>
@@ -95,7 +95,7 @@
                                     {% if order.shipping == 0  %}
                                         {{ 'Gratis' | translate }}
                                     {% else %}
-                                        {{ order.shipping | money_long }}
+                                        {{ order.shipping | money_nocents }}
                                     {% endif %}
                                 </div>
                             </div>
@@ -111,7 +111,7 @@
                             <div class="row mb-3 text-right">
                                <div class="col-auto">{{ 'Descuento ({1})' | translate(order.coupon) }}:</div>
                                <div class="col">
-                                    - {{ order.discount | money }}
+                                    - {{ order.discount | money_nocents }}
                                 </div>
                             </div>
                         {% endif %}
@@ -119,13 +119,13 @@
                             <div class="row mb-3 text-right">
                                 <div class="col-auto">{{ 'Subtotal' | translate }}:</div>
                                 <div class="col">
-                                    {{ order.subtotal | money }}
+                                    {{ order.subtotal | money_nocents }}
                                 </div>
                             </div>
                         {% endif %}
                         <div class="row mb-3 text-right h4 font-huge font-family-body">
                             <div class="col-auto">{{ 'Total' | translate }}:</div>
-                            <div class="col">{{ order.total | money }}</div>
+                            <div class="col">{{ order.total | money_nocents }}</div>
                         </div>
                         {% if order.pending %}
                             <a class="btn btn-primary btn-big d-block" href="{{ order.checkout_url | add_param('ref', 'orders_details') }}" target="_blank" rel="noopener noreferrer">{{ 'Realizar el pago' | translate }}</a>
