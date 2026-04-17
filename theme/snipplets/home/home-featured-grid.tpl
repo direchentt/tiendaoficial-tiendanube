@@ -20,7 +20,7 @@
 {% set use_slider = has_featured_products_and_slider or has_new_products_and_slider or has_sale_products_and_slider %}
 
 {% if featured_products %}
-    {% set sections_products = sections.primary.products | shuffle %}
+    {% set sections_products = sections.primary.products %}
     {% set section_name = 'primary' %}
     {% set section_columns_desktop = settings.featured_products_desktop %}
     {% set section_columns_mobile = settings.featured_products_mobile %}
@@ -34,7 +34,7 @@
     {% set section_title_size_desktop = settings.featured_products_title_size_desktop == 'medium' ? 'h3-huge-md' : 'h2-huge-md' %}
 {% endif %}
 {% if new_products %}
-    {% set sections_products = sections.new.products | shuffle %}
+    {% set sections_products = sections.new.products %}
     {% set section_name = 'new' %}
     {% set section_columns_desktop = settings.new_products_desktop %}
     {% set section_columns_mobile = settings.new_products_mobile %}
@@ -48,7 +48,7 @@
     {% set section_title_size_desktop = settings.new_products_title_size_desktop == 'medium' ? 'h3-huge-md' : 'h2-huge-md' %}
 {% endif %}
 {% if sale_products %}
-    {% set sections_products = sections.sale.products | shuffle %}
+    {% set sections_products = sections.sale.products %}
     {% set section_name = 'sale' %}
     {% set section_columns_desktop = settings.sale_products_desktop %}
     {% set section_columns_mobile = settings.sale_products_mobile %}

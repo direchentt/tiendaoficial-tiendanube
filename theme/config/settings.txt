@@ -1439,6 +1439,7 @@ Página de inicio
 			video = Video
 			brand_split_video = Video hero marca (1 o 2 bloques)
 			brand_category_triptych = Banners de categorías marca (3 bloques)
+			brand_category_rail = Carril categorías (Novedades / pestañas)
 			main_product = Producto principal
 			instafeed = Publicaciones de Instagram
 			testimonials = Testimonios
@@ -1453,7 +1454,7 @@ Marca editorial (layout)
 		icon = paint-brush
 		advanced = false
 	subtitle
-		subtitle = <span class='legend'>Fase 1: control de ritmo visual tipo boutique streetwear. La franja editorial se activa desde el orden de la pagina de inicio.</span>
+		subtitle = <span class='legend'>Fase 1: control de ritmo visual tipo boutique streetwear. La franja editorial se activa desde el orden de la pagina de inicio. El carril AJAX de categorías tiene su propia sección en el editor: <strong>Carril categorías (AJAX)</strong> (debajo de esta).</span>
 	dropdown
 		name = brand_grid_density
 		description = Aire entre filas en catalogo, busqueda y relacionados
@@ -1663,6 +1664,31 @@ Marca editorial (layout)
 	i18n_input
 		name = brand_category_triptych_3_btn2_url
 		description = Enlace boton 2 (URL)
+
+Carril categorías
+	meta
+		icon = th-list
+		advanced = false
+	subtitle
+		subtitle = <span class='legend'>Pestañas con categorías del menú. Elegí abajo <strong>Enlaces</strong>, <strong>Paneles SSR</strong> o <strong>AJAX</strong>. En <strong>Página de inicio</strong> (orden del inicio) activá la sección <strong>Carril categorías</strong>.</span>
+	description
+		description = Activá el carril, opcional en PDP, título y modo de carga. Las URLs salen del menú de categorías de tu administrador.
+	checkbox
+		name = brand_category_rail_enable
+		description = Activar carril de categorías (home y opcional PDP)
+	checkbox
+		name = brand_category_rail_show_on_product
+		description = Mostrar el carril en la ficha de producto (debajo del video de ficha, antes de relacionados)
+	i18n_input
+		name = brand_category_rail_title
+		description = Título del bloque (ej. Novedades)
+	dropdown
+		name = brand_category_rail_load_mode
+		description = Cómo mostrar productos al cambiar de pestaña. Enlaces = abre la categoría (muy fiable). Paneles SSR = todo en la misma página sin fetch (si el menú trae productos por categoría). AJAX = intenta cargar el HTML de cada URL.
+		values
+			link = Enlaces (ir a la categoría)
+			panels = Paneles SSR (sin fetch, misma página)
+			ajax = AJAX (fetch del HTML de categoría)
 
 Listado de productos
 	meta

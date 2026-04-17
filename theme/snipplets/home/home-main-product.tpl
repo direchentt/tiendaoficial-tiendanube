@@ -1,6 +1,6 @@
 {% if sections.featured.products %}
 	{% if settings.main_product_type == 'random' %}
-		{% set product_type = sections.featured.products | shuffle | take(1) %}
+		{% set product_type = sections.featured.products | take(1) %}
 	{% else %}
 		{% set product_type = sections.featured.products | take(1) %}
 	{% endif %}

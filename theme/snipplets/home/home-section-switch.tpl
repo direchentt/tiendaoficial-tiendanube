@@ -23,7 +23,8 @@
   testimonials: show_help or (show_component_help and not has_testimonials),
   brand_editorial: show_help or (show_component_help and not has_brand_editorial),
   brand_split_video: show_help or (show_component_help and not has_brand_split_video),
-  brand_category_triptych: show_help or (show_component_help and not has_brand_category_triptych)
+  brand_category_triptych: show_help or (show_component_help and not has_brand_category_triptych),
+  brand_category_rail: show_help or (show_component_help and not settings.brand_category_rail_enable)
 } %}
 
 {% if section_select == 'slider' %}
@@ -204,6 +205,14 @@
 		{% include 'snipplets/defaults/home/banners_help.tpl' with { banner_name: 'brand-category-triptych', banner_title: 'Categoría' | translate, help_text: 'Podés configurar estos banners desde' | translate, section_name: 'Banners de categorías marca (3 bloques)' | translate, data_store: 'home-brand-category-triptych' }  %}
 	{% else %}
 		{% include 'snipplets/home/home-brand-category-triptych.tpl' %}
+	{% endif %}
+
+{% elseif section_select == 'brand_category_rail' %}
+
+	{% if home_help.brand_category_rail %}
+		{% snipplet 'defaults/home/brand_category_rail_help.tpl' %}
+	{% else %}
+		{% include 'snipplets/brand/brand-category-rail.tpl' with { rail_context: 'home' } %}
 	{% endif %}
 
 {% endif %}

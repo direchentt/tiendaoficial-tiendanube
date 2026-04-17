@@ -2442,93 +2442,35 @@ DOMContentLoaded.addEventOrExecute(() => {
             }
         });
 
-        {# Quick shop: al elegir talle (u otra variante que no sea solo color cuando también hay talle), agregar al carrito sin pulsar el botón #}
-        (function () {
-            var debounceModal = null;
-
-            function themeQsMarkModalOpenOnly() {
-                window.themeQsSuppressAutoUntil = Date.now() + 650;
-            }
-
-            jQueryNuvem(document).on("click", ".js-quickshop-modal-open", themeQsMarkModalOpenOnly);
-
-            function themeQuickshopForm() {
-                return jQueryNuvem("#quickshop-form").find("form.js-product-form").first();
-            }
-
-            function themeQuickshopHasNonColorVariantGroup($form) {
-                return $form.find(".js-product-variants-group").not(".js-color-variants-container").length > 0;
-            }
-
-            {# Si hay color + talle, no agregar solo al cambiar color; sí al cambiar talle (o producto solo-color). #}
-            function themeQuickshopShouldSkipAutoAddForGroup($form, $group) {
-                if (!$form || !$form.length || !$group || !$group.length) {
-                    return false;
-                }
-                return $group.hasClass("js-color-variants-container") && themeQuickshopHasNonColorVariantGroup($form);
-            }
-
-            function themeQuickshopAllVariantSelectsFilled($form) {
-                var ok = true;
-                $form.find("select.js-variation-option").each(function () {
-                    var v = jQueryNuvem(this).val();
-                    if (v === null || v === "" || typeof v === "undefined") {
-                        ok = false;
-                    }
-                });
-                return ok;
-            }
-
-            function themeQuickshopTryAutoAdd($form) {
-                if (Date.now() < (window.themeQsSuppressAutoUntil || 0)) {
-                    return;
-                }
-                if (!$form || !$form.length) {
-                    return;
-                }
-                if (!themeQuickshopAllVariantSelectsFilled($form)) {
-                    return;
-                }
-                var $btn = $form.find("input.js-addtocart.js-prod-submit-form[type='submit']").first();
-                if (!$btn.length || $btn.prop("disabled") || $btn.hasClass("nostock")) {
-                    return;
-                }
-                if ($form.data("themeQsSubmitting")) {
-                    return;
-                }
-                $form.data("themeQsSubmitting", true);
-                $btn.trigger("click");
-                setTimeout(function () {
-                    $form.removeData("themeQsSubmitting");
-                }, 1500);
-            }
-
-            jQueryNuvem(document).on("change", "#quickshop-modal select.js-variation-option", function () {
-                clearTimeout(debounceModal);
-                var $form = themeQuickshopForm();
-                var $group = jQueryNuvem(this).closest(".js-product-variants-group");
-                if (themeQuickshopShouldSkipAutoAddForGroup($form, $group)) {
-                    return;
-                }
-                debounceModal = setTimeout(function () {
-                    themeQuickshopTryAutoAdd($form);
-                }, 160);
-            });
-        })();
-
     {% endif %}
 
     {% if settings.bullet_variants or settings.product_color_variants or settings.image_color_variants %}
         changeVariantButton = function(selector, parentSelector) {
             selector.siblings().removeClass("selected");
             selector.addClass("selected");
+            {# Micro-feedback al elegir talle/color (CSS theme-variant-pulse). #}
+            var prevPulse = selector.data("themeVariantPulseTimer");
+            if (prevPulse) {
+                clearTimeout(prevPulse);
+            }
+            selector.addClass("theme-variant-pulse");
+            selector.data("themeVariantPulseTimer", setTimeout(function () {
+                selector.removeClass("theme-variant-pulse");
+                selector.removeData("themeVariantPulseTimer");
+            }, 420));
             var option_id = selector.attr('data-option');
             var parent = selector.closest(parentSelector);
-            var selected_option = parent.find('.js-variation-option option').filter(function () {
-                return String(this.value) === String(option_id);
-            });
-            selected_option.prop('selected', true);
-            parent.find('select.js-variation-option').first().trigger('change');
+            var $sel = parent.find('select.js-variation-option').first();
+            {# val() en el select = valor real del POST (evita desfase visual vs option seleccionada). #}
+            $sel.val(String(option_id));
+            if (String($sel.val()) !== String(option_id)) {
+                $sel.find("option").each(function () {
+                    if (String(this.value) === String(option_id)) {
+                        this.selected = true;
+                    }
+                });
+            }
+            $sel.trigger('change');
             var labelText = selector.attr('title') || selector.find('.btn-variant-content').data('name') || option_id;
             parent.find('.js-insta-variation-label').html(labelText);
         }
@@ -2951,17 +2893,45 @@ DOMContentLoaded.addEventOrExecute(() => {
 
 	{# Submit to contact form when product has no price #}
 
-    jQueryNuvem(".js-product-form").on("submit", function (e) {
-	    var button = jQueryNuvem(e.currentTarget).find('[type="submit"]');
-	    button.attr('disabled', 'disabled');
-	    if ((button.hasClass('contact')) || (button.hasClass('catalog'))) {
-	        e.preventDefault();
-	        var product_id = jQueryNuvem(e.currentTarget).find("input[name='add_to_cart']").val();
-	        window.location = "{{ store.contact_url | escape('js') }}?product=" + product_id;
-	    } else if (button.hasClass('cart')) {
-	        button.val('{{ "Agregando..." | translate }}');
-	    }
-	});
+    {# Delegado: formularios inyectados (p. ej. carril New Edition) también entran. Con ajax_cart evitamos POST nativo al carrito (redirección). #}
+    jQueryNuvem(document).on("submit", ".js-product-form", function (e) {
+        var $form = jQueryNuvem(e.currentTarget);
+        var sub = e.originalEvent && e.originalEvent.submitter;
+        var button = sub ? jQueryNuvem(sub) : $form.find('input.js-addtocart[type="submit"], button.js-addtocart[type="submit"]').first();
+        if (!button.length) {
+            button = $form.find('input[type="submit"], button[type="submit"]').first();
+        }
+        if ((button.hasClass('contact')) || (button.hasClass('catalog'))) {
+            button.attr('disabled', 'disabled');
+            e.preventDefault();
+            var product_id = $form.find("input[name='add_to_cart']").val();
+            window.location = "{{ store.contact_url | escape('js') }}?product=" + product_id;
+            return;
+        }
+        {% if settings.ajax_cart %}
+        if (
+            button.hasClass('js-addtocart') &&
+            !button.hasClass('contact') &&
+            !button.hasClass('catalog') &&
+            !button.prop('disabled')
+        ) {
+            e.preventDefault();
+            if ($form.data('jsNuvemAtcFromSubmit')) {
+                return false;
+            }
+            $form.data('jsNuvemAtcFromSubmit', 1);
+            window.setTimeout(function () {
+                $form.removeData('jsNuvemAtcFromSubmit');
+            }, 0);
+            button.trigger('click');
+            return false;
+        }
+        {% endif %}
+        if (button.hasClass('cart')) {
+            button.attr('disabled', 'disabled');
+            button.val('{{ "Agregando..." | translate }}');
+        }
+    });
 
 	{% if template == 'product' or (template == 'home' and sections.featured.products) %}
 
@@ -3296,14 +3266,20 @@ DOMContentLoaded.addEventOrExecute(() => {
             }
 
             $productButtonPlaceholder.width(productButtonWidth).css('display' , 'block');
-            $productButtonText.fadeOut();
+            $productButtonPlaceholder.removeClass("theme-cta-state--success").addClass("theme-cta-state--adding");
+            {# Quick shop: fades más cortos y discretos (evita sensación “pesada”). #}
+            var themeQsAddFade = isQuickShop ? 120 : 320;
+            var themeQsAddFadeIn = isQuickShop ? 160 : 360;
+            {# fadeTo: no usa display:none (fadeOut colapsa el contenedor con hijos absolute → “hueco” en blanco). #}
+            $productButtonText.stop(true, true).show().fadeTo(themeQsAddFade, 0);
             $productButtonAdding.addClass("active");
 
             {# Restore button state in case of error #}
 
             function restore_button_initial_state(){
+                $productButtonPlaceholder.removeClass("theme-cta-state--adding theme-cta-state--success");
                 $productButtonAdding.removeClass("active");
-                $productButtonText.fadeIn();
+                $productButtonText.stop(true, true).css("opacity", "").fadeTo(themeQsAddFadeIn, 1);
                 $productButtonPlaceholder.removeAttr("style").hide();
                 $productButton.show();
                 if (isQuickShop) {
@@ -3373,20 +3349,27 @@ DOMContentLoaded.addEventOrExecute(() => {
                     }
 
                     {# Show button placeholder with transitions #}
+                    {# Activar “¡Listo!” antes de quitar “Agregando…” (evita un frame sin ningún .active). #}
 
-                    $productButtonAdding.removeClass("active");
                     $productButtonSuccess.addClass("active");
+                    $productButtonAdding.removeClass("active");
+                    $productButtonPlaceholder.removeClass("theme-cta-state--adding").addClass("theme-cta-state--success");
+                    var themeQsSuccessHold = isQuickShop ? 720 : 2000;
+                    var themeQsRestoreDelay = isQuickShop ? 980 : 3000;
                     setTimeout(function(){
                         $productButtonSuccess.removeClass("active");
-                        $productButtonText.fadeIn();
-                    },2000);
+                        $productButtonPlaceholder.removeClass("theme-cta-state--success");
+                        $productButtonText.stop(true, true).css("opacity", "").fadeTo(isQuickShop ? 160 : 360, 1);
+                    }, themeQsSuccessHold);
                     setTimeout(function(){
+                        $productButtonPlaceholder.removeClass("theme-cta-state--adding theme-cta-state--success");
+                        $productButtonText.stop(true, true).css("opacity", "");
                         $productButtonPlaceholder.removeAttr("style").hide();
                         $productButton.show();
                         if (isQuickShop) {
                             $productButtonContainer.show();
                         }
-                    },3000);
+                    }, themeQsRestoreDelay);
 
                     $productContainer.find(".js-added-to-cart-product-message").slideDown();
 
@@ -3917,6 +3900,806 @@ DOMContentLoaded.addEventOrExecute(() => {
                 },
             });
         }
+    {% endif %}
+
+    {% if settings.brand_category_rail_enable %}
+        (function () {
+            var copyEmpty = {{ 'No encontramos productos en esta vista.' | translate | json_encode | raw }};
+            var copyErr = {{ 'No pudimos cargar los productos. Intentá de nuevo.' | translate | json_encode | raw }};
+            var copyLoading = {{ 'Cargando productos…' | translate | json_encode | raw }};
+            var copyDotPage = {{ 'Página' | translate | json_encode | raw }};
+            var brandRailResizeSeq = 0;
+            var railCategoryFetchDoneMarker = {};
+
+            function brandRailLoadMode($root) {
+                return String($root.attr('data-rail-load-mode') || 'ajax').toLowerCase();
+            }
+
+            function railUrlKey(href) {
+                if (!href || typeof href !== 'string') {
+                    return '';
+                }
+                var h = decodeRailUrlEntities(href);
+                try {
+                    var u = new URL(h, window.location.href);
+                    return u.pathname.replace(/\/+$/, '') + (u.search || '');
+                } catch (eK) {
+                    return h.split('?')[0].replace(/\/+$/, '');
+                }
+            }
+
+            function brandRailActiveTrack($root) {
+                if (brandRailLoadMode($root) === 'panels') {
+                    var $tp = $root.find('.js-brand-category-rail-panel.is-active .js-brand-category-rail-track').first();
+                    if ($tp.length) {
+                        return $tp;
+                    }
+                }
+                return $root.find('.js-brand-category-rail-track').first();
+            }
+
+            function brandRailLazyScope($root) {
+                if (brandRailLoadMode($root) === 'panels') {
+                    var $p = $root.find('.js-brand-category-rail-panel.is-active').first();
+                    if ($p.length) {
+                        return $p;
+                    }
+                }
+                return $root;
+            }
+
+            function railResizeNamespace($root) {
+                var ns = $root.data('brandRailResizeNs');
+                if (!ns) {
+                    brandRailResizeSeq += 1;
+                    ns = 'brandRailDots' + String(brandRailResizeSeq);
+                    $root.data('brandRailResizeNs', ns);
+                }
+                return ns;
+            }
+
+            function initLazyForRail($root) {
+                if (!window.lazySizes) {
+                    return;
+                }
+                if (typeof lazySizes.init === 'function') {
+                    lazySizes.init();
+                }
+                try {
+                    if (lazySizes.loader && typeof lazySizes.loader.checkElems === 'function') {
+                        lazySizes.loader.checkElems();
+                    }
+                    if (lazySizes.autoSizer && typeof lazySizes.autoSizer.checkElems === 'function') {
+                        lazySizes.autoSizer.checkElems();
+                    }
+                } catch (eLz) {
+                    /* ignore */
+                }
+                if ($root && $root.length) {
+                    brandRailLazyScope($root)
+                        .find('.js-brand-category-rail-track .lazyload, .js-brand-category-rail-track .lazyautosizes')
+                        .each(function () {
+                        try {
+                            if (lazySizes.loader && typeof lazySizes.loader.unveil === 'function') {
+                                lazySizes.loader.unveil(this);
+                            }
+                        } catch (eU) {
+                            /* ignore */
+                        }
+                    });
+                }
+            }
+
+            function destroyRailScrollDots($root) {
+                var pendingLazy = $root.data('railDotsLazyT');
+                if (pendingLazy) {
+                    window.clearTimeout(pendingLazy);
+                    $root.removeData('railDotsLazyT');
+                }
+                var ui = $root.data('railDotsUi');
+                $root.find('.js-brand-category-rail-track').off('scroll.railDots');
+                var $dots = $root.find('.js-brand-category-rail-dots');
+                if (ui) {
+                    if (ui.ro) {
+                        try {
+                            ui.ro.disconnect();
+                        } catch (eR) {
+                            /* ignore */
+                        }
+                    }
+                    if (ui.onWinResize && ui.resizeNs) {
+                        jQueryNuvem(window).off('resize.' + ui.resizeNs, ui.onWinResize);
+                    }
+                    if (ui.rafScroll) {
+                        cancelAnimationFrame(ui.rafScroll);
+                    }
+                    $root.removeData('railDotsUi');
+                }
+                $dots.addClass('d-none').empty().removeAttr('data-rail-pages');
+            }
+
+            function decodeRailUrlEntities(href) {
+                if (!href || typeof href !== 'string' || href.indexOf('&#') === -1) {
+                    return href;
+                }
+                try {
+                    var ta = document.createElement('textarea');
+                    ta.innerHTML = href;
+                    var dec = ta.value;
+                    return dec && dec.length ? dec : href;
+                } catch (eDec) {
+                    return href;
+                }
+            }
+
+            function normalizeRailFetchUrl(href) {
+                if (!href || typeof href !== 'string') {
+                    return href;
+                }
+                href = decodeRailUrlEntities(href);
+                try {
+                    var u = new URL(href, window.location.href);
+                    var uHost = String(u.hostname || '').toLowerCase().replace(/^www\./, '');
+                    var wHost = String(window.location.hostname || '').toLowerCase().replace(/^www\./, '');
+                    if (uHost && wHost && uHost === wHost) {
+                        u.protocol = window.location.protocol;
+                        u.host = window.location.host;
+                    }
+                    return u.toString();
+                } catch (eN) {
+                    return href;
+                }
+            }
+
+            function setupRailScrollDots($root) {
+                destroyRailScrollDots($root);
+                var $track = brandRailActiveTrack($root);
+                var $dots = $root.find('.js-brand-category-rail-dots');
+                var track = $track[0];
+                if (!track || !$dots.length) {
+                    return;
+                }
+
+                function updateActiveDot() {
+                    var pages = parseInt($dots.attr('data-rail-pages') || '0', 10);
+                    if (pages < 2) {
+                        return;
+                    }
+                    var maxScroll = Math.max(1, track.scrollWidth - track.clientWidth);
+                    var ratio = maxScroll > 1 ? track.scrollLeft / maxScroll : 0;
+                    var idx = Math.round(ratio * (pages - 1));
+                    if (idx < 0) {
+                        idx = 0;
+                    }
+                    if (idx >= pages) {
+                        idx = pages - 1;
+                    }
+                    $dots.find('.brand-category-rail__dot').removeClass('is-active').eq(idx).addClass('is-active');
+                }
+
+                function rebuildDots() {
+                    var maxScroll = track.scrollWidth - track.clientWidth;
+                    var cardNodes = track.querySelectorAll('.js-item-product');
+                    var n = cardNodes.length;
+                    var cw = track.clientWidth || 1;
+                    var firstCard = cardNodes[0];
+                    var estCardW = firstCard && firstCard.offsetWidth ? Math.max(firstCard.offsetWidth, 140) : Math.min(220, cw * 0.42);
+                    var perPage = Math.max(1, Math.floor(cw / Math.max(120, estCardW)));
+                    var pagesByCount = n > perPage ? Math.ceil(n / perPage) : 1;
+                    var pagesByScroll =
+                        maxScroll > 4 ? Math.ceil(track.scrollWidth / Math.max(1, cw * 0.88)) : 1;
+                    var pages = Math.min(15, Math.max(pagesByCount, pagesByScroll));
+                    $dots.empty();
+                    if (n < 2 || pages < 2) {
+                        $dots.addClass('d-none').removeAttr('data-rail-pages');
+                        return;
+                    }
+                    $dots.removeClass('d-none');
+                    $dots.attr('data-rail-pages', String(pages));
+                    for (var i = 0; i < pages; i++) {
+                        var btn = document.createElement('button');
+                        btn.type = 'button';
+                        btn.className = 'brand-category-rail__dot' + (i === 0 ? ' is-active' : '');
+                        btn.setAttribute('data-rail-dot-i', String(i));
+                        btn.setAttribute('aria-label', copyDotPage + ' ' + String(i + 1));
+                        $dots.append(btn);
+                    }
+                    updateActiveDot();
+                }
+
+                var ui = { rafScroll: null };
+                ui.onScroll = function () {
+                    if (ui.rafScroll) {
+                        cancelAnimationFrame(ui.rafScroll);
+                    }
+                    ui.rafScroll = requestAnimationFrame(function () {
+                        ui.rafScroll = null;
+                        updateActiveDot();
+                    });
+                };
+                $track.on('scroll.railDots', ui.onScroll);
+
+                ui.onWinResize = function () {
+                    rebuildDots();
+                };
+                ui.resizeNs = railResizeNamespace($root);
+                jQueryNuvem(window).on('resize.' + ui.resizeNs, ui.onWinResize);
+
+                if (typeof ResizeObserver !== 'undefined') {
+                    ui.ro = new ResizeObserver(function () {
+                        rebuildDots();
+                    });
+                    ui.ro.observe(track);
+                }
+
+                $root.data('railDotsUi', ui);
+                rebuildDots();
+            }
+
+            function parseProductRowFromDocument(doc) {
+                var root = doc.body || doc;
+                if (!root) {
+                    return '';
+                }
+                if (root.querySelector('parsererror')) {
+                    return '';
+                }
+
+                var listRootEarly = doc.getElementById('catalog-product-list');
+                if (listRootEarly) {
+                    var listNodes = listRootEarly.querySelectorAll('.js-item-product[data-product-id]');
+                    if (listNodes && listNodes.length) {
+                        var seenL = Object.create(null);
+                        var htmlL = '';
+                        for (var li = 0; li < listNodes.length; li++) {
+                            var elL = listNodes[li];
+                            if (elL.closest('#quickshop-modal') || elL.closest('.quickshop-modal-body')) {
+                                continue;
+                            }
+                            var idL = elL.getAttribute('data-product-id');
+                            if (!idL || String(idL).trim() === '' || seenL[idL]) {
+                                continue;
+                            }
+                            seenL[idL] = true;
+                            htmlL += elL.outerHTML;
+                        }
+                        if (htmlL) {
+                            return htmlL;
+                        }
+                    }
+                }
+
+                function tableInnerFrom(container) {
+                    if (!container) {
+                        return '';
+                    }
+                    var tbl =
+                        container.querySelector('.js-product-table.row.row-grid') ||
+                        container.querySelector('.js-product-table');
+                    if (tbl && tbl.querySelector('.js-item-product[data-product-id]')) {
+                        return tbl.innerHTML;
+                    }
+                    return '';
+                }
+
+                var catalogRoot = doc.getElementById('catalog-product-list');
+                var tInner = tableInnerFrom(catalogRoot);
+                if (tInner) {
+                    return tInner;
+                }
+
+                var uGrid =
+                    doc.querySelector('.category-body .js-user-product-grid') ||
+                    doc.querySelector('.js-user-product-grid');
+                tInner = tableInnerFrom(uGrid);
+                if (tInner) {
+                    return tInner;
+                }
+
+                function cardsHtmlFrom(container) {
+                    if (!container) {
+                        return '';
+                    }
+                    var nodes = container.querySelectorAll('.js-item-product[data-product-id]');
+                    if (!nodes || !nodes.length) {
+                        return '';
+                    }
+                    var seen = Object.create(null);
+                    var html = '';
+                    for (var i = 0; i < nodes.length; i++) {
+                        var el = nodes[i];
+                        if (el.closest('#quickshop-modal') || el.closest('.quickshop-modal-body')) {
+                            continue;
+                        }
+                        var pid = el.getAttribute('data-product-id');
+                        if (!pid || String(pid).trim() === '') {
+                            continue;
+                        }
+                        if (seen[pid]) {
+                            continue;
+                        }
+                        seen[pid] = true;
+                        html += el.outerHTML;
+                    }
+                    return html;
+                }
+
+                var ch = cardsHtmlFrom(catalogRoot);
+                if (ch) {
+                    return ch;
+                }
+                ch = cardsHtmlFrom(uGrid);
+                if (ch) {
+                    return ch;
+                }
+
+                var mainTable =
+                    doc.querySelector('.category-body .js-product-table') ||
+                    doc.querySelector('.js-product-table.row.row-grid') ||
+                    doc.querySelector('.js-product-table');
+                if (mainTable && mainTable.querySelector('.js-item-product[data-product-id]')) {
+                    return mainTable.innerHTML;
+                }
+                var loose = root.querySelectorAll(
+                    '.category-body .js-product-table .js-item-product[data-product-id], .js-product-table .js-item-product[data-product-id]'
+                );
+                if (loose && loose.length) {
+                    var seen2 = Object.create(null);
+                    var html2 = '';
+                    for (var j = 0; j < loose.length; j++) {
+                        var el2 = loose[j];
+                        if (el2.closest('#quickshop-modal') || el2.closest('.quickshop-modal-body')) {
+                            continue;
+                        }
+                        var id2 = el2.getAttribute('data-product-id');
+                        if (!id2 || seen2[id2]) {
+                            continue;
+                        }
+                        seen2[id2] = true;
+                        html2 += el2.outerHTML;
+                    }
+                    if (html2) {
+                        return html2;
+                    }
+                }
+                var wide = root.querySelectorAll('.category-body .js-item-product[data-product-id]');
+                if (wide && wide.length) {
+                    var seen3 = Object.create(null);
+                    var html3 = '';
+                    for (var k = 0; k < wide.length; k++) {
+                        var el3 = wide[k];
+                        if (el3.closest('#quickshop-modal') || el3.closest('.quickshop-modal-body')) {
+                            continue;
+                        }
+                        var id3 = el3.getAttribute('data-product-id');
+                        if (!id3 || seen3[id3]) {
+                            continue;
+                        }
+                        seen3[id3] = true;
+                        html3 += el3.outerHTML;
+                    }
+                    if (html3) {
+                        return html3;
+                    }
+                }
+                var bodyWide = root.querySelectorAll('body .js-item-product[data-product-id]');
+                if (bodyWide && bodyWide.length) {
+                    var seen4 = Object.create(null);
+                    var html4 = '';
+                    for (var m = 0; m < bodyWide.length; m++) {
+                        var el4 = bodyWide[m];
+                        if (el4.closest('#quickshop-modal') || el4.closest('.quickshop-modal-body')) {
+                            continue;
+                        }
+                        var id4 = el4.getAttribute('data-product-id');
+                        if (!id4 || seen4[id4]) {
+                            continue;
+                        }
+                        seen4[id4] = true;
+                        html4 += el4.outerHTML;
+                    }
+                    if (html4) {
+                        return html4;
+                    }
+                }
+                return '';
+            }
+
+            function parseRailInnerFromHtml(html) {
+                if (!html || typeof html !== 'string') {
+                    return '';
+                }
+                var t = html.trim();
+                if (t.charAt(0) === '{' && t.indexOf('access_token') !== -1) {
+                    return '';
+                }
+                if (t.charAt(0) === '{' && t.indexOf('"errors"') !== -1) {
+                    return '';
+                }
+                var doc = new DOMParser().parseFromString(html, 'text/html');
+                return parseProductRowFromDocument(doc);
+            }
+
+            function railFetchCategoryHtml(urlNorm, withXhrHeader) {
+                var headers = {
+                    Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                };
+                if (withXhrHeader) {
+                    headers['X-Requested-With'] = 'XMLHttpRequest';
+                }
+                return jQueryNuvem
+                    .ajax({
+                        url: urlNorm,
+                        type: 'GET',
+                        dataType: 'text',
+                        cache: false,
+                        global: false,
+                        headers: headers,
+                    })
+                    .then(
+                        function (text) {
+                            return typeof text === 'string' ? text : '';
+                        },
+                        function (jqXHR) {
+                            throw new Error('rail_http_' + String(jqXHR && jqXHR.status ? jqXHR.status : 0));
+                        }
+                    );
+            }
+
+            function railPerspectiveSwiperGo($item, toSecond) {
+                var target = toSecond ? 1 : 0;
+                function tryOnce() {
+                    var swiperHost =
+                        $item.find('.item-image-slider.swiper-container').get(0) ||
+                        $item.find('.item-image-slider .swiper-container').get(0) ||
+                        $item.find('.item-image .swiper-container').get(0);
+                    if (swiperHost && swiperHost.swiper && typeof swiperHost.swiper.slideTo === 'function') {
+                        try {
+                            swiperHost.swiper.slideTo(target, 160);
+                        } catch (eS) {
+                            /* ignore */
+                        }
+                        return true;
+                    }
+                    var $next = $item.find('.item-image-slider .swiper-button-next').first();
+                    var $prev = $item.find('.item-image-slider .swiper-button-prev').first();
+                    if (toSecond && $next.length && $next[0]) {
+                        $next[0].click();
+                        return true;
+                    }
+                    if (!toSecond && $prev.length && $prev[0]) {
+                        $prev[0].click();
+                        return true;
+                    }
+                    return false;
+                }
+                if (!tryOnce()) {
+                    window.setTimeout(tryOnce, 90);
+                    window.setTimeout(tryOnce, 260);
+                }
+            }
+
+            function setRailLoading($root, on) {
+                var $el = $root.find('.js-brand-category-rail-loading');
+                if (on) {
+                    $el.removeClass('d-none').addClass('d-flex');
+                } else {
+                    $el.addClass('d-none').removeClass('d-flex');
+                }
+            }
+
+            function resetRailPerspective($root) {
+                $root.removeClass('brand-category-rail--second-view');
+                $root.find('.js-brand-category-rail-perspective').attr('aria-pressed', 'false');
+                $root.find('.js-item-product').removeAttr('data-rail-persp-idx');
+                $root.find('.js-item-image-flip-wrap').removeClass('is-flipped');
+                $root.find('.js-item-flip-photo-root').removeClass('is-flipped');
+                $root
+                    .find(
+                        '.item-image-slider.swiper-container, .item-image-slider .swiper-container, .item-image .swiper-container'
+                    )
+                    .each(function () {
+                        if (this.swiper && typeof this.swiper.slideTo === 'function') {
+                            try {
+                                this.swiper.slideTo(0, 0);
+                            } catch (e0) {
+                                /* ignore */
+                            }
+                        }
+                    });
+            }
+
+            function loadUrlIntoRail($root, url, opts) {
+                opts = opts || {};
+                if (brandRailLoadMode($root) !== 'ajax') {
+                    return;
+                }
+                var $track = brandRailActiveTrack($root);
+                var $status = $root.find('.js-brand-category-rail-status');
+                destroyRailScrollDots($root);
+                resetRailPerspective($root);
+                if (opts.fromUserTab === true) {
+                    $root.removeAttr('data-rail-ssr-preload');
+                }
+                {# Solo en la primera hidratación automática respetamos SSR si el fetch no parsea; al tocar otra pestaña (fromUserTab === true) hay que reemplazar o mostrar error. #}
+                var ssrPreload =
+                    opts.fromUserTab !== true &&
+                    $root.attr('data-rail-ssr-preload') === '1' &&
+                    $track.find('.js-item-product').length > 0;
+                setRailLoading($root, !ssrPreload);
+                if ($status.length) {
+                    if (ssrPreload) {
+                        $status.addClass('d-none').text('');
+                    } else {
+                        $status.removeClass('d-none').text(copyLoading);
+                    }
+                }
+                var urlNorm = normalizeRailFetchUrl(url);
+
+                function applyRailInner(inner) {
+                    if (!inner) {
+                        return;
+                    }
+                    $track.html(inner);
+                    $root.removeAttr('data-rail-ssr-preload');
+                    var useSlider =
+                        String($root.attr('data-product-item-slider')) === '1' &&
+                        typeof LS !== 'undefined' &&
+                        typeof LS.productItemSlider === 'function';
+                    if (useSlider) {
+                        try {
+                            LS.productItemSlider({ pagination_type: 'fraction' });
+                        } catch (e1) {
+                            /* ignore */
+                        }
+                    }
+                    initLazyForRail($root);
+                }
+
+                {# HTML completo primero (como navegador); XHR solo si hace falta — TN suele devolver el listado completo en category.tpl. #}
+                railFetchCategoryHtml(urlNorm, false)
+                    .then(function (html) {
+                        var inner = parseRailInnerFromHtml(html);
+                        if (inner) {
+                            applyRailInner(inner);
+                            return railCategoryFetchDoneMarker;
+                        }
+                        return railFetchCategoryHtml(urlNorm, true);
+                    })
+                    .then(function (html2) {
+                        if (html2 === railCategoryFetchDoneMarker) {
+                            return;
+                        }
+                        var inner2 = parseRailInnerFromHtml(html2);
+                        if (inner2) {
+                            applyRailInner(inner2);
+                        } else if (!ssrPreload) {
+                            if (window.console && console.warn) {
+                                var dbgDoc = null;
+                                try {
+                                    dbgDoc = new DOMParser().parseFromString(
+                                        html2 && typeof html2 === 'string' ? html2 : '',
+                                        'text/html'
+                                    );
+                                } catch (eDbg) {
+                                    /* ignore */
+                                }
+                                console.warn('[brand-category-rail] parse vacío', {
+                                    url: urlNorm,
+                                    htmlLen: html2 && typeof html2 === 'string' ? html2.length : 0,
+                                    hasCatalog: !!(dbgDoc && dbgDoc.getElementById('catalog-product-list')),
+                                });
+                            }
+                            $track.html(
+                                '<div class="col-12 py-4 text-center text-muted small">' + copyEmpty + '</div>'
+                            );
+                        }
+                    })
+                    .catch(function (err) {
+                        if (window.console && console.warn) {
+                            console.warn('[brand-category-rail]', urlNorm, err && err.message ? err.message : err);
+                        }
+                        if (!ssrPreload) {
+                            $track.html(
+                                '<div class="col-12 py-4 text-center text-muted small">' + copyErr + '</div>'
+                            );
+                        }
+                    })
+                    .finally(function () {
+                        setRailLoading($root, false);
+                        if ($status.length) {
+                            $status.addClass('d-none').text('');
+                        }
+                        setupRailScrollDots($root);
+                        initLazyForRail($root);
+                    });
+            }
+
+            jQueryNuvem(document).on('lazyloaded', '.js-brand-category-rail img', function () {
+                var $rail = jQueryNuvem(this).closest('.js-brand-category-rail');
+                if (!$rail.length) {
+                    return;
+                }
+                var prevT = $rail.data('railDotsLazyT');
+                if (prevT) {
+                    window.clearTimeout(prevT);
+                }
+                $rail.data(
+                    'railDotsLazyT',
+                    window.setTimeout(function () {
+                        $rail.removeData('railDotsLazyT');
+                        setupRailScrollDots($rail);
+                    }, 140)
+                );
+            });
+
+            jQueryNuvem(document).on('click', '.js-brand-category-rail-tab', function (e) {
+                var $btn = jQueryNuvem(this);
+                var $root = $btn.closest('.js-brand-category-rail');
+                if (!$root.length) {
+                    return;
+                }
+                var mode = brandRailLoadMode($root);
+                if (mode === 'link') {
+                    return;
+                }
+                var href = $btn.attr('data-url');
+                if (!href) {
+                    return;
+                }
+                e.preventDefault();
+                $root.find('.js-brand-category-rail-tab').removeClass('brand-category-rail__tab--active');
+                $btn.addClass('brand-category-rail__tab--active');
+                if (mode === 'panels') {
+                    var tabKey = railUrlKey(href);
+                    var $activePanel = jQueryNuvem();
+                    $root.find('.js-brand-category-rail-panel').removeClass('is-active').addClass('d-none');
+                    $root.find('.js-brand-category-rail-panel').each(function () {
+                        var raw = jQueryNuvem(this).attr('data-rail-panel-url');
+                        if (!raw) {
+                            return;
+                        }
+                        if (railUrlKey(raw) === tabKey) {
+                            $activePanel = jQueryNuvem(this);
+                            $activePanel.addClass('is-active').removeClass('d-none');
+                            return false;
+                        }
+                    });
+                    resetRailPerspective($root);
+                    destroyRailScrollDots($root);
+                    setupRailScrollDots($root);
+                    initLazyForRail($root);
+                    if ($activePanel.length) {
+                        var $activeTrack = $activePanel.find('.js-brand-category-rail-track').first();
+                        var alreadyLoaded = $activeTrack.find('.js-item-product[data-product-id]').length > 0;
+                        var alreadyTried = $activePanel.attr('data-rail-panel-fetch-tried') === '1';
+                        if (!alreadyLoaded && !alreadyTried) {
+                            $activePanel.attr('data-rail-panel-fetch-tried', '1');
+                            setRailLoading($root, true);
+                            railFetchCategoryHtml(normalizeRailFetchUrl(href), false)
+                                .then(function (htmlP) {
+                                    var innerP = parseRailInnerFromHtml(htmlP);
+                                    if (innerP) {
+                                        $activeTrack.html(innerP);
+                                        initLazyForRail($root);
+                                        setupRailScrollDots($root);
+                                        return railCategoryFetchDoneMarker;
+                                    }
+                                    return railFetchCategoryHtml(normalizeRailFetchUrl(href), true);
+                                })
+                                .then(function (htmlP2) {
+                                    if (htmlP2 === railCategoryFetchDoneMarker) {
+                                        return;
+                                    }
+                                    var innerP2 = parseRailInnerFromHtml(htmlP2);
+                                    if (innerP2) {
+                                        $activeTrack.html(innerP2);
+                                        initLazyForRail($root);
+                                        setupRailScrollDots($root);
+                                    }
+                                })
+                                .catch(function () {
+                                    /* ignore panel fallback errors */
+                                })
+                                .finally(function () {
+                                    setRailLoading($root, false);
+                                });
+                        }
+                    }
+                    return;
+                }
+                loadUrlIntoRail($root, href, { fromUserTab: true });
+            });
+
+            jQueryNuvem(document).on('click', '.js-brand-category-rail-dots .brand-category-rail__dot', function (e) {
+                e.preventDefault();
+                var $dot = jQueryNuvem(this);
+                var $root = $dot.closest('.js-brand-category-rail');
+                var $track = brandRailActiveTrack($root);
+                var tr = $track[0];
+                var $dots = $root.find('.js-brand-category-rail-dots');
+                if (!tr || !$dots.length) {
+                    return;
+                }
+                var pages = parseInt($dots.attr('data-rail-pages') || '0', 10);
+                if (pages < 2) {
+                    return;
+                }
+                var idx = parseInt($dot.attr('data-rail-dot-i') || '0', 10);
+                var maxScroll = Math.max(0, tr.scrollWidth - tr.clientWidth);
+                if (maxScroll > 6) {
+                    var left = (idx / (pages - 1)) * maxScroll;
+                    if (typeof tr.scrollTo === 'function') {
+                        tr.scrollTo({ left: left, behavior: 'smooth' });
+                    } else {
+                        tr.scrollLeft = left;
+                    }
+                    return;
+                }
+                var cardNodes = tr.querySelectorAll('.js-item-product');
+                var n = cardNodes.length;
+                if (!n) {
+                    return;
+                }
+                var target = Math.min(
+                    n - 1,
+                    Math.round((idx / Math.max(1, pages - 1)) * Math.max(0, n - 1))
+                );
+                var el = cardNodes[target];
+                if (el && typeof el.scrollIntoView === 'function') {
+                    el.scrollIntoView({ inline: 'start', behavior: 'smooth', block: 'nearest' });
+                }
+            });
+
+            jQueryNuvem(document).on('click', '.js-brand-category-rail-perspective', function (e) {
+                e.preventDefault();
+                var $b = jQueryNuvem(this);
+                var $root = $b.closest('.js-brand-category-rail');
+                if (!$root.length) {
+                    return;
+                }
+                var on = !$root.hasClass('brand-category-rail--second-view');
+                $root.toggleClass('brand-category-rail--second-view', on);
+                $b.attr('aria-pressed', on ? 'true' : 'false');
+                {# Segunda foto sin slider: CSS .brand-category-rail--second-view en style-async. Con slider: Swiper. #}
+                var $items =
+                    brandRailLoadMode($root) === 'panels'
+                        ? $root.find('.js-brand-category-rail-panel.is-active .js-item-product')
+                        : $root.find('.js-brand-category-rail-track .js-item-product');
+                $items.each(function () {
+                    var $item = jQueryNuvem(this);
+                    if ($item.find('.item-image-slider').length) {
+                        railPerspectiveSwiperGo($item, on);
+                    }
+                });
+            });
+
+            {# SSR en Twig + fetch: pequeño delay para que el DOM/lazy estén listos antes del primer fetch. #}
+            jQueryNuvem('.js-brand-category-rail').each(function () {
+                var $r = jQueryNuvem(this);
+                if ($r.hasClass('brand-category-rail--empty')) {
+                    return;
+                }
+                setupRailScrollDots($r);
+                initLazyForRail($r);
+            });
+            jQueryNuvem('.js-brand-category-rail').each(function () {
+                var $r = jQueryNuvem(this);
+                if ($r.hasClass('brand-category-rail--empty')) {
+                    return;
+                }
+                if (brandRailLoadMode($r) !== 'ajax') {
+                    return;
+                }
+                var $first = $r.find('.js-brand-category-rail-tab.brand-category-rail__tab--active').first();
+                if ($first.length) {
+                    var firstUrl = $first.attr('data-url');
+                    window.setTimeout(function () {
+                        loadUrlIntoRail($r, firstUrl);
+                    }, 150);
+                }
+            });
+        })();
     {% endif %}
 
     {#/*============================================================================

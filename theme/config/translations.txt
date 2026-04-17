@@ -4731,3 +4731,50 @@ es_mx "Permitir que tus clientes se suscriban al newsletter"
 es "<span class='legend'>El texto y link del botón no se van a mostrar si está habilitada la suscripción al newsletter</span>"
 pt "<span class='legend'>O texto e link do botão não aparecerão se a opção de inscrição na Newsletter estiver ativa</span>"
 es_mx "<span class='legend'>El texto y link del botón no se van a mostrar si está habilitada la suscripción al newsletter</span>"
+
+--- --- Brand category rail
+
+es "Ver otra perspectiva"
+pt "Ver outra perspectiva"
+en "See another angle"
+es_mx "Ver otra perspectiva"
+
+es "Ver todo"
+pt "Ver tudo"
+en "View all"
+es_mx "Ver todo"
+
+es "Carril de categorías"
+pt "Carril de categorias"
+en "Category rail"
+es_mx "Carril de categorías"
+
+es "Activá el carril en Diseño > Marca editorial (layout) > Carril categorías, y colocá esta sección en el orden de la página de inicio."
+pt "Ative o carril em Design > Marca editorial > Carril de categorias e coloque esta secao na ordem da pagina inicial."
+en "Enable the rail under Design > Brand editorial layout > Category rail, then add this section to your home page order."
+es_mx "Activa el carril en Diseño > Marca editorial (layout) > Carril categorías, y coloca esta sección en el orden de la página de inicio."
+
+es "No hay categorías para mostrar. Configurá el menú de categorías en tu administrador."
+pt "Nao ha categorias para exibir. Configure o menu de categorias no admin."
+en "There are no categories to show. Set up your category menu in the admin."
+es_mx "No hay categorías para mostrar. Configura el menú de categorías en tu administrador."
+
+es "No pudimos cargar los productos. Intentá de nuevo."
+pt "Nao foi possivel carregar os produtos. Tente novamente."
+en "We could not load products. Please try again."
+es_mx "No pudimos cargar los productos. Intenta de nuevo."
+
+es "No encontramos productos en esta vista."
+pt "Nao encontramos produtos nesta vista."
+en "No products found in this view."
+es_mx "No encontramos productos en esta vista."
+
+es "Cargando productos…"
+pt "Carregando produtos…"
+en "Loading products…"
+es_mx "Cargando productos…"
+
+es "Paginación del carril de productos"
+pt "Paginacao do carril de produtos"
+en "Product rail pagination"
+es_mx "Paginación del carril de productos"

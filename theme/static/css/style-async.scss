@@ -4810,7 +4810,7 @@ body.theme-brand-phase1 b {
 
 .theme-brand-phase1 #quickshop-modal .js-item-name,
 .theme-brand-phase1 .modal-quickshop .js-item-name {
-  letter-spacing: 0.03em;
+  letter-spacing: 0.12em;
   font-weight: 500;
 }
 
@@ -4819,64 +4819,133 @@ body.theme-brand-phase1 b {
   letter-spacing: 0.08em;
 }
 
-/* Quick shop: drawer lateral (no popup centrado); mobile-first ancho completo */
-.theme-brand-phase1 #quickshop-modal.quickshop-drawer.modal {
+/* Quick shop “fashion”: panel al contenido (no toda la altura), columna editorial, tap talle = carrito */
+.theme-brand-phase1 #quickshop-modal.quickshop-modal--fashion .modal-content,
+.theme-brand-phase1 #quickshop-modal.quickshop-modal--fashion .modal-dialog {
   border-radius: 0;
-  top: 0;
-  bottom: 0;
-  height: 100%;
-  max-height: 100vh;
-  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.12);
+  background: transparent;
 }
 
-@media (max-width: 767.98px) {
-  .theme-brand-phase1 #quickshop-modal.quickshop-drawer.modal.modal-right {
-    width: 100%;
-    max-width: 100%;
-    left: auto;
-  }
-
-  .theme-brand-phase1 #quickshop-modal.quickshop-drawer.modal-right.modal-show {
-    right: 0;
-  }
+.theme-brand-phase1 #quickshop-modal.quickshop-modal--fashion .modal-body {
+  background: var(--main-background);
 }
 
 @media (min-width: 768px) {
-  .theme-brand-phase1 #quickshop-modal.quickshop-drawer.modal.modal-right-md {
-    width: min(100vw - 1rem, 22rem);
-    max-width: 22rem;
+  /* Solo estado abierto: panel angosto y centrado en vertical (alto = contenido) */
+  .theme-brand-phase1 #quickshop-modal.quickshop-modal--fashion.modal.modal-right-md.modal-show {
+    top: 50%;
+    bottom: auto;
+    height: auto;
+    min-height: 0;
+    max-height: min(92vh, 48rem);
+    width: min(20rem, calc(100vw - 1.5rem));
+    max-width: min(20rem, calc(100vw - 1.5rem));
+    transform: translateY(-50%);
+    box-shadow: -8px 0 40px rgba(0, 0, 0, 0.08);
   }
 }
 
-.theme-brand-phase1 #quickshop-modal.quickshop-drawer .modal-body {
-  height: 100%;
-  max-height: 100vh;
-  display: flex;
-  flex-direction: column;
+@media (max-width: 767.98px) {
+  /* Panel más compacto: menos alto, imagen más baja, todo visible sin scroll excesivo */
+  .theme-brand-phase1 #quickshop-modal.quickshop-modal--fashion.modal.modal-bottom-sheet.modal-show {
+    left: 0.5rem;
+    right: 0.5rem;
+    width: auto;
+    max-width: min(22rem, calc(100% - 1rem));
+    margin-left: auto;
+    margin-right: auto;
+    max-height: min(82vh, 32rem);
+    height: auto;
+    border-radius: 2px;
+  }
+
+  .theme-brand-phase1 #quickshop-modal .quickshop-modal-body {
+    max-height: min(80vh, 31rem);
+  }
+
+  .theme-brand-phase1 #quickshop-modal .quickshop-fashion__bar {
+    padding-top: 0.65rem !important;
+    padding-bottom: 0.5rem !important;
+  }
+
+  .theme-brand-phase1 #quickshop-modal .quickshop-fashion__media {
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+  }
+
+  .theme-brand-phase1 #quickshop-modal .quickshop-fashion__media .quickshop-image-padding--responsive {
+    padding-bottom: 78%;
+  }
+
+  .theme-brand-phase1 #quickshop-modal .quickshop-fashion__detail {
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.75rem !important;
+  }
+
+  .theme-brand-phase1 #quickshop-modal .quickshop-fashion__title {
+    font-size: 0.9rem;
+    margin-bottom: 0.35rem !important;
+  }
+
+  .theme-brand-phase1 #quickshop-modal .quickshop-fashion__prices {
+    margin-bottom: 0.65rem !important;
+  }
+
+  .theme-brand-phase1 #quickshop-modal .quickshop-fashion__price {
+    font-size: 0.95rem;
+  }
+
+  .theme-brand-phase1 #quickshop-modal #quickshop-form .js-product-variants-group:not(.js-color-variants-container) .js-insta-variant {
+    min-height: 2.35rem;
+    font-size: 0.68rem;
+    padding: 0.2rem;
+  }
 }
 
-.theme-brand-phase1 #quickshop-modal .quickshop-drawer__scroll {
-  flex: 1 1 auto;
-  min-height: 0;
-  max-height: none;
+.theme-brand-phase1 #quickshop-modal .quickshop-fashion__sheet {
+  padding: 0 !important;
+}
+
+.theme-brand-phase1 #quickshop-modal .quickshop-fashion {
+  -webkit-font-smoothing: antialiased;
+}
+
+.theme-brand-phase1 #quickshop-modal .quickshop-fashion__bar {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.theme-brand-phase1 #quickshop-modal .quickshop-fashion__label {
+  letter-spacing: 0.28em;
+  font-size: 0.58rem;
+  opacity: 0.48;
+}
+
+.theme-brand-phase1 #quickshop-modal .quickshop-fashion__close {
+  opacity: 0.7;
+  transition: opacity 0.15s ease;
+}
+
+.theme-brand-phase1 #quickshop-modal .quickshop-fashion__close:hover {
+  opacity: 1;
+}
+
+.theme-brand-phase1 #quickshop-modal .quickshop-modal-body {
+  max-height: min(92vh, 48rem);
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 }
 
-.theme-brand-phase1 #quickshop-modal .quickshop-drawer__panel {
-  min-height: min(100%, 100vh);
-}
-
-.theme-brand-phase1 #quickshop-modal .quickshop-image-container--responsive {
+.theme-brand-phase1 #quickshop-modal .quickshop-fashion__figure {
   position: relative;
-  background: rgba(0, 0, 0, 0.03);
+  background: #f4f4f2;
 }
 
-.theme-brand-phase1 #quickshop-modal .quickshop-drawer__media .quickshop-image-padding--responsive {
+.theme-brand-phase1 #quickshop-modal .quickshop-fashion__media .quickshop-image-padding--responsive {
   position: relative;
   width: 100%;
-  padding-bottom: 72%;
-  max-height: 14rem;
+  padding-bottom: 118%;
 }
 
 .theme-brand-phase1 #quickshop-modal .quickshop-image--responsive {
@@ -4885,61 +4954,191 @@ body.theme-brand-phase1 b {
   top: 0;
   width: 100%;
   height: 100%;
-  object-fit: contain;
-  object-position: center center;
+  object-fit: cover;
+  object-position: center top;
 }
 
-.theme-brand-phase1 #quickshop-modal #quickshop-form .btn-add-to-cart {
-  width: 100%;
-}
-
-.theme-brand-phase1 #quickshop-modal .quickshop-modal-prices {
+.theme-brand-phase1 #quickshop-modal .quickshop-fashion__title {
+  font-size: 1rem;
   line-height: 1.35;
+  font-weight: 600;
 }
 
-.theme-brand-phase1 #quickshop-modal #quickshop-form.quickshop-form--tap-add .row.mt-3 {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
+.theme-brand-phase1 #quickshop-modal .quickshop-fashion__price {
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.theme-brand-phase1 #quickshop-modal .quickshop-fashion__compare {
+  font-size: 0.8rem;
+  opacity: 0.55;
+}
+
+.theme-brand-phase1 #quickshop-modal .quickshop-fashion__prices {
+  line-height: 1.45;
+}
+
+/*
+ * Quick shop CTA: patron tipo DTC fashion (barra llena, micro-caps, tracking amplio).
+ * Mismo aspecto en submit real y en placeholder para que el cambio de estado no “rompa” la pieza.
+ */
+.theme-brand-phase1 #quickshop-modal #quickshop-form .btn-add-to-cart.brand-pdp-cta.btn-primary:not(:disabled),
+.theme-brand-phase1 #quickshop-modal .js-addtocart-placeholder.btn-transition {
+  width: 100%;
+  background: var(--main-foreground) !important;
+  color: var(--main-background) !important;
+  border: 1px solid var(--main-foreground) !important;
+  border-radius: 0;
+  box-shadow: none;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 400;
+  font-size: 0.625rem;
+  line-height: 1.35;
+  padding-top: 1.05rem;
+  padding-bottom: 1.05rem;
+  position: relative;
   overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  border: 0;
-  white-space: nowrap;
+  -webkit-font-smoothing: antialiased;
+  transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* Variantes: color arriba (thumbs); talles en grid tipo XS–XXL */
+.theme-brand-phase1 #quickshop-modal #quickshop-form .btn-add-to-cart.brand-pdp-cta.btn-primary:not(:disabled):hover,
+.theme-brand-phase1 #quickshop-modal .js-addtocart-placeholder.btn-transition:hover {
+  opacity: 0.9;
+}
+
+.theme-brand-phase1 #quickshop-modal #quickshop-form .btn-add-to-cart.brand-pdp-cta.btn-primary:not(:disabled):active,
+.theme-brand-phase1 #quickshop-modal .js-addtocart-placeholder.btn-transition:active {
+  transform: scale(0.995);
+  opacity: 1;
+}
+
+.theme-brand-phase1 #quickshop-modal #quickshop-form .btn-add-to-cart.brand-pdp-cta.btn-primary:disabled,
+.theme-brand-phase1 #quickshop-modal #quickshop-form .btn-add-to-cart.brand-pdp-cta.btn-primary.nostock {
+  opacity: 0.38;
+  background: var(--main-foreground) !important;
+  color: var(--main-background) !important;
+  border-color: var(--main-foreground) !important;
+}
+
+.theme-brand-phase1 #quickshop-modal .js-addtocart-placeholder.btn-transition > .d-inline-block {
+  display: block;
+  width: 100%;
+  min-height: 3rem;
+  position: relative;
+}
+
+.theme-brand-phase1 #quickshop-modal .btn-transition .transition-container {
+  transition: opacity 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+  color: inherit;
+}
+
+.theme-brand-phase1 #quickshop-modal .btn-transition .transition-container.active {
+  transition: opacity 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.theme-brand-phase1 #quickshop-modal .js-addtocart-text,
+.theme-brand-phase1 #quickshop-modal .js-addtocart-adding-text,
+.theme-brand-phase1 #quickshop-modal .js-addtocart-success {
+  letter-spacing: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  text-transform: inherit;
+  color: inherit;
+}
+
+/* Indicador de carga: franja inferior discreta (sin segundo “boton” visual) */
+.theme-brand-phase1 #quickshop-modal .js-addtocart-placeholder.btn-transition.theme-cta-state--adding::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  width: 40%;
+  background: rgba(255, 255, 255, 0.55);
+  animation: theme-qs-cta-loadbar 1.05s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes theme-qs-cta-loadbar {
+  0% {
+    transform: translateX(-120%);
+    opacity: 0.85;
+  }
+
+  100% {
+    transform: translateX(320%);
+    opacity: 0.35;
+  }
+}
+
+@keyframes theme-brand-cta-soft-press {
+  0% { transform: scale(1); }
+  38% { transform: scale(0.987); }
+  100% { transform: scale(1); }
+}
+
+@keyframes theme-brand-cta-soft-confirm {
+  0% { transform: scale(1); }
+  32% { transform: scale(1.004); }
+  100% { transform: scale(1); }
+}
+
+@keyframes theme-brand-variant-select {
+  0% { transform: scale(1); }
+  48% { transform: scale(0.972); }
+  100% { transform: scale(1); }
+}
+
+/* Placeholder PDP: micro-respiro (quick shop usa barra inferior + mismo chrome que CTA) */
+.theme-brand-phase1.template-product #single-product .js-addtocart-placeholder.theme-cta-state--adding {
+  animation: theme-brand-cta-soft-press 0.44s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.theme-brand-phase1.template-product #single-product .js-addtocart-placeholder.theme-cta-state--success {
+  animation: theme-brand-cta-soft-confirm 0.52s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.theme-brand-phase1 #quickshop-modal .js-insta-variant.theme-variant-pulse,
+.theme-brand-phase1.template-product #single-product .js-insta-variant.theme-variant-pulse {
+  animation: theme-brand-variant-select 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.theme-brand-phase1 #quickshop-modal #quickshop-form .row.mt-3 {
+  margin-top: 1.15rem !important;
+  padding-top: 1.05rem !important;
+  border-top: 1px solid rgba(0, 0, 0, 0.07);
+}
+
 .theme-brand-phase1 #quickshop-modal #quickshop-form .js-product-variants.form-row {
   display: block;
   margin-left: 0;
   margin-right: 0;
 }
 
-.theme-brand-phase1 #quickshop-modal #quickshop-form .js-product-variants-group {
-  padding-left: 0;
-  padding-right: 0;
-}
-
-.theme-brand-phase1 #quickshop-modal #quickshop-form .js-product-variants .form-label {
-  margin-bottom: 0.35rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-}
-
+/* Color: fila de thumbs compacta */
 .theme-brand-phase1 #quickshop-modal #quickshop-form .js-color-variants-container .js-insta-variant {
+  margin-right: 0.35rem;
   margin-bottom: 0.35rem;
 }
 
+/* Talle: grid tipo lookbook */
 .theme-brand-phase1 #quickshop-modal #quickshop-form .js-product-variants-group:not(.js-color-variants-container) {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(2.65rem, 1fr));
-  gap: 0.35rem 0.45rem;
+  grid-template-columns: repeat(auto-fill, minmax(2.75rem, 1fr));
+  gap: 0.4rem 0.45rem;
   align-items: stretch;
 }
 
 .theme-brand-phase1 #quickshop-modal #quickshop-form .js-product-variants-group:not(.js-color-variants-container) .form-label {
   grid-column: 1 / -1;
+  margin-bottom: 0.15rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.65;
 }
 
 .theme-brand-phase1 #quickshop-modal #quickshop-form .js-product-variants-group:not(.js-color-variants-container) .js-insta-variant {
@@ -4947,19 +5146,28 @@ body.theme-brand-phase1 b {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 2.5rem;
-  padding: 0.35rem 0.4rem;
-  border-radius: 0;
-  font-size: 0.75rem;
+  min-height: 2.6rem;
+  padding: 0.25rem;
+  font-size: 0.72rem;
   font-weight: 500;
-  letter-spacing: 0.02em;
-  border: 1px solid rgba(0, 0, 0, 0.14);
-  background: var(--main-background, #fff);
+  letter-spacing: 0.06em;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 0;
+  background: var(--main-background);
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
 }
 
 .theme-brand-phase1 #quickshop-modal #quickshop-form .js-product-variants-group:not(.js-color-variants-container) .js-insta-variant.selected {
-  border-color: var(--main-foreground, #111);
-  font-weight: 600;
+  background: var(--main-foreground);
+  color: var(--main-background);
+  border-color: var(--main-foreground);
+  font-weight: 500;
+}
+
+.theme-brand-phase1 #quickshop-modal #quickshop-form .js-color-variants-container .js-insta-variant.selected {
+  box-shadow: 0 0 0 1px var(--main-foreground);
 }
 
 /* PDP: CTA principal alineada a botones tipo video (contorno, sin radio) */
@@ -4975,13 +5183,17 @@ body.theme-brand-phase1 b {
   font-size: 0.75rem;
   padding-top: 0.85rem;
   padding-bottom: 0.85rem;
-  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.22s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .theme-brand-phase1.template-product #single-product .btn-add-to-cart.brand-pdp-cta.btn-primary:not(:disabled):hover {
   background: var(--main-foreground);
   color: var(--main-background);
   border-color: var(--main-foreground);
+}
+
+.theme-brand-phase1.template-product #single-product .btn-add-to-cart.brand-pdp-cta.btn-primary:not(:disabled):active {
+  transform: scale(0.985);
 }
 
 .theme-brand-phase1.template-product #single-product .btn-add-to-cart.brand-pdp-cta.btn-primary:disabled,
@@ -4995,6 +5207,35 @@ body.theme-brand-phase1 b {
 @media (prefers-reduced-motion: reduce) {
   .theme-brand-phase1.template-product #single-product .btn-add-to-cart.brand-pdp-cta.btn-primary:not(:disabled) {
     transition: none;
+  }
+
+  .theme-brand-phase1 #quickshop-modal #quickshop-form .btn-add-to-cart.brand-pdp-cta.btn-primary:not(:disabled),
+  .theme-brand-phase1.template-product .product-form-cta-row--sticky-mobile .btn-add-to-cart.brand-pdp-cta.btn-primary:not(:disabled),
+  .theme-brand-phase1.template-product .pdp-app--visual .btn-add-to-cart.brand-pdp-cta.btn-primary:not(:disabled) {
+    transition: none;
+  }
+
+  .theme-brand-phase1 #quickshop-modal .js-addtocart-placeholder.theme-cta-state--adding,
+  .theme-brand-phase1 #quickshop-modal .js-addtocart-placeholder.theme-cta-state--success,
+  .theme-brand-phase1.template-product #single-product .js-addtocart-placeholder.theme-cta-state--adding,
+  .theme-brand-phase1.template-product #single-product .js-addtocart-placeholder.theme-cta-state--success,
+  .theme-brand-phase1 #quickshop-modal .js-insta-variant.theme-variant-pulse,
+  .theme-brand-phase1.template-product #single-product .js-insta-variant.theme-variant-pulse {
+    animation: none !important;
+    transform: none !important;
+  }
+
+  .theme-brand-phase1 #quickshop-modal .js-addtocart-placeholder.btn-transition.theme-cta-state--adding::after {
+    animation: none !important;
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  .theme-brand-phase1 #quickshop-modal #quickshop-form .btn-add-to-cart.brand-pdp-cta.btn-primary:not(:disabled):active,
+  .theme-brand-phase1.template-product #single-product .btn-add-to-cart.brand-pdp-cta.btn-primary:not(:disabled):active,
+  .theme-brand-phase1.template-product .product-form-cta-row--sticky-mobile .btn-add-to-cart.brand-pdp-cta.btn-primary:not(:disabled):active,
+  .theme-brand-phase1.template-product .pdp-app--visual .btn-add-to-cart.brand-pdp-cta.btn-primary:not(:disabled):active {
+    transform: none;
   }
 }
 
@@ -5011,7 +5252,7 @@ body.theme-brand-phase1 b {
   font-size: 0.75rem;
   padding-top: 0.85rem;
   padding-bottom: 0.85rem;
-  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.22s cubic-bezier(0.22, 1, 0.36, 1);
   filter: none;
 }
 
@@ -5022,6 +5263,11 @@ body.theme-brand-phase1 b {
   border-color: var(--main-foreground);
   filter: none;
   transform: none;
+}
+
+.theme-brand-phase1.template-product .product-form-cta-row--sticky-mobile .btn-add-to-cart.brand-pdp-cta.btn-primary:not(:disabled):active,
+.theme-brand-phase1.template-product .pdp-app--visual .btn-add-to-cart.brand-pdp-cta.btn-primary:not(:disabled):active {
+  transform: scale(0.985);
 }
 
 .theme-brand-phase1.template-product .product-form-cta-row--sticky-mobile .btn-add-to-cart.brand-pdp-cta.btn-primary:disabled,
@@ -6806,7 +7052,8 @@ body.theme-brand-phase1 b {
   pointer-events: none !important;
 }
 
-.js-item-image-flip-wrap {
+.js-item-image-flip-wrap,
+.js-item-flip-photo-root {
   &.is-flipped .product-item-secondary-images-loaded:not(.product-item-secondary-images-disabled) .item-image-featured {
     opacity: 0;
     transition-delay: 0.05s;
@@ -6815,6 +7062,255 @@ body.theme-brand-phase1 b {
   &.is-flipped .product-item-secondary-images-loaded:not(.product-item-secondary-images-disabled) .item-image-featured ~ .item-image-secondary {
     display: block;
     opacity: 1;
+  }
+}
+
+/*============================================================================
+  #Brand: carril categorías + AJAX (home / PDP)
+==============================================================================*/
+
+.theme-brand-phase1 .brand-category-rail {
+  background: var(--main-background);
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.theme-brand-phase1 .brand-category-rail__title {
+  font-size: clamp(1.35rem, 3vw, 1.75rem);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.theme-brand-phase1 .brand-category-rail__nav {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-left: -0.5rem;
+  margin-right: -0.5rem;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+.theme-brand-phase1 .brand-category-rail__tabs {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 1.25rem;
+  align-items: flex-end;
+}
+
+.theme-brand-phase1 .brand-category-rail__tab {
+  background: none;
+  border: none;
+  padding: 0 0 0.35rem;
+  white-space: nowrap;
+  color: inherit;
+  opacity: 0.55;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  border-bottom: 2px solid transparent;
+  transition: opacity 0.15s ease, border-color 0.15s ease;
+}
+
+.theme-brand-phase1 .brand-category-rail__tab:hover {
+  opacity: 0.85;
+}
+
+.theme-brand-phase1 .brand-category-rail__tab--active {
+  opacity: 1;
+  font-weight: 600;
+  border-bottom-color: currentColor;
+}
+
+.theme-brand-phase1 a.brand-category-rail__tab--link {
+  text-decoration: none;
+  display: inline-block;
+  cursor: pointer;
+  color: inherit;
+}
+
+.theme-brand-phase1 .js-brand-category-rail-panel-stack {
+  position: relative;
+  width: 100%;
+}
+
+.theme-brand-phase1 .js-brand-category-rail-panel.d-none {
+  display: none !important;
+}
+
+.theme-brand-phase1 .js-brand-category-rail-panel.is-active {
+  display: block;
+}
+
+.theme-brand-phase1 .brand-category-rail__panel-fallback {
+  width: 100%;
+}
+
+.theme-brand-phase1 .brand-category-rail__persp {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  text-decoration: none;
+  border: none;
+  background: transparent;
+}
+
+.theme-brand-phase1 .brand-category-rail__persp-track {
+  width: 2.35rem;
+  height: 1.1rem;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.12);
+  position: relative;
+  flex-shrink: 0;
+}
+
+.theme-brand-phase1 .brand-category-rail__persp-track::after {
+  content: "";
+  position: absolute;
+  width: 0.85rem;
+  height: 0.85rem;
+  border-radius: 50%;
+  background: #fff;
+  left: 0.13rem;
+  top: 50%;
+  transform: translateY(-50%);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease;
+}
+
+.theme-brand-phase1 .brand-category-rail--second-view .brand-category-rail__persp-track {
+  background: rgba(0, 0, 0, 0.22);
+}
+
+.theme-brand-phase1 .brand-category-rail--second-view .brand-category-rail__persp-track::after {
+  transform: translate(1.15rem, -50%);
+}
+
+/* Segunda foto vía toggle del carril (sin .is-flipped por ítem; cubre HTML sin .product-item-secondary-images-loaded). */
+.theme-brand-phase1.brand-category-rail.brand-category-rail--second-view
+  .js-item-product
+  .item-image:not(.item-image-slider)
+  img.item-image-featured.img-absolute,
+.theme-brand-phase1.brand-category-rail.brand-category-rail--second-view
+  .js-item-product
+  .item-image:not(.item-image-slider)
+  .js-item-image.item-image-featured {
+  opacity: 0;
+  transition-delay: 0.05s;
+}
+
+.theme-brand-phase1.brand-category-rail.brand-category-rail--second-view
+  .js-item-product
+  .item-image:not(.item-image-slider)
+  img.item-image-secondary,
+.theme-brand-phase1.brand-category-rail.brand-category-rail--second-view
+  .js-item-product
+  .item-image:not(.item-image-slider)
+  .item-image-secondary {
+  display: block !important;
+  opacity: 1 !important;
+}
+
+.theme-brand-phase1 .brand-category-rail__viewport {
+  min-height: 8rem;
+}
+
+.theme-brand-phase1 .brand-category-rail__loading {
+  background: rgba(255, 255, 255, 0.65);
+  z-index: 2;
+  top: 0;
+  left: 0;
+}
+
+.theme-brand-phase1 .brand-category-rail__row {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
+  margin-left: 0;
+  margin-right: 0;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.theme-brand-phase1 .brand-category-rail__row::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.theme-brand-phase1 .brand-category-rail__dots-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 1.75rem;
+  padding-top: 0.35rem;
+}
+
+.theme-brand-phase1 .brand-category-rail__dots {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.55rem;
+  max-width: 100%;
+  padding: 0.2rem 0;
+}
+
+.theme-brand-phase1 .brand-category-rail__dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  padding: 0;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.18);
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+}
+
+.theme-brand-phase1 .brand-category-rail__dot:hover,
+.theme-brand-phase1 .brand-category-rail__dot:focus {
+  outline: none;
+  transform: scale(1.2);
+  background: rgba(0, 0, 0, 0.38);
+  border-color: rgba(0, 0, 0, 0.35);
+}
+
+.theme-brand-phase1 .brand-category-rail__dot.is-active {
+  background: rgba(0, 0, 0, 0.82);
+  border-color: rgba(0, 0, 0, 0.55);
+  transform: scale(1.28);
+}
+
+.theme-brand-phase1 .brand-category-rail__row > .js-item-product {
+  flex: 0 0 min(42vw, 220px);
+  max-width: 260px;
+  scroll-snap-align: start;
+}
+
+@media (min-width: 768px) {
+  .theme-brand-phase1 .brand-category-rail__row > .js-item-product {
+    flex: 0 0 18%;
+    min-width: 160px;
+  }
+}
+
+.theme-brand-phase1 .brand-category-rail .item-img-flip-btn {
+  display: none !important;
+}
+
+/* El carril es flex horizontal: .item-image en absolute+100% altura rompe el ratio padding-bottom del TN (caja a 0px → sin fotos). */
+.theme-brand-phase1 .brand-category-rail .item-product:not(.item-product-reduced):not(.swiper-slide) .item-image:not(.item-image-slider) {
+  position: relative;
+  left: auto;
+  top: auto;
+  right: auto;
+  bottom: auto;
+  width: 100%;
+  height: auto;
+  max-height: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-brand-phase1 .brand-category-rail__persp-track::after {
+    transition: none;
   }
 }
 

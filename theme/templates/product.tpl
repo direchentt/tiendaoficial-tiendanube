@@ -29,10 +29,6 @@
     </div>
 </article>
 
-{% if settings.brand_pdp_related_position|default('below_page') != 'after_buybox' %}
-    {% include 'snipplets/product/product-related.tpl' %}
-{% endif %}
-
 {% include 'snipplets/product/product-pdp-thumbs-bridge.tpl' %}
 
 {% set product_end_video_url = settings.brand_split_video_1_url|default('')|trim %}
@@ -64,4 +60,11 @@
             block_video_class: 'js-brand-split-video-file'
         } %}
     </section>
+{% endif %}
+
+{# Carril categorias AJAX: debajo del video de ficha, antes de relacionados y del footer. #}
+{% include 'snipplets/brand/brand-category-rail.tpl' with { rail_context: 'product' } %}
+
+{% if settings.brand_pdp_related_position|default('below_page') != 'after_buybox' %}
+    {% include 'snipplets/product/product-related.tpl' %}
 {% endif %}

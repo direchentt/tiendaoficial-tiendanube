@@ -143,7 +143,7 @@
                 })
             }}
             {% if show_flip_floating %}
-                <button type="button" class="js-item-img-flip btn item-img-flip-btn p-0" aria-label="{{ 'Ver otra foto' | translate }}" aria-pressed="false" title="{{ 'Ver otra foto' | translate }}">
+                <button type="button" class="js-item-img-flip btn item-img-flip-btn p-0" aria-label="{{ 'Ver otra perspectiva' | translate }}" aria-pressed="false" title="{{ 'Ver otra perspectiva' | translate }}">
                     <span class="item-img-flip-btn__inner" aria-hidden="true">
                         <svg class="icon-inline" width="14" height="14"><use xlink:href="#plus"/></svg>
                     </span>
@@ -192,7 +192,7 @@
 
                             <div class="{% if show_product_quantity %}col-8 pl-0{% else %}col-12{% endif %}">
 
-                                <input type="submit" class="js-addtocart js-prod-submit-form btn-add-to-cart btn btn-primary btn-big w-100 {{ state }}" value="{{ texts[state] | translate }}" {% if state == 'nostock' %}disabled{% endif %} />
+                                <input type="submit" class="js-addtocart js-prod-submit-form btn-add-to-cart btn btn-primary btn-big w-100 brand-pdp-cta {{ state }}" value="{{ texts[state] | translate }}" {% if state == 'nostock' %}disabled{% endif %} />
 
                                 {# Fake add to cart CTA visible during add to cart event #}
 
