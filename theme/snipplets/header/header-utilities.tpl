@@ -22,7 +22,7 @@
 {% elseif use_account %}
 	<span class="utilities-container text-transform">
 		{% if login_only %}
-			<a href="{% if not customer %}{{ store.customer_login_url }}{% else %}{{ store.customer_home_url }}{% endif %}" class="btn btn-utility" aria-label="{% if customer %}{{ 'Mi cuenta' | translate }}{% else %}{{ 'Login' | translate }}{% endif %}">
+			<a href="{% if not customer %}{{ store.customer_login_url }}{% else %}{{ store.customer_home_url }}{% endif %}" class="btn btn-utility" aria-label="{% if customer %}{{ 'Mi cuenta' | translate }}{% else %}{{ 'Login' | translate }}{% endif %}" style="position:relative;display:inline-flex;align-items:center;">
 				{% if account_disp == 'icon_custom' and settings.header_account_svg|default('')|trim %}
 					<span class="header-utility-icon" aria-hidden="true">{{ settings.header_account_svg|raw }}</span>
 				{% elseif account_disp == 'icon' %}
@@ -36,6 +36,8 @@
 						{% endif %}
 					</span>
 				{% endif %}
+				{# ── Login status dot: verde=logueado, rojo=visitante ── #}
+				<span aria-hidden="true" style="position:absolute;bottom:4px;right:2px;width:8px;height:8px;border-radius:50%;background:{% if customer %}#22c55e{% else %}#ef4444{% endif %};border:1.5px solid #fff;display:block;"></span>
 			</a>
 		{% else %}
 			{% if not customer %}
