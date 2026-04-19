@@ -33,7 +33,7 @@
             slider_controls_position: 'with-section-title',
             slider_controls_container: true,
             section_classes: {
-                section: 'js-related-products-notification',
+                section: 'js-related-products-notification js-product-table',
                 container: container_class,
                 title_container: title_container_class,
                 title: title_class,

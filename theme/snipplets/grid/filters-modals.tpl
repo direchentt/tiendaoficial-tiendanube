@@ -1,11 +1,12 @@
 {% if products or has_filters_available %}
-  {# En móvil el dock compacto (catalog-top-bar) abre los mismos modales; esta fila solo en escritorio si hace falta. #}
-  <section class="js-category-controls category-controls visible-when-content-ready {% if settings.filters_desktop_modal | default(false) %}d-none d-md-block{% else %}d-none{% endif %}">
+  {# En móvil el dock (catalog-top-bar) abre los modales; en escritorio con filtros en modal el trigger vive en catalog-top-bar (una sola barra con pastillas de orden). #}
+  {% set _filters_modal_desktop = settings.filters_desktop_modal | default(false) %}
+  <section class="js-category-controls category-controls visible-when-content-ready {% if _filters_modal_desktop %}d-none d-md-block{% if products and has_filters_available %} category-controls--toolbar-inline-md{% endif %}{% else %}d-none{% endif %}">
     <div class="container-fluid category-controls-container">
       <div class="category-controls-row py-3 py-md-0">
         {% if products and not has_filters_available %}
           <div class="category-control-item">
-            <a href="#" role="button" class="js-modal-open btn-link text-transform" data-toggle="#sort-by" aria-haspopup="dialog">
+            <a href="#" role="button" class="js-modal-open btn-link text-transform{% if _filters_modal_desktop %} d-md-none{% endif %}" data-toggle="#sort-by" aria-haspopup="dialog">
               {{ 'Ordenar' | t }}
             </a>
             {% embed "snipplets/modal.tpl" with{modal_id: 'sort-by', modal_class: 'bottom modal-centered modal-bottom-sheet modal-right-md', modal_position: 'bottom', modal_position_desktop: 'right', modal_width: 'docked-md', modal_transition: 'slide', modal_header_title: true} %}
@@ -14,7 +15,7 @@
                   'sort-by',{
                     list: true,
                     sort_by_classes: {
-                      group: 'filter-accordion',
+                      group: 'filter-accordion filter-accordion--catalog-sort',
                       list_title: 'h1 font-huge mb-0',
                       list: 'radio-button-container list-unstyled my-3',
                       list_item: 'radio-button-item',
@@ -35,7 +36,7 @@
         {% endif %}
         {% if products and has_filters_available %}
           <div class="visible-when-content-ready category-control-item">
-            <a href="#" role="button" class="js-modal-open" data-toggle="#nav-filters" data-component="filter-button" aria-haspopup="dialog">
+            <a href="#" role="button" class="js-modal-open{% if _filters_modal_desktop %} d-md-none{% endif %}" data-toggle="#nav-filters" data-component="filter-button" aria-haspopup="dialog">
               <span class="btn-link text-transform mr-1">{{ 'Filtrar y ordenar' | t }}</span>
               {% if has_applied_filters %}
                 (<span class="js-filters-total-badge"></span>)
@@ -73,7 +74,7 @@
                       title_icon: "icon-inline svg-icon-text icon-xs mr-1"
                     },
                     sort_by_classes: {
-                      group: 'filter-accordion',
+                      group: 'filter-accordion filter-accordion--catalog-sort',
                       list: 'radio-button-container list-unstyled my-3',
                       list_item: 'radio-button-item',
                       radio_button: "radio-button",

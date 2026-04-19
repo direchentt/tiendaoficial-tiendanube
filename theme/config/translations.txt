@@ -4222,6 +4222,14 @@ es "Abrir filtros a la derecha del listado de productos al cliquear en 'filtrar'
 pt "Abrir filtros à direita da lista de produtos ao clicar em 'filtrar' (só em computadores)"
 es_mx "Abrir filtros a la derecha del listado de productos al clicar en 'filtrar' (solo en computadoras)"
 
+es "Móvil: isla “Filtrar y ordenar” fija al pie con vidrio. Desmarcá para mostrar el mismo control arriba del listado (sin flotar)."
+pt "Celular: ilha “Filtrar e ordenar” fixa no rodapé com vidro. Desmarque para mostrar o mesmo controle acima da lista (sem flutuar)."
+es_mx "Móvil: isla “Filtrar y ordenar” fija al pie con vidrio. Desmarcá para mostrar el mismo control arriba del listado (sin flotar)."
+
+es "Mostrar la misma isla vidrio “Filtrar y ordenar” flotante en computadoras (abajo a la derecha). Si está desmarcada, en escritorio se usa la barra con pastillas de orden."
+pt "Mostrar a mesma ilha de vidro “Filtrar e ordenar” flutuante no desktop (canto inferior direito). Se desmarcado, no desktop usa-se a barra com pastilhas de ordenação."
+es_mx "Mostrar la misma isla vidrio “Filtrar y ordenar” flotante en computadoras (abajo a la derecha). Si está desmarcada, en escritorio se usa la barra con pastillas de orden."
+
 es "<span class='js-description-html'><strong>Configurá los filtros</strong> de tu tienda desde <a target='_blank' href='/admin/v2/filters' class='font-bold'>el administrador</a></span>"
 pt "<span class='js-description-html'><strong>Configure os filtros</strong> da sua loja <a target='_blank' href='/admin/v2/filters' class='font-bold'>no administrador</a></span>"
 es_mx "<span class='js-description-html'><strong>Configura los filtros</strong> de tu tienda desde <a target='_blank' href='/admin/v2/filters' class='font-bold'>el administrador</a></span>"

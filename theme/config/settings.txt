@@ -1958,6 +1958,12 @@ Listado de productos
 		name = filters_desktop_modal
 		description = Abrir filtros a la derecha del listado de productos al cliquear en 'filtrar' (solo en computadoras)
 	checkbox
+		name = catalog_mobile_filter_dock_float
+		description = Móvil: isla “Filtrar y ordenar” fija al pie con vidrio. Desmarcá para mostrar el mismo control arriba del listado (sin flotar).
+	checkbox
+		name = catalog_filter_dock_float_desktop
+		description = Mostrar la misma isla vidrio “Filtrar y ordenar” flotante en computadoras (abajo a la derecha). Si está desmarcada, en escritorio se usa la barra con pastillas de orden.
+	checkbox
 		name = catalog_benefits_bar_show
 		description = Mostrar barra de beneficios (cuotas sin interés si aplica, envío gratis, transferencia) y leyenda opcional sobre el listado en categoría y búsqueda
 	i18n_input
@@ -2022,7 +2028,7 @@ Listado de productos
 		name = product_item_slider
 		description = Mostrar las fotos en un carrusel para cada producto
 	subtitle
-		subtitle = <span class='js-description-html legend d-block p-top-half'>Con esta opción activa, el carrusel y los indicadores (puntos y flechas) se muestran en todas las vitrinas con más de una imagen: inicio, categoría, búsqueda, relacionados, carril de categoría, etc.</span>
+		subtitle = <span class='js-description-html legend d-block p-top-half'>Con esta opción activa, el carrusel y los indicadores (puntos y flechas) se muestran en todo el sitio en cada tarjeta con más de una imagen: inicio, categoría, búsqueda, productos relacionados y complementarios en la ficha, carril de categoría, sugeridos en el carrito, 404, y cualquier sección que liste productos con la misma tarjeta.</span>
 	title
 		title = Información de cuotas
 	checkbox

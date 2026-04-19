@@ -65,7 +65,8 @@
 {% set alternative_data_component = source_alternative == 'default' ? 'related-products' : 'alternative-products' %}
 
 {% if alternative_products or complementary_products %}
-<div class="pdp-discovery-region" role="region" aria-label="{{ 'Más productos para vos' | translate }}">
+{# js-product-table: LS.productItemSlider recorre ancestros con esta clase; cubre relacionados + complementarios. #}
+<div class="pdp-discovery-region js-product-table" role="region" aria-label="{{ 'Más productos para vos' | translate }}">
 {% endif %}
 
 {% if alternative_products %}

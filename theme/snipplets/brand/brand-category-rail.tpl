@@ -62,15 +62,15 @@
 					<div class="js-brand-category-rail-panel-stack w-100">
 						{% include 'snipplets/brand/brand-category-rail-panels-recurse.tpl' with { categories: categories|default([]), mark_first_panel: true } %}
 						<div class="js-brand-category-rail-panel d-none" data-rail-panel-url="{{ store.products_url }}" data-brand-rail-panel="1">
-							<div class="js-brand-category-rail-track d-flex flex-nowrap brand-category-rail__row">
-								<div class="col-12 py-4 text-center">
+						<div class="js-brand-category-rail-track js-product-table d-flex flex-nowrap brand-category-rail__row">
+							<div class="col-12 py-4 text-center">
 									<a href="{{ store.products_url }}" class="btn btn-outline-primary">{{ 'Ver catálogo completo' | translate }}</a>
 								</div>
 							</div>
 						</div>
 					</div>
 				{% else %}
-					<div class="brand-category-rail__track js-brand-category-rail-track d-flex flex-nowrap brand-category-rail__row">
+					<div class="brand-category-rail__track js-brand-category-rail-track js-product-table d-flex flex-nowrap brand-category-rail__row">
 						{% if rail_ssr_products is not empty %}
 							{% for product in rail_ssr_products %}
 								{% include 'snipplets/grid/item.tpl' with {

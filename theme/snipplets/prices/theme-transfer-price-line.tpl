@@ -3,7 +3,14 @@
 	{% if product.maxPaymentDiscount is defined and product.maxPaymentDiscount.value > 0 %}
 		{% set pct = product.maxPaymentDiscount.value %}
 		{% set v = product.selected_or_first_available_variant %}
+		{# TN: a veces price_number no viene en variante; caer a producto o precio mostrado. #}
 		{% set pn = attribute(v, 'price_number') %}
+		{% if pn is null or pn == '' %}
+			{% set pn = attribute(product, 'price_number') %}
+		{% endif %}
+		{% if pn is null or pn == '' %}
+			{% set pn = product.price %}
+		{% endif %}
 		{% set tr = null %}
 		{% if pn is not null and pn != '' %}
 			{% set tr = (pn * (100 - pct) / 100)|round %}

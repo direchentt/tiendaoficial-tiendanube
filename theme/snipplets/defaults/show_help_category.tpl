@@ -7,7 +7,7 @@
 </section>
 <section class="category-body" data-store="category-grid">
 	<div class="container-fluid mt-3 mb-5">
-		<div class="row row-grid">
+		<div class="js-product-table row row-grid">
 			{% include 'snipplets/defaults/help_item.tpl' with {'help_item_1': true} %}
 			{% include 'snipplets/defaults/help_item.tpl' with {'help_item_2': true} %}
 			{% include 'snipplets/defaults/help_item.tpl' with {'help_item_3': true} %}

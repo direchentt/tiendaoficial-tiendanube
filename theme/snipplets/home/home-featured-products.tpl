@@ -14,7 +14,8 @@
 {% endif %}
 
 {% if has_featured or has_new or has_sale %}
-	<section class="section-home section-featured-home {{ section_classes }}" data-store="home-products-{{ data_store_name }}">
+	{# js-product-table: hook nativo LS.productItemSlider para carrusel por tarjeta en toda la sección (destacados / novedades / ofertas). #}
+	<section class="section-home section-featured-home js-product-table {{ section_classes }}" data-store="home-products-{{ data_store_name }}">
 		{% if has_featured %}
 			{% include 'snipplets/home/home-featured-grid.tpl' with {'featured_products': true} %}
 		{% endif %}

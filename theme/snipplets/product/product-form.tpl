@@ -46,7 +46,7 @@
             {# Standard prices for normal products #}
             <div class="js-price-container">
                 <span class="d-inline-block mr-1">
-                    <div class="js-price-display font-largest" id="price_display" {% if not product.display_price %}style="display:none;"{% endif %} data-product-price="{{ product.price }}">{% if product.display_price %}{{ product.price | money_nocents }}{% endif %}</div>
+                    <div class="js-price-display font-largest" id="price_display" {% if not product.display_price %}style="display:none;"{% endif %} data-product-price="{{ product.price }}"{% if attribute(product.selected_or_first_available_variant, 'price_number') is defined and product.selected_or_first_available_variant.price_number is not null and product.selected_or_first_available_variant.price_number != '' %} content="{{ product.selected_or_first_available_variant.price_number }}"{% endif %}>{% if product.display_price %}{{ product.price | money_nocents }}{% endif %}</div>
                 </span>
                 <span class="d-inline-block font-big">
                 <div id="compare_price_display" class="js-compare-price-display price-compare" {% if not product.compare_at_price or not product.display_price %}style="display:none;"{% else %} style="display:block;"{% endif %}>{% if product.compare_at_price and product.display_price %}{{ product.compare_at_price | money_nocents }}{% endif %}</div>

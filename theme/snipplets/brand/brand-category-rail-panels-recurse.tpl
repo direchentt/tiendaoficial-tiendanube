@@ -6,7 +6,7 @@
 		data-rail-panel-url="{{ category.url }}"
 		data-brand-rail-panel="1"
 	>
-		<div class="js-brand-category-rail-track d-flex flex-nowrap brand-category-rail__row">
+		<div class="js-brand-category-rail-track js-product-table d-flex flex-nowrap brand-category-rail__row">
 			{% set panel_products = category.products|default([]) %}
 			{% if panel_products is not empty %}
 				{% for product in panel_products|slice(0, 24) %}

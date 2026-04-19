@@ -20,7 +20,7 @@
 			{% endif %}
 			{% if related_products | length > 1 %}
 				<div class="section-products-related overflow-none mt-4">
-					<div class="row row-grid">
+					<div class="js-product-table row row-grid">
 						{% for related in related_products %}
 							{% include 'snipplets/grid/item.tpl' with {product : related} %}
 						{% endfor %}

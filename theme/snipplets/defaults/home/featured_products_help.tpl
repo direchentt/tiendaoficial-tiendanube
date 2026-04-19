@@ -1,4 +1,4 @@
-<section class="section-home section-featured-home" data-store="home-products-{{ section_id }}">
+<section class="section-home section-featured-home js-product-table" data-store="home-products-{{ section_id }}">
 	<div class="container-fluid">
 		<div class="row">
 			<div class="col-md-3">
