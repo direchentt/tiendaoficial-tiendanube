@@ -104,15 +104,31 @@ const m = spawnSync(node, [prismaEntry, "migrate", "deploy"], {
   cwd: storeAdminRoot,
 });
 
-if (m.status !== 0 && m.status !== null) {
-  console.error("[railway-start] migrate deploy failed:", m.status);
-  try {
-    next.kill("SIGTERM");
-  } catch (_) {}
-  process.exit(m.status ?? 1);
+const migrateOk = m.status === 0;
+const strictMigrate =
+  env.MIGRATE_STRICT === "1" ||
+  env.MIGRATE_STRICT === "true" ||
+  env.RAILWAY_STRICT_MIGRATE === "1";
+
+if (!migrateOk) {
+  console.error(
+    "[railway-start] prisma migrate deploy falló (status=%s). Revisá DATABASE_URL, red y migraciones.",
+    m.status
+  );
+  if (strictMigrate) {
+    try {
+      next.kill("SIGTERM");
+    } catch (_) {}
+    process.exit(m.status ?? 1);
+  }
+  console.error(
+    "[railway-start] La app sigue arriba (health ya pasó). Corregí la DB y redeploy, o poné MIGRATE_STRICT=1 para tumbar el proceso si migrate falla."
+  );
+} else {
+  console.log("[railway-start] migrate ok");
 }
 
-console.log("[railway-start] migrate ok, keeping Next process…");
+console.log("[railway-start] keeping Next process…");
 
 const exitCode = await new Promise((resolve) => {
   next.on("exit", (code) => resolve(code ?? 0));

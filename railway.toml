@@ -4,7 +4,8 @@
 
 [build]
 builder = "NIXPACKS"
-# Sin migrate aquí: en Docker build a veces no hay DB o el pooler falla; las migraciones corren al arrancar (start:railway).
+# Sin migrate en build (a veces no hay DB). Al arranque corre migrate en railway-start.mjs;
+# si falla, por defecto la app NO se cae (ver MIGRATE_STRICT en scripts/railway-start.mjs).
 buildCommand = "cd store-admin && npm ci && npx prisma generate && npm run build"
 
 [deploy]
