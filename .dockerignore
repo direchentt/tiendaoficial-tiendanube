@@ -2,8 +2,8 @@
 .github
 .cursor
 theme
-store-admin/node_modules
-store-admin/.next
+# No ignorar store-admin/.next ni node_modules: Nixpacks hace COPY finales;
+# si no van en el contexto, algunas imágenes quedan sin artefactos del RUN previo.
 store-admin/.env
 .env
 .env.*

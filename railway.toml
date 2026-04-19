@@ -8,7 +8,8 @@ builder = "NIXPACKS"
 buildCommand = "cd store-admin && npm ci && npx prisma generate && npm run build"
 
 [deploy]
-startCommand = "cd store-admin && npm run start:railway"
+# exec: PID 1 = node (mejor señales); sin npm (menos capas).
+startCommand = "cd store-admin && exec node scripts/railway-start.mjs"
 healthcheckPath = "/api/health"
 # migrate + cold start de Next pueden superar 2m en instancias chicas
 healthcheckTimeout = 300

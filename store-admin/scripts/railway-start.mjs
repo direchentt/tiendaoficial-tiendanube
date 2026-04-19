@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * Railway: levantar Next lo antes posible para el healthcheck, luego migraciones.
- * Usa binarios de node_modules (evita npx + shell en imágenes mínimas).
+ * Railway: levantar Next antes del healthcheck externo; luego migraciones.
+ * Usa `node` + entradas de paquete (evita shims .bin bajo Nix) y valida .next.
  */
 import http from "node:http";
 import path from "node:path";
@@ -11,15 +11,19 @@ import fs from "node:fs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const storeAdminRoot = path.resolve(__dirname, "..");
-const nextBin = path.join(storeAdminRoot, "node_modules", ".bin", "next");
-const prismaBin = path.join(storeAdminRoot, "node_modules", ".bin", "prisma");
+const nextEntry = path.join(storeAdminRoot, "node_modules", "next", "dist", "bin", "next");
+const prismaEntry = path.join(storeAdminRoot, "node_modules", "prisma", "build", "index.js");
+const buildIdPath = path.join(storeAdminRoot, ".next", "BUILD_ID");
 
-const port = process.env.PORT ?? "3000";
-const env = { ...process.env, NODE_ENV: process.env.NODE_ENV ?? "production" };
+const port = String(process.env.PORT ?? "3000");
+const env = {
+  ...process.env,
+  NODE_ENV: process.env.NODE_ENV ?? "production",
+};
 
-function assertBin(p, name) {
+function assertFile(p, label) {
   if (!fs.existsSync(p)) {
-    console.error(`[railway-start] falta ${name} en ${p} (¿npm ci en store-admin?)`);
+    console.error(`[railway-start] falta ${label}: ${p}`);
     process.exit(1);
   }
 }
@@ -37,7 +41,7 @@ function waitForServer(pathname, timeoutMs) {
         { timeout: 2000 },
         (res) => {
           res.resume();
-          if (res.statusCode && res.statusCode >= 200 && res.statusCode < 500) {
+          if (res.statusCode === 200) {
             resolve();
             return;
           }
@@ -54,13 +58,16 @@ function waitForServer(pathname, timeoutMs) {
   });
 }
 
-assertBin(nextBin, "next");
-assertBin(prismaBin, "prisma");
+assertFile(buildIdPath, "build (.next/BUILD_ID)");
+assertFile(nextEntry, "Next.js CLI (next/dist/bin/next)");
+assertFile(prismaEntry, "Prisma CLI");
 
-console.log(`[railway-start] cwd=${storeAdminRoot} PORT=${port}`);
+console.log(`[railway-start] cwd=${storeAdminRoot} PORT=${port} node=${process.execPath}`);
+
+const node = process.execPath;
+
 console.log("[railway-start] starting Next.js…");
-
-const next = spawn(nextBin, ["start", "-H", "0.0.0.0", "-p", String(port)], {
+const next = spawn(node, [nextEntry, "start", "-H", "0.0.0.0", "-p", port], {
   stdio: "inherit",
   env,
   cwd: storeAdminRoot,
@@ -80,7 +87,7 @@ for (const sig of ["SIGTERM", "SIGINT"]) {
 }
 
 try {
-  console.log("[railway-start] waiting for /api/health…");
+  console.log("[railway-start] waiting for GET /api/health → 200…");
   await waitForServer("/api/health", 120_000);
   console.log("[railway-start] server up, running prisma migrate deploy…");
 } catch (e) {
@@ -91,7 +98,7 @@ try {
   process.exit(1);
 }
 
-const m = spawnSync(prismaBin, ["migrate", "deploy"], {
+const m = spawnSync(node, [prismaEntry, "migrate", "deploy"], {
   stdio: "inherit",
   env,
   cwd: storeAdminRoot,
