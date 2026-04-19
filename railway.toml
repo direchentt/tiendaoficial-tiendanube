@@ -4,7 +4,8 @@
 
 [build]
 builder = "NIXPACKS"
-buildCommand = "cd store-admin && npm ci && npx prisma generate && npx prisma migrate deploy && npm run build"
+# Prisma schema usa directUrl = env("DIRECT_URL"). Si no está en Railway, usar la misma URL que DATABASE_URL (pooler).
+buildCommand = "export DIRECT_URL=\"${DIRECT_URL:-$DATABASE_URL}\" && cd store-admin && npm ci && npx prisma generate && npx prisma migrate deploy && npm run build"
 
 [deploy]
 startCommand = "cd store-admin && npx next start -H 0.0.0.0 -p ${PORT:-3000}"
