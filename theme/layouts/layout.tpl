@@ -217,5 +217,9 @@
                 });
             </script>
         {% endif %}
+        {# Hache Suite — Business Rules Engine #}
+        {# CartGift | CategoryGate | DynamicPricing | BundlePage #}
+        <script src="{{ 'js/hache-suite.js' | static_url }}" defer></script>
+
     </body>
 </html>

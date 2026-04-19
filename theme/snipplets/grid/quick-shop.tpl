@@ -25,15 +25,12 @@
                             <div class="mb-4 mr-md-1" data-store="product-item-price-{{ product.id }}">
                                 <span class="js-price-display font-largest font-weight-bold"></span>
                                 <span class="js-compare-price-display price-compare font-big ml-2"></span>
-                                {{ component('payment-discount-price', {
-                                        visibility_condition: settings.payment_discount_price,
-                                        location: 'product',
-                                        container_classes: "mt-1 mb-3",
-                                        text_classes: {
-                                            price: 'h5 font-big font-family-body text-accent'
-                                        }
-                                    }) 
-                                }}
+                                {% if settings.payment_discount_price %}
+                                    <div class="mt-1 mb-3 font-small js-theme-transfer-computed js-theme-transfer-quickshop" data-transfer-pct="" style="display: none;">
+                                        <span class="js-theme-transfer-amount h5 font-big font-family-body text-accent"></span>
+                                        <span class="opacity-90 js-theme-transfer-quickshop-label" aria-hidden="true"></span>
+                                    </div>
+                                {% endif %}
                             </div>
                             {# Image is hidden but present so it can be used on cart notifiaction #}
                             

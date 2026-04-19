@@ -1,11 +1,11 @@
 {# Preferencias del visitante: densidad de grilla (localStorage). JS: initUserProductGridPicker en store.js.tpl #}
 {% set _gt_for = grid_toolbar_for | default('') %}
 {% set _strip = (toolbar_modifier|default('')) == 'user-product-grid-toolbar--nav-strip' %}
-<div class="user-product-grid-toolbar{% if toolbar_modifier %} {{ toolbar_modifier }}{% endif %}" role="region" aria-label="{{ 'Como ver los productos' | translate }}"{% if _gt_for %} data-user-grid-toolbar-for="{{ _gt_for }}"{% endif %}>
+<div class="user-product-grid-toolbar{% if toolbar_modifier %} {{ toolbar_modifier }}{% endif %}" role="region" aria-label="{{ 'Vista' | translate }}"{% if _gt_for %} data-user-grid-toolbar-for="{{ _gt_for }}"{% endif %}>
 	{% if _strip %}
-		<span class="sr-only">{{ 'Como ver los productos' | translate }}</span>
-		<div class="user-product-grid-toolbar__strip d-inline-flex flex-nowrap align-items-center justify-content-center gap-1">
-			<div class="user-product-grid-toolbar__chips user-product-grid-toolbar__chips--strip d-inline-flex flex-nowrap align-items-center" role="radiogroup" aria-label="{{ 'En el celular' | translate }}">
+		<div class="user-product-grid-toolbar__strip d-inline-flex flex-nowrap align-items-center justify-content-center">
+			<span class="user-product-grid-toolbar__strip-label">{{ 'Vista' | translate }}</span>
+			<div class="user-product-grid-toolbar__chips user-product-grid-toolbar__chips--strip d-inline-flex d-md-none flex-nowrap align-items-center" role="radiogroup" aria-label="{{ 'En el celular' | translate }}">
 				<button type="button" class="user-grid-density-btn js-user-grid-opt" data-user-grid-set-mobile="1" aria-pressed="false" aria-label="{{ 'En el celular' | translate }}: 1 {{ 'columna' | translate }}">
 					<svg class="user-grid-density-icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><rect x="7" y="3" width="10" height="18" rx="1.5" fill="currentColor"/></svg>
 				</button>
@@ -39,7 +39,7 @@
 		</div>
 	{% else %}
 		<div class="user-product-grid-toolbar__head">
-			<span class="user-product-grid-toolbar__title">{{ 'Como ver los productos' | translate }}</span>
+			<span class="user-product-grid-toolbar__title">{{ 'Vista' | translate }}</span>
 			<button type="button" class="user-product-grid-toolbar__reset btn btn-link p-0 d-inline-flex align-items-center" data-user-grid-reset disabled aria-label="{{ 'Restablecer vista' | translate }}">
 				<svg class="user-product-grid-toolbar__reset-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
 					<path d="M3 12a9 9 0 1 0 3-7.1"/>

@@ -64,25 +64,19 @@
                 }}
 
                 {% if template == 'product' and not home_main_product %}
-                {{ component('payment-discount-price', {
-                        visibility_condition: settings.payment_discount_price,
-                        location: 'product',
-                        container_classes: "mt-2 mb-1 font-small pdp-transfer-price-line",
-                        text_classes: {
-                            price: 'h6 font-weight-semibold font-family-body text-accent mb-0'
-                        }
-                    })
-                }}
+                {% include 'snipplets/prices/theme-transfer-price-line.tpl' with {
+                    visible: settings.payment_discount_price,
+                    product: product,
+                    wrapper_class: 'mt-2 mb-1 font-small pdp-transfer-price-line',
+                    price_class: 'h6 font-weight-semibold font-family-body text-accent mb-0'
+                } %}
                 {% else %}
-                {{ component('payment-discount-price', {
-                        visibility_condition: settings.payment_discount_price,
-                        location: 'product',
-                        container_classes: "mt-1 mb-3",
-                        text_classes: {
-                            price: 'h5 font-big font-family-body text-accent'
-                        }
-                    })
-                }}
+                {% include 'snipplets/prices/theme-transfer-price-line.tpl' with {
+                    visible: settings.payment_discount_price,
+                    product: product,
+                    wrapper_class: 'mt-1 mb-3',
+                    price_class: 'h5 font-big font-family-body text-accent'
+                } %}
                 {% endif %}
             </div>
         {% endif %}

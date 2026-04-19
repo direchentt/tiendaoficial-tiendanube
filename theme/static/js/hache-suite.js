@@ -76,13 +76,30 @@
     }).then((r) => r.json());
   }
 
-  function cartApi(method, path, body) {
-    return fetch("/api/storefront/cart" + path, {
-      method,
+  /**
+   * Agrega un item al carrito usando la API nativa de Tiendanube.
+   * LS.Cart.addItem() es la forma oficial documentada por TN.
+   * Fallback a fetch REST si LS.Cart no está disponible.
+   */
+  function addToCart(productId, variantId, quantity) {
+    quantity = quantity || 1;
+    // Método 1: API nativa de Tiendanube (recomendado)
+    if (window.LS && window.LS.Cart && typeof window.LS.Cart.addItem === "function") {
+      return window.LS.Cart.addItem({
+        product_id: productId,
+        variant_id: variantId,
+        quantity: quantity,
+      });
+    }
+    // Método 2: API REST de Tiendanube (fallback)
+    return fetch("/api/storefront/cart/items", {
+      method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
-      body: body ? JSON.stringify(body) : undefined,
-    }).then((r) => r.json());
+      body: JSON.stringify({
+        add: [{ product_id: productId, variant_id: variantId, quantity: quantity }],
+      }),
+    }).then(function(r) { return r.json(); });
   }
 
   function getCartTotal() {
@@ -150,15 +167,7 @@
         if (lsGet(sessionKey)) continue;
 
         try {
-          await cartApi("POST", "/items", {
-            add: [
-              {
-                product_id: gift.giftProductId,
-                variant_id: gift.giftVariantId,
-                quantity: gift.giftQty,
-              },
-            ],
-          });
+          await addToCart(gift.giftProductId, gift.giftVariantId, gift.giftQty);
           this.appliedGiftIds.add(gift.id);
           lsSet(sessionKey, true, 30 * 60 * 1000); // 30 min session
           this.showGiftToast(gift.name || "¡Tu regalo fue agregado al carrito! 🎁");
@@ -409,9 +418,14 @@
       wrapper.style.gap = "6px";
       wrapper.style.flexWrap = "wrap";
 
+      const loc = (document.documentElement.getAttribute("lang") || "").toLowerCase().startsWith("es")
+        ? "es-AR"
+        : undefined;
+      const fmt = (n) =>
+        (loc ? n.toLocaleString(loc, { maximumFractionDigits: 0, minimumFractionDigits: 0 }) : n.toLocaleString(undefined, { maximumFractionDigits: 0, minimumFractionDigits: 0 }));
       wrapper.innerHTML = `
-        <span style="font-weight:700;color:#22c55e;">${currency}${discounted.toLocaleString()}</span>
-        <span style="text-decoration:line-through;color:#888;font-size:0.85em;">${currency}${original.toLocaleString()}</span>
+        <span style="font-weight:700;color:#22c55e;">${currency}${fmt(discounted)}</span>
+        <span style="text-decoration:line-through;color:#888;font-size:0.85em;">${currency}${fmt(original)}</span>
         <span style="
           background:rgba(34,197,94,0.15);color:#22c55e;
           padding:2px 7px;border-radius:99px;font-size:0.7em;font-weight:700;
@@ -548,15 +562,7 @@
       let allOk = true;
       for (const p of bundle.products) {
         try {
-          await cartApi("POST", "/items", {
-            add: [
-              {
-                product_id: p.productId,
-                variant_id: p.variantId || undefined,
-                quantity: p.quantity,
-              },
-            ],
-          });
+          await addToCart(p.productId, p.variantId || undefined, p.quantity);
         } catch (err) {
           console.warn("[HacheSuite][Bundle] Error agregando producto:", p.productName, err);
           allOk = false;

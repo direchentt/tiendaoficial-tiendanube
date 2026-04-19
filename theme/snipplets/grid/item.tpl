@@ -24,22 +24,22 @@
 
 {# Item image slider #}
 {# En listados a veces `other_images` viene vacío aunque haya más de una imagen; usamos también `product.images`. #}
+{% set product_has_listable_video = (product.video_url | default('') | trim) != '' %}
 {% set product_has_extra_images = (product.other_images is not empty)
-    or ((product.images|default([]))|length > 1) %}
+    or ((product.images|default([]))|length > 1)
+    or product_has_listable_video %}
 
-{% set show_image_slider = 
-    (template == 'category' or template == 'search')
-    and settings.product_item_slider 
-    and not slide_item
-    and not reduced_item 
-    and not has_filters
+{# Carrusel por ítem: cualquier listado/vitrina con más de una imagen o video (home, categoría, PDP relacionados, etc.). Requiere "product_item_slider" en el panel. #}
+{% set show_image_slider =
+    settings.product_item_slider
+    and not reduced_item
     and product_has_extra_images
 %}
 
 {% if show_image_slider %}
-    {% set slider_controls_container_class = 'item-slider-controls-container svg-icon-text d-none d-md-block' %}
-    {% set control_next_svg_id = 'arrow-long' %}
-    {% set control_prev_svg_id = 'arrow-long' %}
+    {% set slider_controls_container_class = 'brand-ui-carousel-arrow item-slider-controls-container item-slider-controls-container--brand svg-icon-text d-flex align-items-center justify-content-center' %}
+    {% set control_next_svg_id = 'chevron' %}
+    {% set control_prev_svg_id = 'chevron' %}
 {% endif %}
 
 {# Botón "ver otra foto": con carrusel por ítem dispara el siguiente slide; sin carrusel alterna imagen secundaria. #}
@@ -63,7 +63,11 @@
 {% set columns_mobile_class = columns_mobile == 1 ? 'col-12' : columns_mobile == 2 ? 'col-6' : columns_mobile == 3 ? 'col-4' : loop.index % 5 == 1 ? 'col-12' : 'col-6' %}
 {% set columns_desktop_class = columns_desktop == 2 ? 'col-md-6' : columns_desktop == 3 ? 'col-md-4' : columns_desktop == 4 ? 'col-md-3' : columns_desktop == 5 ? 'col-grid-md-5' : 'col-md-3' %}
 
-    <div class="js-item-product{% if slide_item %} js-item-slide swiper-slide{% endif %} {{ columns_mobile_class }} {{ columns_desktop_class }} item-product {% if reduced_item %}item-product-reduced{% endif %} col-grid" data-product-type="list" data-product-id="{{ product.id }}" data-store="product-item-{{ product.id }}" data-component="product-list-item" data-component-value="{{ product.id }}"{% if buy_label_custom != '' %} data-list-buy-label-cart="{{ buy_label_custom | e('html_attr') }}"{% endif %}>
+    <div class="js-item-product{% if slide_item %} js-item-slide swiper-slide{% endif %} {{ columns_mobile_class }} {{ columns_desktop_class }} item-product {% if reduced_item %}item-product-reduced{% endif %} col-grid" data-product-type="list" data-product-id="{{ product.id }}" data-store="product-item-{{ product.id }}" data-component="product-list-item" data-component-value="{{ product.id }}"{% if product_has_listable_video %} data-video-list-url="{{ product.video_url | e('html_attr') }}"{% endif %}{% if buy_label_custom != '' %} data-list-buy-label-cart="{{ buy_label_custom | e('html_attr') }}"{% endif %}{% if settings.payment_discount_price and not reduced_item and product.maxPaymentDiscount is defined and product.maxPaymentDiscount.value > 0 %}
+	{% set _transfer_suffix = product.maxPaymentDiscount.paymentProviderName
+		? ('pagando con' | translate) ~ ' ' ~ product.maxPaymentDiscount.paymentProviderName
+		: ('con transferencia' | translate) %}
+ data-transfer-pct="{{ product.maxPaymentDiscount.value }}" data-transfer-suffix="{{ _transfer_suffix | e('html_attr') }}"{% endif %}>
         <div class="item {% if reduced_item %}mb-0{% endif %}">
             {% if (settings.quick_shop or settings.product_color_variants or (settings.product_listing_variant_images | default(false))) and not reduced_item %}
                 <div class="js-product-container js-quickshop-container{% if product.variations %} js-quickshop-has-variants{% endif %} position-relative" data-variants="{{ product.variants_object | json_encode }}" data-quickshop-id="quick{{ product.id }}">
@@ -129,9 +133,9 @@
                         slider_container: 'swiper-container position-absolute h-100 w-100',
                         slider_wrapper: 'swiper-wrapper',
                         slider_slide: 'swiper-slide item-image-slide',
-                        slider_control_pagination_container: 'item-slider-pagination-container d-md-none',
+                        slider_control_pagination_container: 'item-slider-pagination-container item-slider-pagination-container--brand brand-ui-carousel-dots',
                         slider_control_pagination: 'swiper-pagination item-slider-pagination',
-                        slider_control: 'icon-inline icon-lg',
+                        slider_control: 'icon-inline',
                         slider_control_prev_container: 'swiper-button-prev ' ~ slider_controls_container_class,
                         slider_control_prev: 'icon-flip-horizontal',
                         slider_control_next_container: 'swiper-button-next ' ~ slider_controls_container_class,
@@ -241,12 +245,12 @@
 
                                 {% set product_can_show_installments = product.show_installments and product.display_price and product.get_max_installments.installment > 1 and settings.product_installments and not reduced_item %}
 
-                                {{ component('payment-discount-price', {
-                                        visibility_condition: settings.payment_discount_price and not reduced_item,
-                                        location: 'product',
-                                        container_classes: "font-small mt-1",
-                                    }) 
-                                }}
+                                {% include 'snipplets/prices/theme-transfer-price-line.tpl' with {
+                                    visible: settings.payment_discount_price and not reduced_item,
+                                    product: product,
+                                    wrapper_class: 'font-small mt-1',
+                                    price_class: 'text-accent font-weight-semibold'
+                                } %}
 
                                 {% if product_can_show_installments %}
                                     {{ component('installments', {'location' : 'product_item' , 'short_wording' : true, container_classes: { installment: "item-installments mt-2"}}) }}

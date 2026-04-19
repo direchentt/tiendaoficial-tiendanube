@@ -2022,7 +2022,7 @@ Listado de productos
 		name = product_item_slider
 		description = Mostrar las fotos en un carrusel para cada producto
 	subtitle
-		subtitle = <span class='js-description-html legend d-block p-top-half'>El carrusel aplica sólo a listados de categorías y resultados de búsqueda</span>
+		subtitle = <span class='js-description-html legend d-block p-top-half'>Con esta opción activa, el carrusel y los indicadores (puntos y flechas) se muestran en todas las vitrinas con más de una imagen: inicio, categoría, búsqueda, relacionados, carril de categoría, etc.</span>
 	title
 		title = Información de cuotas
 	checkbox

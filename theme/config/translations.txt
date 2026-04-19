@@ -781,6 +781,11 @@ pt "Como ver os produtos"
 en "How products are shown"
 es_mx "Como ver los productos"
 
+es "Vista"
+pt "Vista"
+en "Layout"
+es_mx "Vista"
+
 es "En el celular"
 pt "No celular"
 en "On mobile"
