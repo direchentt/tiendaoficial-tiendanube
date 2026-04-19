@@ -56,7 +56,84 @@ model LockedCategory {
   store       Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
   categoryId  Int
   passwordHash String
+  /// TTL en horas para el acceso desbloqueado (default 24h)
+  accessTtlHours Int   @default(24)
   createdAt   DateTime @default(now())
 
   @@unique([storeId, categoryId])
+}
+
+/// Regla de regalo en el carrito: si el total supera minTotal, se agrega el producto regalo.
+model CartGiftRule {
+  id             String   @id @default(cuid())
+  storeId        String
+  name           String
+  minTotal       Float
+  /// ID del producto en Tiendanube que se agrega como regalo
+  giftProductId  Int
+  /// ID de la variante del producto regalo
+  giftVariantId  Int
+  /// Cantidad a agregar
+  giftQty        Int      @default(1)
+  enabled        Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([storeId])
+}
+
+/// Configuracion del motor de precios dinamicos por tienda.
+/// Solo puede haber una config activa por tienda.
+model DynamicPricingConfig {
+  id          String   @id @default(cuid())
+  storeId     String   @unique
+  enabled     Boolean  @default(false)
+  /// Nombre del algoritmo: "seeded_random" | "demand_based" | "progressive"
+  algorithm   String   @default("seeded_random")
+  /// Descuento minimo (porcentaje positivo, ej. 5 = 5%)
+  minPct      Float    @default(5)
+  /// Descuento maximo (porcentaje positivo, ej. 20 = 20%)
+  maxPct      Float    @default(20)
+  /// TTL en horas para el cache en localStorage
+  cacheTtlHours Int    @default(4)
+  /// IDs de categorias excluidas del motor (JSON array de enteros)
+  excludedCategoryIds String @default("[]")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+/// Bundle (combo) de productos con precio especial.
+model Bundle {
+  id          String          @id @default(cuid())
+  storeId     String
+  name        String
+  description String?
+  /// Precio especial del combo en la moneda de la tienda
+  comboPrice  Float
+  /// URL de imagen representativa del bundle (puede ser de TN o externa)
+  imageUrl    String?
+  enabled     Boolean         @default(true)
+  products    BundleProduct[]
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@index([storeId])
+}
+
+/// Producto dentro de un bundle.
+model BundleProduct {
+  id          String  @id @default(cuid())
+  bundleId    String
+  bundle      Bundle  @relation(fields: [bundleId], references: [id], onDelete: Cascade)
+  /// ID del producto en Tiendanube
+  productId   Int
+  /// ID de la variante (0 = variante por defecto / primera)
+  variantId   Int     @default(0)
+  /// Nombre para mostrar (cacheado para no re-fetchear siempre)
+  productName String
+  /// Precio unitario original (informativo)
+  unitPrice   Float   @default(0)
+  quantity    Int     @default(1)
+
+  @@index([bundleId])
 }

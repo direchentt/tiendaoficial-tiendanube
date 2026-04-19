@@ -8,7 +8,17 @@ export default function AdminLayout({
   return (
     <>
       <AdminNav />
-      <div>{children}</div>
+      <main
+        style={{
+          marginLeft: "220px",
+          minHeight: "100vh",
+          padding: "2rem 2.5rem",
+          maxWidth: "calc(100vw - 220px)",
+          boxSizing: "border-box",
+        }}
+      >
+        {children}
+      </main>
     </>
   );
 }
