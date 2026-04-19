@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { AdminNav } from "./nav";
 
 export default function AdminLayout({
