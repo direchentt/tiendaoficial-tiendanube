@@ -1,11 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { COOKIE_NAME, getSessionToken, verifySession } from "@/lib/admin-session";
 
-/**
- * POST /api/admin/login
- * Body: { secret: string }
- * Sets the sa_sess cookie and returns { ok: true }
- */
 export async function POST(req: NextRequest) {
   const envSecret = process.env.ADMIN_SECRET;
   if (!envSecret) {
@@ -20,23 +15,19 @@ export async function POST(req: NextRequest) {
   }
 
   const token = await getSessionToken(envSecret);
-  const res = NextResponse.json({ ok: true });
+  const isHttps = req.headers.get("x-forwarded-proto") === "https";
 
-  // Set cookie — sin depender de Server Actions
+  const res = NextResponse.json({ ok: true });
   res.cookies.set(COOKIE_NAME, token, {
     httpOnly: true,
     path: "/",
     sameSite: "lax",
-    secure: req.headers.get("x-forwarded-proto") === "https",
-    maxAge: 60 * 60 * 24 * 7, // 7 días
+    secure: isHttps,
+    maxAge: 60 * 60 * 24 * 7,
   });
-
   return res;
 }
 
-/**
- * GET /api/admin/login — verifica si la sesión activa es válida
- */
 export async function GET(req: NextRequest) {
   const envSecret = process.env.ADMIN_SECRET;
   const cookieHeader = req.headers.get("cookie") ?? "";
@@ -50,5 +41,4 @@ function parseCookie(header: string, name: string): string | undefined {
     const [k, ...rest] = part.trim().split("=");
     if (k?.trim() === name) return rest.join("=").trim();
   }
-  return undefined;
 }

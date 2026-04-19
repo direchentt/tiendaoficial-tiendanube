@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 
 type GiftRule = {
   id: string;
@@ -10,14 +10,20 @@ type GiftRule = {
   giftVariantId: number;
   giftQty: number;
   enabled: boolean;
-  createdAt: string;
+};
+
+type TNVariant = { id: number; price: string; values?: { es?: string }[] };
+type TNProduct = {
+  id: number;
+  name: string;
+  price: string;
+  images: string[];
+  variants: TNVariant[];
 };
 
 const EMPTY_FORM = {
   name: "",
   minTotal: "",
-  giftProductId: "",
-  giftVariantId: "",
   giftQty: "1",
   enabled: true,
 };
@@ -25,25 +31,52 @@ const EMPTY_FORM = {
 export default function GiftsPage() {
   const [rules, setRules] = useState<GiftRule[]>([]);
   const [form, setForm] = useState(EMPTY_FORM);
-  const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  async function fetchRules() {
-    setLoading(true);
-    try {
-      const r = await fetch("/api/admin/cart-gifts", { credentials: "include" });
-      if (r.ok) setRules(await r.json());
-    } finally {
-      setLoading(false);
-    }
-  }
+  // Product picker
+  const [search, setSearch] = useState("");
+  const [products, setProducts] = useState<TNProduct[]>([]);
+  const [loadingProducts, setLoadingProducts] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<TNProduct | null>(null);
+  const [selectedVariant, setSelectedVariant] = useState<TNVariant | null>(null);
 
-  useEffect(() => { fetchRules(); }, []);
+  const fetchRules = useCallback(async () => {
+    const r = await fetch("/api/admin/cart-gifts", { credentials: "include" });
+    if (r.ok) setRules(await r.json());
+    else if (r.status === 401) setError("Sesión expirada. Recargá la página.");
+  }, []);
+
+  useEffect(() => { fetchRules(); }, [fetchRules]);
+
+  const searchProducts = useCallback(async (q: string) => {
+    if (q.length < 2) { setProducts([]); return; }
+    setLoadingProducts(true);
+    try {
+      const r = await fetch(`/api/admin/tn-products?q=${encodeURIComponent(q)}`, { credentials: "include" });
+      if (r.ok) {
+        const data = await r.json();
+        setProducts(data.products ?? []);
+      } else {
+        setProducts([]);
+      }
+    } finally {
+      setLoadingProducts(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    const t = setTimeout(() => searchProducts(search), 400);
+    return () => clearTimeout(t);
+  }, [search, searchProducts]);
 
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
+    if (!selectedProduct || !selectedVariant) {
+      setError("Seleccioná un producto y variante para el regalo.");
+      return;
+    }
     setSaving(true);
     setError(null);
     setSuccess(null);
@@ -51,8 +84,8 @@ export default function GiftsPage() {
       const body = {
         name: form.name,
         minTotal: parseFloat(form.minTotal),
-        giftProductId: parseInt(form.giftProductId),
-        giftVariantId: parseInt(form.giftVariantId),
+        giftProductId: selectedProduct.id,
+        giftVariantId: selectedVariant.id,
         giftQty: parseInt(form.giftQty),
         enabled: form.enabled,
       };
@@ -64,10 +97,14 @@ export default function GiftsPage() {
       });
       if (!r.ok) {
         const err = await r.json().catch(() => ({}));
-        setError(JSON.stringify(err));
+        setError(err.error ?? JSON.stringify(err));
       } else {
-        setSuccess("Regla creada exitosamente");
+        setSuccess("✓ Regla creada");
         setForm(EMPTY_FORM);
+        setSelectedProduct(null);
+        setSelectedVariant(null);
+        setSearch("");
+        setProducts([]);
         fetchRules();
       }
     } finally {
@@ -86,141 +123,155 @@ export default function GiftsPage() {
   }
 
   async function handleDelete(id: string) {
-    if (!confirm("¿Eliminar esta regla de regalo?")) return;
-    await fetch(`/api/admin/cart-gifts/${id}`, {
-      method: "DELETE",
-      credentials: "include",
-    });
+    if (!confirm("¿Eliminar esta regla?")) return;
+    await fetch(`/api/admin/cart-gifts/${id}`, { method: "DELETE", credentials: "include" });
     fetchRules();
   }
 
   return (
     <div>
-      {/* Header */}
       <div style={{ marginBottom: "1.75rem" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.35rem" }}>
           <span style={{ fontSize: "1.5rem" }}>🎁</span>
           <h1>Regalos en Carrito</h1>
         </div>
         <p style={{ color: "var(--text-muted)", fontSize: "0.875rem" }}>
-          Configurá productos que se agregan automáticamente al carrito cuando el total supera un monto.
-          El JS del storefront verifica esto en cada cambio de carrito y agrega el regalo vía la Cart API de TN.
+          Configurá productos que se agregan automáticamente cuando el carrito supera un monto.
         </p>
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem", alignItems: "start" }}>
-        {/* Form */}
-        <div style={cardStyle}>
+        {/* FORM */}
+        <div style={card}>
           <h2 style={{ marginBottom: "1.25rem" }}>Nueva Regla</h2>
           <form onSubmit={handleCreate} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-            <Field label="Nombre de la regla">
-              <input
-                placeholder="Ej: Regalo por $50.000"
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-                required
-              />
-            </Field>
-            <Field label="Monto mínimo del carrito ($)">
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                placeholder="50000"
-                value={form.minTotal}
-                onChange={(e) => setForm({ ...form, minTotal: e.target.value })}
-                required
-              />
-            </Field>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
-              <Field label="ID del producto regalo (TN)">
-                <input
-                  type="number"
-                  placeholder="123456"
-                  value={form.giftProductId}
-                  onChange={(e) => setForm({ ...form, giftProductId: e.target.value })}
-                  required
-                />
-              </Field>
-              <Field label="ID de la variante">
-                <input
-                  type="number"
-                  placeholder="789012"
-                  value={form.giftVariantId}
-                  onChange={(e) => setForm({ ...form, giftVariantId: e.target.value })}
-                  required
-                />
-              </Field>
+
+            <div>
+              <label>Nombre de la regla</label>
+              <input placeholder="Ej: Regalo por $50.000" value={form.name}
+                onChange={e => setForm({ ...form, name: e.target.value })} required />
             </div>
-            <Field label="Cantidad a regalar">
+
+            <div>
+              <label>Monto mínimo del carrito ($)</label>
+              <input type="number" min="0" step="100" placeholder="50000" value={form.minTotal}
+                onChange={e => setForm({ ...form, minTotal: e.target.value })} required />
+            </div>
+
+            {/* Product picker */}
+            <div>
+              <label>Buscar producto regalo</label>
               <input
-                type="number"
-                min="1"
-                value={form.giftQty}
-                onChange={(e) => setForm({ ...form, giftQty: e.target.value })}
-                required
+                placeholder="Escribí el nombre del producto..."
+                value={search}
+                onChange={e => { setSearch(e.target.value); setSelectedProduct(null); setSelectedVariant(null); }}
               />
-            </Field>
+              {loadingProducts && (
+                <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginTop: "0.35rem" }}>Buscando...</p>
+              )}
+              {products.length > 0 && !selectedProduct && (
+                <div style={pickerDropdown}>
+                  {products.map(p => (
+                    <button
+                      key={p.id}
+                      type="button"
+                      onClick={() => { setSelectedProduct(p); setSelectedVariant(p.variants[0] ?? null); setSearch(p.name); setProducts([]); }}
+                      style={pickerItem}
+                    >
+                      {p.images[0] && (
+                        <img src={p.images[0]} alt="" style={{ width: 36, height: 36, objectFit: "cover", borderRadius: 6, flexShrink: 0 }} />
+                      )}
+                      <div style={{ textAlign: "left" }}>
+                        <div style={{ fontWeight: 600, fontSize: "0.85rem" }}>{p.name}</div>
+                        <div style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>
+                          {p.variants.length} variante{p.variants.length !== 1 ? "s" : ""} · desde ${p.price}
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Variant selector */}
+            {selectedProduct && selectedProduct.variants.length > 1 && (
+              <div>
+                <label>Variante del producto</label>
+                <select
+                  value={selectedVariant?.id ?? ""}
+                  onChange={e => {
+                    const v = selectedProduct.variants.find(x => x.id === parseInt(e.target.value));
+                    setSelectedVariant(v ?? null);
+                  }}
+                >
+                  {selectedProduct.variants.map(v => (
+                    <option key={v.id} value={v.id}>
+                      {v.values?.map(x => x.es).join(" / ") || `Variante ${v.id}`} — ${v.price}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {/* Selected product preview */}
+            {selectedProduct && selectedVariant && (
+              <div style={selectedPreview}>
+                <span style={{ fontSize: "1.1rem" }}>✓</span>
+                <div>
+                  <div style={{ fontWeight: 600, fontSize: "0.875rem" }}>{selectedProduct.name}</div>
+                  <div style={{ fontSize: "0.78rem", color: "var(--text-muted)" }}>
+                    ID: {selectedProduct.id} · Variante: {selectedVariant.id} · ${selectedVariant.price}
+                  </div>
+                </div>
+                <button type="button" onClick={() => { setSelectedProduct(null); setSelectedVariant(null); setSearch(""); }} style={btnClear}>✕</button>
+              </div>
+            )}
+
+            <div>
+              <label>Cantidad a regalar</label>
+              <input type="number" min="1" value={form.giftQty}
+                onChange={e => setForm({ ...form, giftQty: e.target.value })} />
+            </div>
+
             <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.875rem", cursor: "pointer" }}>
-              <input
-                type="checkbox"
-                checked={form.enabled}
-                onChange={(e) => setForm({ ...form, enabled: e.target.checked })}
-              />
+              <input type="checkbox" checked={form.enabled} onChange={e => setForm({ ...form, enabled: e.target.checked })} />
               Activa inmediatamente
             </label>
-            {error && <div style={alertStyle("danger")}>{error}</div>}
-            {success && <div style={alertStyle("success")}>{success}</div>}
+
+            {error && <div style={alertDanger}>{error}</div>}
+            {success && <div style={alertSuccess}>{success}</div>}
+
             <button type="submit" disabled={saving} style={btnPrimary}>
               {saving ? "Guardando..." : "+ Crear Regla"}
             </button>
           </form>
         </div>
 
-        {/* Rules list */}
-        <div style={cardStyle}>
+        {/* LIST */}
+        <div style={card}>
           <h2 style={{ marginBottom: "1.25rem" }}>Reglas Configuradas</h2>
-          {loading ? (
-            <p style={{ color: "var(--text-muted)", fontSize: "0.875rem" }}>Cargando...</p>
-          ) : rules.length === 0 ? (
-            <div style={emptyStyle}>
-              <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>🎁</div>
-              <p style={{ color: "var(--text-muted)", fontSize: "0.875rem" }}>
-                No hay reglas configuradas aún.
-              </p>
+          {rules.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "3rem 1rem", color: "var(--text-muted)" }}>
+              <div style={{ fontSize: "2.5rem", marginBottom: "0.75rem" }}>🎁</div>
+              <p style={{ fontSize: "0.875rem" }}>No hay reglas configuradas aún.</p>
             </div>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-              {rules.map((rule) => (
-                <div key={rule.id} style={ruleCardStyle(rule.enabled)}>
-                  <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "0.5rem" }}>
+              {rules.map(rule => (
+                <div key={rule.id} style={{ ...ruleCard, opacity: rule.enabled ? 1 : 0.6, borderColor: rule.enabled ? "rgba(124,92,252,0.2)" : "var(--border)" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "0.5rem" }}>
                     <div>
-                      <div style={{ fontWeight: 600, fontSize: "0.9rem", marginBottom: "0.25rem" }}>
-                        {rule.name}
-                      </div>
+                      <div style={{ fontWeight: 600, fontSize: "0.9rem", marginBottom: "0.3rem" }}>{rule.name}</div>
                       <div style={{ fontSize: "0.78rem", color: "var(--text-muted)" }}>
-                        Monto mínimo: <strong style={{ color: "var(--success)" }}>${rule.minTotal.toLocaleString()}</strong>
-                      </div>
-                      <div style={{ fontSize: "0.78rem", color: "var(--text-muted)" }}>
-                        Producto TN: <code>#{rule.giftProductId}</code> · Variante: <code>#{rule.giftVariantId}</code>
-                        {" "}· ×{rule.giftQty}
+                        Mínimo: <strong style={{ color: "var(--success)" }}>${rule.minTotal.toLocaleString()}</strong>
+                        {" "}· Producto #{rule.giftProductId} · ×{rule.giftQty}
                       </div>
                     </div>
-                    <div style={{ display: "flex", gap: "0.5rem", flexShrink: 0 }}>
-                      <button
-                        onClick={() => toggleEnabled(rule)}
-                        style={btnToggle(rule.enabled)}
-                        title={rule.enabled ? "Desactivar" : "Activar"}
-                      >
+                    <div style={{ display: "flex", gap: "0.4rem" }}>
+                      <button type="button" onClick={() => toggleEnabled(rule)} style={btnToggle(rule.enabled)}>
                         {rule.enabled ? "ON" : "OFF"}
                       </button>
-                      <button
-                        onClick={() => handleDelete(rule.id)}
-                        style={btnDanger}
-                        title="Eliminar"
-                      >
-                        ✕
-                      </button>
+                      <button type="button" onClick={() => handleDelete(rule.id)} style={btnDanger}>✕</button>
                     </div>
                   </div>
                 </div>
@@ -231,104 +282,30 @@ export default function GiftsPage() {
       </div>
 
       {/* How it works */}
-      <div style={{ ...cardStyle, marginTop: "1rem" }}>
+      <div style={{ ...card, marginTop: "1rem" }}>
         <h2 style={{ marginBottom: "0.75rem" }}>¿Cómo funciona?</h2>
         <ol style={{ paddingLeft: "1.25rem", lineHeight: 2, fontSize: "0.875rem", color: "var(--text-muted)" }}>
-          <li>El cliente navega la tienda y agrega productos al carrito.</li>
-          <li>En cada cambio de carrito, <code>hache-suite.js</code> llama a <code>/api/storefront/cart-gifts</code> con el total actual.</li>
-          <li>Si el total supera el mínimo configurado, el JS agrega el producto regalo vía la Cart API de Tiendanube.</li>
-          <li>El regalo se marca en <code>localStorage</code> para no duplicarlo en la misma sesión.</li>
-          <li>Si el cliente reduce el carrito por debajo del mínimo, el regalo se elimina automáticamente.</li>
+          <li>El cliente agrega productos al carrito de tu tienda.</li>
+          <li><code>hache-suite.js</code> detecta el cambio de carrito y consulta <code>/api/storefront/cart-gifts</code>.</li>
+          <li>Si el total supera el mínimo configurado, se agrega el producto regalo automáticamente.</li>
+          <li>Se guarda en <code>localStorage</code> para no duplicarlo en la misma sesión.</li>
         </ol>
-        <div style={{ marginTop: "0.75rem", padding: "0.75rem", background: "var(--surface2)", borderRadius: "var(--radius-sm)", fontSize: "0.8rem" }}>
-          <strong>⚠️ Importante:</strong> El producto regalo debe existir en tu tienda con precio $0 (o con el precio que quieras cobrar). 
-          Necesitás su <strong>Product ID</strong> y <strong>Variant ID</strong> desde el admin de Tiendanube.
-        </div>
       </div>
     </div>
   );
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div>
-      <label>{label}</label>
-      {children}
-    </div>
-  );
-}
-
-const cardStyle: React.CSSProperties = {
-  background: "var(--surface)",
-  border: "1px solid var(--border)",
-  borderRadius: "var(--radius)",
-  padding: "1.5rem",
-};
-
-const btnPrimary: React.CSSProperties = {
-  padding: "0.65rem 1.25rem",
-  background: "linear-gradient(135deg, var(--accent), var(--accent2))",
-  color: "#fff",
-  border: "none",
-  borderRadius: "var(--radius-sm)",
-  cursor: "pointer",
-  fontWeight: 600,
-  fontSize: "0.875rem",
-  transition: "opacity var(--transition)",
-};
-
-const btnDanger: React.CSSProperties = {
-  padding: "0.35rem 0.65rem",
-  background: "rgba(239,68,68,0.15)",
-  color: "var(--danger)",
-  border: "1px solid rgba(239,68,68,0.3)",
-  borderRadius: "6px",
-  cursor: "pointer",
-  fontSize: "0.8rem",
-};
-
+// Styles
+const card: React.CSSProperties = { background: "var(--surface)", border: "1px solid var(--border)", borderRadius: "var(--radius)", padding: "1.5rem" };
+const ruleCard: React.CSSProperties = { padding: "0.9rem 1rem", background: "var(--surface2)", borderRadius: "var(--radius-sm)", border: "1px solid var(--border)" };
+const pickerDropdown: React.CSSProperties = { position: "absolute", zIndex: 50, background: "var(--surface)", border: "1px solid var(--border)", borderRadius: "var(--radius-sm)", marginTop: "4px", width: "100%", maxHeight: "260px", overflowY: "auto", boxShadow: "0 8px 24px rgba(0,0,0,0.4)" };
+const pickerItem: React.CSSProperties = { display: "flex", alignItems: "center", gap: "0.65rem", width: "100%", padding: "0.65rem 0.9rem", background: "transparent", border: "none", cursor: "pointer", textAlign: "left", borderBottom: "1px solid var(--border)", color: "var(--text)" };
+const selectedPreview: React.CSSProperties = { display: "flex", alignItems: "center", gap: "0.65rem", padding: "0.75rem 1rem", background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.25)", borderRadius: "var(--radius-sm)", fontSize: "0.875rem", color: "var(--success)" };
+const btnPrimary: React.CSSProperties = { padding: "0.65rem 1.25rem", background: "linear-gradient(135deg, var(--accent), var(--accent2))", color: "#fff", border: "none", borderRadius: "var(--radius-sm)", cursor: "pointer", fontWeight: 600, fontSize: "0.875rem", fontFamily: "inherit" };
+const btnDanger: React.CSSProperties = { padding: "0.35rem 0.65rem", background: "rgba(239,68,68,0.15)", color: "var(--danger)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: "6px", cursor: "pointer", fontSize: "0.8rem" };
+const btnClear: React.CSSProperties = { padding: "0.25rem 0.5rem", background: "transparent", border: "none", color: "var(--text-muted)", cursor: "pointer", marginLeft: "auto", fontSize: "0.9rem" };
+const alertDanger: React.CSSProperties = { padding: "0.65rem 0.9rem", background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", color: "var(--danger)", borderRadius: "var(--radius-sm)", fontSize: "0.8rem" };
+const alertSuccess: React.CSSProperties = { padding: "0.65rem 0.9rem", background: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.3)", color: "var(--success)", borderRadius: "var(--radius-sm)", fontSize: "0.8rem" };
 function btnToggle(enabled: boolean): React.CSSProperties {
-  return {
-    padding: "0.35rem 0.65rem",
-    background: enabled ? "rgba(34,197,94,0.15)" : "rgba(107,114,128,0.15)",
-    color: enabled ? "var(--success)" : "var(--text-muted)",
-    border: `1px solid ${enabled ? "rgba(34,197,94,0.3)" : "var(--border)"}`,
-    borderRadius: "6px",
-    cursor: "pointer",
-    fontSize: "0.75rem",
-    fontWeight: 600,
-    letterSpacing: "0.05em",
-  };
+  return { padding: "0.35rem 0.65rem", background: enabled ? "rgba(34,197,94,0.15)" : "rgba(107,114,128,0.15)", color: enabled ? "var(--success)" : "var(--text-muted)", border: `1px solid ${enabled ? "rgba(34,197,94,0.3)" : "var(--border)"}`, borderRadius: "6px", cursor: "pointer", fontSize: "0.75rem", fontWeight: 600 };
 }
-
-function ruleCardStyle(enabled: boolean): React.CSSProperties {
-  return {
-    padding: "0.9rem 1rem",
-    background: "var(--surface2)",
-    borderRadius: "var(--radius-sm)",
-    border: `1px solid ${enabled ? "rgba(124,92,252,0.2)" : "var(--border)"}`,
-    opacity: enabled ? 1 : 0.6,
-    transition: "all var(--transition)",
-  };
-}
-
-function alertStyle(type: "success" | "danger"): React.CSSProperties {
-  const colors = {
-    success: { bg: "rgba(34,197,94,0.1)", border: "rgba(34,197,94,0.3)", text: "var(--success)" },
-    danger: { bg: "rgba(239,68,68,0.1)", border: "rgba(239,68,68,0.3)", text: "var(--danger)" },
-  };
-  const c = colors[type];
-  return {
-    padding: "0.65rem 0.9rem",
-    background: c.bg,
-    border: `1px solid ${c.border}`,
-    color: c.text,
-    borderRadius: "var(--radius-sm)",
-    fontSize: "0.8rem",
-  };
-}
-
-const emptyStyle: React.CSSProperties = {
-  textAlign: "center",
-  padding: "2.5rem 1rem",
-};
