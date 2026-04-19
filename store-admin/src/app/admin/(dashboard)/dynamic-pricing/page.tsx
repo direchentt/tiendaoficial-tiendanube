@@ -47,17 +47,42 @@ export default function DynamicPricingPage() {
   const [saving, setSaving] = useState(false);
   const [savedOk, setSavedOk] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [excludeInput, setExcludeInput] = useState("");
 
   useEffect(() => {
+    let cancelled = false;
     adminFetch("/api/admin/dynamic-pricing")
-      .then((r) => r.json())
-      .then((data) => {
-        setConfig(data);
-        setExcludeInput((data.excludedCategoryIds ?? []).join(", "));
+      .then(async (r) => {
+        const data = await r.json().catch(() => ({}));
+        if (cancelled) return;
+        if (!r.ok) {
+          setLoadError(
+            typeof data?.error === "string"
+              ? data.detail
+                ? `${data.error}: ${data.detail}`
+                : data.error
+              : data?.detail
+                ? String(data.detail)
+                : `Error ${r.status} al cargar la configuración.`
+          );
+          return;
+        }
+        if (data && typeof data.enabled === "boolean") {
+          setLoadError(null);
+          setConfig(data);
+          setExcludeInput((data.excludedCategoryIds ?? []).join(", "));
+        }
       })
-      .catch(() => {})
-      .finally(() => setLoading(false));
+      .catch(() => {
+        if (!cancelled) setLoadError("No se pudo conectar con el servidor.");
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   async function handleSave(e: React.FormEvent) {
@@ -100,6 +125,25 @@ export default function DynamicPricingPage() {
 
   return (
     <div>
+      {loadError && (
+        <div
+          style={{
+            padding: "1rem 1.25rem",
+            marginBottom: "1.25rem",
+            background: "rgba(239,68,68,0.1)",
+            border: "1px solid rgba(239,68,68,0.35)",
+            borderRadius: "var(--radius-sm)",
+            color: "var(--danger)",
+            fontSize: "0.9rem",
+            lineHeight: 1.5,
+          }}
+        >
+          <strong>No se cargó la configuración.</strong> {loadError}{" "}
+          <a href="/admin/login" style={{ color: "var(--accent)", fontWeight: 600 }}>
+            Ir al login
+          </a>
+        </div>
+      )}
       {/* Header */}
       <div style={{ marginBottom: "1.75rem" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.35rem" }}>

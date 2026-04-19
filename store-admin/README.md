@@ -41,9 +41,15 @@ Panel y API para reglas que van mas alla del admin estandar de Tiendanube, apoya
 5. En la base Postgres: pestaña **Variables** → **Connect** (o **Raw** `DATABASE_URL`) y **referenciá** esa variable en el servicio web:
    - En el servicio Next.js: **Variables** → **Add variable** → **Reference** → elegi Postgres → `DATABASE_URL`.
 6. En el mismo servicio web agrega variables **manuales**:
-   - `ADMIN_SECRET` — clave larga para el panel
+   - `ADMIN_SECRET` — clave larga para el panel (**obligatoria**). Si falta o está vacía, `/api/admin/*` responde error (antes parecía siempre `401 Unauthorized`; ahora también puede ser `503` con mensaje explícito). El script del tema `hache-suite.js` llama solo a `/api/storefront/*`, que **no** usa este secreto.
    - `TN_STORE_USER_ID`, `TN_ACCESS_TOKEN`, `TN_USER_AGENT`
    - `NEXT_PUBLIC_APP_URL` — URL publica del servicio (ej. `https://store-admin-production-xxxx.up.railway.app`; copiala de **Settings → Networking → Generate domain**)
+
+### Si ves `{"error":"Unauthorized"}` en el panel o en Postman
+
+- **Rutas `/api/admin/*`**: tenés que (1) abrir `/admin/login` en el mismo dominio del backend e ingresar el valor de `ADMIN_SECRET`, o (2) enviar `x-admin-secret: <mismo valor que ADMIN_SECRET>` en cada request.
+- **Rutas `/api/storefront/*`** (las que usa `hache-suite.js`): no llevan secreto; si fallan, revisá `storeId` (debe coincidir con `tiendanubeUserId` en la tabla `Store` de Postgres) y que la tienda exista en la base.
+- Diagnóstico rápido: `GET /api/admin/debug-auth` (sin revelar el secreto) muestra si la variable está cargada y si la cookie o el header coinciden.
 7. **Deploy**: el build usa `npm run build`; el arranque ejecuta `prisma migrate deploy` y luego Next en el puerto que asigna Railway (`PORT`).
 
 Archivos relevantes: `railway.toml`, `package.json` (`start:railway`, `postinstall`).

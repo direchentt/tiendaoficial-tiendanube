@@ -14,24 +14,22 @@ export function useAdminFetch() {
   }
 
   function adminFetch(url: string, init: RequestInit = {}): Promise<Response> {
-    const key = getKey();
-    if (!key) {
-      // No hay sesión — redirigir al login
-      window.location.href = "/admin/login";
-      return Promise.reject(new Error("No admin session"));
+    const key = getKey().trim();
+    const headers: Record<string, string> = {
+      ...(init.headers as Record<string, string> ?? {}),
+    };
+    if (key) {
+      headers["x-admin-secret"] = key;
+    }
+    if (init.body && typeof init.body === "string" && !headers["Content-Type"] && !headers["content-type"]) {
+      headers["Content-Type"] = "application/json";
     }
     return fetch(url, {
       ...init,
-      headers: {
-        ...(init.headers ?? {}),
-        "x-admin-secret": key,
-        ...(init.body && !(init.body instanceof FormData)
-          ? { "Content-Type": "application/json" }
-          : {}),
-      },
+      credentials: "include",
+      headers,
     }).then((res) => {
       if (res.status === 401) {
-        // Sesión inválida — limpiar y redirigir
         sessionStorage.removeItem("hs_admin_key");
         window.location.href = "/admin/login";
       }
