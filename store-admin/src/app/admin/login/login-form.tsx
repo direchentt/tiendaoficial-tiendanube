@@ -1,21 +1,40 @@
 "use client";
 
-import { useFormState, useFormStatus } from "react-dom";
-import { loginAction, type LoginState } from "./actions";
-
-function SubmitButton() {
-  const { pending } = useFormStatus();
-  return (
-    <button type="submit" disabled={pending} style={btnPrimary}>
-      {pending ? "Verificando..." : "Ingresar al panel →"}
-    </button>
-  );
-}
-
-const initial: LoginState = {};
+import { useState } from "react";
 
 export function AdminLoginForm() {
-  const [state, formAction] = useFormState(loginAction, initial);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    const form = e.currentTarget;
+    const secret = (form.elements.namedItem("secret") as HTMLInputElement).value.trim();
+
+    try {
+      const res = await fetch("/api/admin/login", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ secret }),
+      });
+
+      if (res.ok) {
+        // Redirigir al dashboard
+        window.location.href = "/admin";
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error ?? "Clave incorrecta.");
+      }
+    } catch {
+      setError("Error de red. Intentá de nuevo.");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <div style={wrapperStyle}>
@@ -32,7 +51,7 @@ export function AdminLoginForm() {
 
       {/* Card */}
       <div style={cardStyle}>
-        <form action={formAction} style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
           <div>
             <label style={{ marginBottom: "0.45rem" }}>Contraseña de administrador</label>
             <input
@@ -41,16 +60,19 @@ export function AdminLoginForm() {
               required
               autoComplete="current-password"
               placeholder="••••••••"
+              autoFocus
             />
           </div>
 
-          {state?.error && (
+          {error && (
             <div style={errorStyle} role="alert">
-              ✕ {state.error}
+              ✕ {error}
             </div>
           )}
 
-          <SubmitButton />
+          <button type="submit" disabled={loading} style={btnPrimary}>
+            {loading ? "Verificando..." : "Ingresar al panel →"}
+          </button>
         </form>
       </div>
 
@@ -101,7 +123,6 @@ const btnPrimary: React.CSSProperties = {
   fontWeight: 600,
   fontSize: "0.9rem",
   fontFamily: "inherit",
-  transition: "opacity 0.18s",
 };
 
 const errorStyle: React.CSSProperties = {
