@@ -4,14 +4,14 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 3010",
-    "build": "sh -c 'export DIRECT_URL=\"${DIRECT_URL:-$DATABASE_URL}\" && prisma generate && next build'",
+    "build": "prisma generate && next build",
     "start": "next start -p 3010",
-    "start:railway": "sh -c 'export DIRECT_URL=\"${DIRECT_URL:-$DATABASE_URL}\" && npx prisma migrate deploy && exec npx next start -H 0.0.0.0 -p ${PORT:-3000}'",
+    "start:railway": "sh -c \"npx prisma migrate deploy && exec npx next start -H 0.0.0.0 -p ${PORT:-3000}\"",
     "lint": "next lint",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate deploy",
     "db:studio": "prisma studio",
-    "postinstall": "sh -c 'export DIRECT_URL=\"${DIRECT_URL:-$DATABASE_URL}\" && prisma generate'"
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@prisma/client": "^6.3.0",

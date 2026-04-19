@@ -4,11 +4,11 @@
 
 [build]
 builder = "NIXPACKS"
-# Prisma schema usa directUrl = env("DIRECT_URL"). Si no está en Railway, usar la misma URL que DATABASE_URL (pooler).
-buildCommand = "export DIRECT_URL=\"${DIRECT_URL:-$DATABASE_URL}\" && cd store-admin && npm ci && npx prisma generate && npx prisma migrate deploy && npm run build"
+# Sin migrate aquí: en Docker build a veces no hay DB o el pooler falla; las migraciones corren al arrancar (start:railway).
+buildCommand = "cd store-admin && npm ci && npx prisma generate && npm run build"
 
 [deploy]
-startCommand = "cd store-admin && npx next start -H 0.0.0.0 -p ${PORT:-3000}"
+startCommand = "cd store-admin && npm run start:railway"
 healthcheckPath = "/api/health"
 healthcheckTimeout = 120
 restartPolicyType = "ON_FAILURE"

@@ -50,7 +50,7 @@ Panel y API para reglas que van mas alla del admin estandar de Tiendanube, apoya
 - **Rutas `/api/admin/*`**: tenés que (1) abrir `/admin/login` en el mismo dominio del backend e ingresar el valor de `ADMIN_SECRET`, o (2) enviar `x-admin-secret: <mismo valor que ADMIN_SECRET>` en cada request.
 - **Rutas `/api/storefront/*`** (las que usa `hache-suite.js`): no llevan secreto; si fallan, revisá `storeId` (debe coincidir con `tiendanubeUserId` en la tabla `Store` de Postgres) y que la tienda exista en la base.
 - Diagnóstico rápido: `GET /api/admin/debug-auth` (sin revelar el secreto) muestra si la variable está cargada y si la cookie o el header coinciden.
-7. **Deploy**: el build usa `npm run build`; el arranque ejecuta `prisma migrate deploy` y luego Next en el puerto que asigna Railway (`PORT`).
+7. **Deploy**: el build en Docker solo hace `prisma generate` + `next build` (sin tocar la DB). Al **arrancar** el contenedor, `npm run start:railway` ejecuta `prisma migrate deploy` y luego Next. En Railway marcá `DATABASE_URL` como disponible en **build** si el generate lo requiere en tu versión de Prisma.
 
 Archivos relevantes: `railway.toml`, `package.json` (`start:railway`, `postinstall`).
 
