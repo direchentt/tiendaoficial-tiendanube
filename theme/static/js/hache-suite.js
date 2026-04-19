@@ -20,7 +20,7 @@
   // ─── CONFIG ────────────────────────────────────────────────────────────────
   const BACKEND_URL =
     window.HACHE_BACKEND_URL ||
-    "https://tu-admin.railway.app"; // ← Cambiar al dominio del store-admin desplegado
+    "https://tiendaoficial-tiendanube-production.up.railway.app";
 
   const STORE_ID =
     window.LS?.store?.id?.toString() ||
