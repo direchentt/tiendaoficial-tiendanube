@@ -2286,3 +2286,35 @@ Edición avanzada de CSS
 		description = Acá podes escribir código CSS para que se muestre en tu tienda
 	subtitle
 		subtitle = <a target='_blank' href='https://ayuda.tiendanube.com/es_ES/123225-edicion-avanzada-de-css/como-editar-el-diseno-con-codigo-css'>¿Cómo edito el código CSS de mi tienda?</a>
+
+Página de Login y Cuenta
+	meta
+		icon = user
+		advanced = true
+	title
+		title = Estilo Editorial Split-Screen
+	description
+		description = Dale a tu página de registro y login un estilo moderno con tu media de fondo a pantalla dividida y storytelling personalizado.
+	i18n_input
+		name = login_premium_title
+		description = Título principal (Storytelling)
+		placeholder = Ej: Bienvenido a tu espacio
+	i18n_input
+		name = login_premium_subtitle
+		description = Subtítulo (Ayuda visual)
+		placeholder = Ej: Si necesitás algo, estamos acá para ayudarte a encontrar exactamente lo que buscás.
+	title
+		title = Fondo multimedia (Mitad visual)
+	image
+		original = login_split_background.jpg
+		title = Imagen de fondo
+		width = 1080
+		height = 1080
+		url_description = Sube una foto artística, preferiblemente en formato vertical y limpia.
+	text
+		name = login_split_video_url
+		description = Video en repetición (.mp4)
+		placeholder = Ej: https://tudominio.com/video-loop.mp4
+	subtitle
+		subtitle = Si configurás un link a video MP4, reemplazará a la imagen en silencio y repetición infinita, creando un efecto premium dinámico.
+
