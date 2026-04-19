@@ -1,4 +1,6 @@
 "use client";
+import { adminFetch } from "@/lib/admin-fetch";
+
 
 import { useEffect, useState } from "react";
 
@@ -59,7 +61,7 @@ export default function BundlesPage() {
   const [expanded, setExpanded] = useState<string | null>(null);
 
   async function fetchBundles() {
-    const r = await fetch("/api/admin/bundles", { credentials: "include" });
+    const r = await adminFetch("/api/admin/bundles");
     if (r.ok) setBundles(await r.json());
     setLoading(false);
   }
@@ -89,10 +91,8 @@ export default function BundlesPage() {
           quantity: parseInt(p.quantity) || 1,
         })),
       };
-      const r = await fetch("/api/admin/bundles", {
+      const r = await adminFetch("/api/admin/bundles", {
         method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
       if (!r.ok) {
@@ -110,10 +110,8 @@ export default function BundlesPage() {
   }
 
   async function toggleBundle(b: Bundle) {
-    await fetch(`/api/admin/bundles/${b.id}`, {
+    await adminFetch(`/api/admin/bundles/${b.id}`, {
       method: "PATCH",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ enabled: !b.enabled }),
     });
     fetchBundles();
@@ -121,7 +119,8 @@ export default function BundlesPage() {
 
   async function deleteBundle(id: string) {
     if (!confirm("¿Eliminar este bundle?")) return;
-    await fetch(`/api/admin/bundles/${id}`, { method: "DELETE", credentials: "include" });
+    await adminFetch(`/api/admin/bundles/${id}`, { method: "DELETE" });
+
     fetchBundles();
   }
 

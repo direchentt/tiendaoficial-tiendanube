@@ -1,4 +1,6 @@
 "use client";
+import { adminFetch } from "@/lib/admin-fetch";
+
 
 import { useEffect, useState } from "react";
 
@@ -48,7 +50,7 @@ export default function DynamicPricingPage() {
   const [excludeInput, setExcludeInput] = useState("");
 
   useEffect(() => {
-    fetch("/api/admin/dynamic-pricing", { credentials: "include" })
+    adminFetch("/api/admin/dynamic-pricing")
       .then((r) => r.json())
       .then((data) => {
         setConfig(data);
@@ -69,10 +71,8 @@ export default function DynamicPricingPage() {
         .map((s) => parseInt(s.trim()))
         .filter((n) => !Number.isNaN(n) && n > 0);
 
-      const r = await fetch("/api/admin/dynamic-pricing", {
+      const r = await adminFetch("/api/admin/dynamic-pricing", {
         method: "PUT",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...config, excludedCategoryIds }),
       });
       if (!r.ok) {

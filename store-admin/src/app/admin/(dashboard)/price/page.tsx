@@ -1,4 +1,6 @@
 "use client";
+import { adminFetch } from "@/lib/admin-fetch";
+"use client";
 
 import Link from "next/link";
 import { useState } from "react";

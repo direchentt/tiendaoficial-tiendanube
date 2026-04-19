@@ -1,4 +1,5 @@
 "use client";
+import { adminFetch } from "@/lib/admin-fetch";
 
 import { useEffect, useState, useCallback } from "react";
 
@@ -43,7 +44,7 @@ export default function GiftsPage() {
   const [selectedVariant, setSelectedVariant] = useState<TNVariant | null>(null);
 
   const fetchRules = useCallback(async () => {
-    const r = await fetch("/api/admin/cart-gifts", { credentials: "include" });
+    const r = await adminFetch("/api/admin/cart-gifts");
     if (r.ok) setRules(await r.json());
     else if (r.status === 401) setError("Sesión expirada. Recargá la página.");
   }, []);
@@ -54,7 +55,7 @@ export default function GiftsPage() {
     if (q.length < 2) { setProducts([]); return; }
     setLoadingProducts(true);
     try {
-      const r = await fetch(`/api/admin/tn-products?q=${encodeURIComponent(q)}`, { credentials: "include" });
+      const r = await adminFetch(`/api/admin/tn-products?q=${encodeURIComponent(q)}`);
       if (r.ok) {
         const data = await r.json();
         setProducts(data.products ?? []);
@@ -89,10 +90,8 @@ export default function GiftsPage() {
         giftQty: parseInt(form.giftQty),
         enabled: form.enabled,
       };
-      const r = await fetch("/api/admin/cart-gifts", {
+      const r = await adminFetch("/api/admin/cart-gifts", {
         method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
       if (!r.ok) {
@@ -113,10 +112,8 @@ export default function GiftsPage() {
   }
 
   async function toggleEnabled(rule: GiftRule) {
-    await fetch(`/api/admin/cart-gifts/${rule.id}`, {
+    await adminFetch(`/api/admin/cart-gifts/${rule.id}`, {
       method: "PATCH",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ enabled: !rule.enabled }),
     });
     fetchRules();
@@ -124,7 +121,8 @@ export default function GiftsPage() {
 
   async function handleDelete(id: string) {
     if (!confirm("¿Eliminar esta regla?")) return;
-    await fetch(`/api/admin/cart-gifts/${id}`, { method: "DELETE", credentials: "include" });
+    await adminFetch(`/api/admin/cart-gifts/${id}`, { method: "DELETE" });
+
     fetchRules();
   }
 

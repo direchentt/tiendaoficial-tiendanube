@@ -1,22 +1,15 @@
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
-import { COOKIE_NAME, verifySession } from "@/lib/admin-session";
-
+/**
+ * El guard de sesión ahora es client-side via sessionStorage + x-admin-secret.
+ * El layout server-side solo renderiza los children — la protección
+ * la hace el dashboard client-side guard (AdminGuard) y cada API route
+ * verifica el header x-admin-secret.
+ */
 export const dynamic = "force-dynamic";
 
-/**
- * Rutas bajo /admin excepto /admin/login y /admin/logout.
- * Auth en Node (sin middleware Edge) para evitar fallos en produccion.
- */
-export default async function AdminDashboardLayout({
+export default function AdminDashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const secret = process.env.ADMIN_SECRET;
-  const token = cookies().get(COOKIE_NAME)?.value;
-  if (!(await verifySession(secret, token))) {
-    redirect("/admin/login");
-  }
   return <>{children}</>;
 }
