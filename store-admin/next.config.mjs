@@ -1,11 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  // Needed for prisma in Next.js edge/server
-  serverExternalPackages: ["@prisma/client", "bcryptjs"],
-  // Fix for RSC fetch in Railway — ensures server fetches use the correct base URL
-  // instead of defaulting to 0.0.0.0:8080
+  // Next.js 14: external packages for server components (prisma, bcryptjs)
   experimental: {
+    serverComponentsExternalPackages: ["@prisma/client", "bcryptjs"],
     serverActions: {
       allowedOrigins: ["tiendaoficial-tiendanube-production.up.railway.app"],
     },

@@ -374,7 +374,7 @@ export default function BundlesPage() {
           <li>Creás una página en Tiendanube llamada <strong>combos</strong> (slug: <code>/pages/combos</code>).</li>
           <li>El template <code>pages.combo.html.tpl</code> renderiza un contenedor vacío.</li>
           <li><code>hache-suite.js</code> detecta esa página y llama a <code>/api/storefront/bundles</code>.</li>
-          <li>Renderiza las cards de bundles con el botón "Agregar combo al carrito".</li>
+          <li>Renderiza las cards de bundles con el botón &quot;Agregar combo al carrito&quot;.</li>
           <li>Al hacer clic, todos los productos del bundle se agregan al carrito vía TN Cart API.</li>
         </ol>
       </div>

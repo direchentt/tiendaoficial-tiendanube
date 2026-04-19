@@ -39,8 +39,7 @@ export async function GET(req: NextRequest) {
   const locked = await prisma.lockedCategory.findUnique({
     where: { storeId_categoryId: { storeId: store.id, categoryId } },
   });
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const ttlHours = (locked as any)?.accessTtlHours ?? 24;
+  const ttlHours = (locked as Record<string, unknown>)?.accessTtlHours ?? 24;
 
   return NextResponse.json(
     { locked: !!locked, ttlHours },
@@ -89,8 +88,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: false }, { headers: CORS });
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const ttl = (record as any).accessTtlHours ?? 24;
+  const ttl = ((record as Record<string, unknown>).accessTtlHours as number) ?? 24;
   const expiresAt = new Date(
     Date.now() + ttl * 60 * 60 * 1000
   ).toISOString();
