@@ -1,17 +1,19 @@
 {% set megamenu = megamenu | default(false) %}
 {% set hamburger = hamburger | default(false) %}
 {% set subitem = subitem | default(false) %}
+{% set parent_is_sale = parent_is_sale | default(false) %}
 
 {% set hamburger_desktop_subpanels_position = settings.logo_position_desktop == 'center' ? 'nav-list-panel-left-md' : 'nav-list-panel-right-md' %}
 
 {% for item in navigation %}
+	{% set is_current_sale = (item.name|lower|trim == 'sale' or parent_is_sale) %}
 	
 	{% if item.subitems %}
 		<li class="{% if megamenu %}js-desktop-nav-item js-item-subitems-desktop nav-item-desktop {% if not subitem %}js-nav-main-item nav-dropdown nav-main-item {% endif %}{% endif %} nav-item item-with-subitems" data-component="menu.item">
 			{% if megamenu %}
 			<div class="nav-item-container">
 			{% endif %}
-				<a class="{% if hamburger %}js-toggle-menu-panel align-items-center{% endif %} nav-list-link position-relative {{ item.current ? 'selected' : '' }}{% if item.name|lower|trim == 'sale' %} hs-nav-sale{% endif %}" href="{% if megamenu and item.url %}{{ item.url }}{% else %}#{% endif %}" {% if item.name|lower|trim == 'sale' %}style="color:#ef4444;font-weight:700;letter-spacing:0.04em;"{% endif %}>{{ item.name }}
+				<a class="{% if hamburger %}js-toggle-menu-panel align-items-center{% endif %} nav-list-link position-relative {{ item.current ? 'selected' : '' }}{% if parent_is_sale %} hs-nav-sale{% endif %}" href="{% if megamenu and item.url %}{{ item.url }}{% else %}#{% endif %}" {% if parent_is_sale %}style="color:#ef4444;font-weight:700;letter-spacing:0.04em;"{% endif %}>{{ item.name }}
 					{% if hamburger %}
 						<span class="nav-list-arrow ml-1">
 							<svg class="icon-inline icon-md svg-icon-text"><use xlink:href="#chevron"/></svg>
@@ -53,7 +55,7 @@
 								<div class="modal-body p-0">
 									{% if item.isCategory %}
 										<li class="nav-item py-1">
-											<a class="nav-list-link position-relative font-body py-3 {{ item.current ? 'selected' : '' }}" href="{{ item.url }}">
+											<a class="nav-list-link position-relative font-body py-3 {{ item.current ? 'selected' : '' }}" href="{{ item.url }}" {% if is_current_sale %}style="color:#ef4444;font-weight:700;letter-spacing:0.04em;"{% endif %}>
 												{% if item.isRootCategory %}
 													{{ 'Ver todos los productos' | translate }}
 												{% else %}
@@ -68,7 +70,7 @@
 							{% if hamburger %}
 								{% set hamburger_val = true %}
 							{% endif %}
-							{% include 'snipplets/navigation/navigation-nav-list.tpl' with { 'navigation' : item.subitems, 'subitem' : true, 'hamburger' : hamburger_val  } %}
+							{% include 'snipplets/navigation/navigation-nav-list.tpl' with { 'navigation' : item.subitems, 'subitem' : true, 'hamburger' : hamburger_val, 'parent_is_sale' : is_current_sale } %}
 							
 							{% if hamburger %}
 								</div>
@@ -81,7 +83,7 @@
 		</li>
 	{% else %}
 		<li class="js-desktop-nav-item {% if megamenu %}{% if not subitem %}js-nav-main-item nav-main-item{% endif %} nav-item-desktop{% endif %} nav-item" data-component="menu.item">
-			<a class="nav-list-link {{ item.current ? 'selected' : '' }}{% if item.name|lower|trim == 'sale' %} hs-nav-sale{% endif %}" href="{% if item.url %}{{ item.url | setting_url }}{% else %}#{% endif %}" {% if item.name|lower|trim == 'sale' %}style="color:#ef4444;font-weight:700;letter-spacing:0.04em;"{% endif %}>{{ item.name }}</a>
+			<a class="nav-list-link {{ item.current ? 'selected' : '' }}{% if parent_is_sale %} hs-nav-sale{% endif %}" href="{% if item.url %}{{ item.url | setting_url }}{% else %}#{% endif %}" {% if parent_is_sale %}style="color:#ef4444;font-weight:700;letter-spacing:0.04em;"{% endif %}>{{ item.name }}</a>
 		</li>
 	{% endif %}
 {% endfor %}
