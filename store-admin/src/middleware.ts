@@ -26,6 +26,7 @@ export const config = {
      * - _next/image (image optimization)
      * - favicon.ico
      */
-    "/((?!_next/static|_next/image|favicon.ico).*)",
+    /* /api/health: sin middleware para healthcheck de Railway lo más liviano posible */
+    "/((?!_next/static|_next/image|favicon.ico|api/health).*)",
   ],
 };
