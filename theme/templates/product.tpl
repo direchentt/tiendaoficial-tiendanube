@@ -9,9 +9,6 @@
             </div>
             <div class="col-md-auto product-info-column pdp-app-buybox" data-store="product-info-{{ product.id }}">
                 {% include 'snipplets/product/product-form.tpl' %}
-                {% if not settings.full_width_description %}
-                    {% include 'snipplets/product/product-description.tpl' %}
-                {% endif %}
             </div>
 
             {% if settings.brand_pdp_related_position|default('below_page') == 'after_buybox' %}
@@ -20,11 +17,6 @@
                 </div>
             {% endif %}
 
-            {% if settings.full_width_description %}
-                <div class="pdp-app-description-full w-100">
-                    {% include 'snipplets/product/product-description.tpl' %}
-                </div>
-            {% endif %}
         </div>
     </div>
 </article>
@@ -64,6 +56,9 @@
 
 {# Carril categorias AJAX: debajo del video de ficha, antes de relacionados y del footer. #}
 {% include 'snipplets/brand/brand-category-rail.tpl' with { rail_context: 'product' } %}
+
+{% include 'snipplets/home/home-brand-routine-showcase.tpl' %}
+{% include 'snipplets/home/home-brand-shoppable-stories.tpl' %}
 
 {% if settings.brand_pdp_related_position|default('below_page') != 'after_buybox' %}
     {% include 'snipplets/product/product-related.tpl' %}

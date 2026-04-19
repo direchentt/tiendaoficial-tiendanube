@@ -1,4 +1,4 @@
-{% embed "snipplets/modal.tpl" with{modal_id: 'home-modal', modal_class: 'home-promotional modal-bottom-sheet modal-shadow', modal_position: 'bottom', modal_transition: 'slide', modal_header_title: true, modal_footer: false, modal_width: 'docked-md modal-docked-small modal-docked-md-right', modal_body_class: 'pt-0' } %}
+{% embed "snipplets/modal.tpl" with{modal_id: 'home-modal', modal_zindex_top: true, modal_class: 'home-promotional home-popup--glass modal-bottom-sheet modal-shadow', modal_position: 'bottom', modal_transition: 'slide', modal_header_title: true, modal_footer: false, modal_width: 'docked-md modal-docked-small modal-docked-md-right', modal_body_class: 'pt-0 home-popup--glass-body' } %}
     {% if settings.home_popup_title %}
         {% block modal_head %}
             {{ settings.home_popup_title }}

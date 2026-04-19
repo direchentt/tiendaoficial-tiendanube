@@ -1439,6 +1439,9 @@ Página de inicio
 			video = Video
 			brand_split_video = Video hero marca (1 o 2 bloques)
 			brand_category_triptych = Banners de categorías marca (3 bloques)
+			brand_category_carousel = Carrusel de categorías marca (6 bloques)
+			brand_routine_showcase = Vitrina Arma tu rutina (productos)
+			brand_shoppable_stories = Carrusel video shoppable (Stories)
 			brand_category_rail = Carril categorías (Novedades / pestañas)
 			main_product = Producto principal
 			instafeed = Publicaciones de Instagram
@@ -1495,17 +1498,21 @@ Marca editorial (layout)
 		backto = _top
 	dropdown
 		name = brand_product_card_ratio
-		description = Proporcion de la foto en listados (marca)
+		description = Proporcion de la foto en grillas y vitrinas (y marco principal de la ficha PDP estilo represent)
 		values
-			standard = Tema por defecto
+			standard = Tema por defecto (PDP represent 3:4)
 			square = Cuadrada 1:1
 			portrait = Retrato 4:5
+			story = Historia IG / vertical 9:16
 	checkbox
 		name = brand_labels_minimal
 		description = Etiquetas en listados tipo linea (menos pastilla)
 	checkbox
 		name = brand_slider_editorial
 		description = Carrusel principal: tipografia mas editorial
+	checkbox
+		name = brand_header_bottom_rule
+		description = Linea fina bajo la barra del encabezado (logo y busqueda)
 	collapse
 		title = Video hero — General
 		backto = _top
@@ -1664,6 +1671,248 @@ Marca editorial (layout)
 	i18n_input
 		name = brand_category_triptych_3_btn2_url
 		description = Enlace boton 2 (URL)
+	collapse
+		title = Carrusel categorías marca (6 bloques)
+		backto = _top
+	description
+		description = Seis imagenes con boton centrado; en desktop se muestran 3 a la vez con flechas y arrastre; en mobile paginacion con puntos. Activa la seccion y sumala al orden desde Pagina de inicio. En cada bloque elegi si el enlace es URL libre, categoria o producto (en todos los casos pegá la URL correspondiente en el campo de enlace).
+	checkbox
+		name = brand_category_carousel_enable
+		description = Activar carrusel de 6 categorias / enlaces
+	subtitle
+		subtitle = Bloque 1
+	image
+		original = brand_category_carousel_1.jpg
+		title = Imagen 1 (JPG, GIF, PNG)
+		width = 900
+		height = 1200
+	dropdown
+		name = brand_category_carousel_1_link_type
+		description = Tipo de destino (referencia; el enlace se arma con el campo URL)
+		values
+			free = URL libre (cualquier pagina)
+			category = Categoria (pegar URL de la categoria)
+			product = Producto (pegar URL del producto)
+	i18n_input
+		name = brand_category_carousel_1_label
+		description = Texto del boton (centrado sobre la imagen)
+	i18n_input
+		name = brand_category_carousel_1_url
+		description = Enlace (URL de categoria, producto u otra pagina)
+	subtitle
+		subtitle = Bloque 2
+	image
+		original = brand_category_carousel_2.jpg
+		title = Imagen 2 (JPG, GIF, PNG)
+		width = 900
+		height = 1200
+	dropdown
+		name = brand_category_carousel_2_link_type
+		description = Tipo de destino
+		values
+			free = URL libre (cualquier pagina)
+			category = Categoria (pegar URL de la categoria)
+			product = Producto (pegar URL del producto)
+	i18n_input
+		name = brand_category_carousel_2_label
+		description = Texto del boton
+	i18n_input
+		name = brand_category_carousel_2_url
+		description = Enlace (URL)
+	subtitle
+		subtitle = Bloque 3
+	image
+		original = brand_category_carousel_3.jpg
+		title = Imagen 3 (JPG, GIF, PNG)
+		width = 900
+		height = 1200
+	dropdown
+		name = brand_category_carousel_3_link_type
+		description = Tipo de destino
+		values
+			free = URL libre (cualquier pagina)
+			category = Categoria (pegar URL de la categoria)
+			product = Producto (pegar URL del producto)
+	i18n_input
+		name = brand_category_carousel_3_label
+		description = Texto del boton
+	i18n_input
+		name = brand_category_carousel_3_url
+		description = Enlace (URL)
+	subtitle
+		subtitle = Bloque 4
+	image
+		original = brand_category_carousel_4.jpg
+		title = Imagen 4 (JPG, GIF, PNG)
+		width = 900
+		height = 1200
+	dropdown
+		name = brand_category_carousel_4_link_type
+		description = Tipo de destino
+		values
+			free = URL libre (cualquier pagina)
+			category = Categoria (pegar URL de la categoria)
+			product = Producto (pegar URL del producto)
+	i18n_input
+		name = brand_category_carousel_4_label
+		description = Texto del boton
+	i18n_input
+		name = brand_category_carousel_4_url
+		description = Enlace (URL)
+	subtitle
+		subtitle = Bloque 5
+	image
+		original = brand_category_carousel_5.jpg
+		title = Imagen 5 (JPG, GIF, PNG)
+		width = 900
+		height = 1200
+	dropdown
+		name = brand_category_carousel_5_link_type
+		description = Tipo de destino
+		values
+			free = URL libre (cualquier pagina)
+			category = Categoria (pegar URL de la categoria)
+			product = Producto (pegar URL del producto)
+	i18n_input
+		name = brand_category_carousel_5_label
+		description = Texto del boton
+	i18n_input
+		name = brand_category_carousel_5_url
+		description = Enlace (URL)
+	subtitle
+		subtitle = Bloque 6
+	image
+		original = brand_category_carousel_6.jpg
+		title = Imagen 6 (JPG, GIF, PNG)
+		width = 900
+		height = 1200
+	dropdown
+		name = brand_category_carousel_6_link_type
+		description = Tipo de destino
+		values
+			free = URL libre (cualquier pagina)
+			category = Categoria (pegar URL de la categoria)
+			product = Producto (pegar URL del producto)
+	i18n_input
+		name = brand_category_carousel_6_label
+		description = Texto del boton
+	i18n_input
+		name = brand_category_carousel_6_url
+		description = Enlace (URL)
+	collapse
+		title = Vitrina "Arma tu rutina" (pasos + productos)
+		backto = _top
+	description
+		description = Hasta 5 productos elegidos al azar entre destacados, novedades y ofertas, con al menos 2 fotos cada uno. Foto grande izquierda = 2da imagen del producto; miniatura = 1ra. Activa aca y agrega la seccion "Vitrina Arma tu rutina (productos)" en el orden del inicio.
+	checkbox
+		name = brand_routine_showcase_enable
+		description = Mostrar vitrina en la pagina de inicio
+	dropdown
+		name = brand_routine_interval
+		description = Cambio automatico de paso (elige un paso al azar en cada intervalo)
+		values
+			4000 = Cada 4 segundos
+			6000 = Cada 6 segundos
+			8000 = Cada 8 segundos
+			0 = Solo manual (clic en pasos)
+	i18n_input
+		name = brand_routine_title
+		description = Titulo principal (si queda vacio se usa texto por defecto)
+	i18n_input
+		name = brand_routine_intro
+		description = Texto intro debajo del titulo (opcional)
+	i18n_input
+		name = brand_routine_step_1_label
+		description = Paso 1 - texto bajo el circulo (vacio = BASE)
+	i18n_input
+		name = brand_routine_step_2_label
+		description = Paso 2 - texto bajo el circulo (vacio = COMBINÁ)
+	i18n_input
+		name = brand_routine_step_3_label
+		description = Paso 3 - texto bajo el circulo (vacio = SUMÁ)
+	i18n_input
+		name = brand_routine_step_4_label
+		description = Paso 4 - texto bajo el circulo (vacio = EXTRA)
+	i18n_input
+		name = brand_routine_step_5_label
+		description = Paso 5 - texto bajo el circulo (vacio = CIERRE)
+	collapse
+		title = Carrusel video shoppable (Stories / TikTok)
+		backto = _top
+	description
+		description = Carrusel de videos con producto flotante sobre el video (miniatura, nombre, precio y comprar). Hasta 6 slides. Enlace de video: YouTube, Vimeo o archivo .mp4/.webm. Producto: ID numerico (ver URL en el admin del producto, ej. .../products/123456/edit -> 123456). El producto debe estar en destacados, novedades u ofertas para que el tema lo encuentre. En inicio: agrega la seccion al orden. Tambien se muestra al pie de ficha de producto y de categorias. Elegi el layout del carrusel (movil peek vs 2 columnas ancho completo).
+	checkbox
+		name = brand_shoppable_stories_enable
+		description = Mostrar carrusel (inicio si esta en el orden, ficha de producto, categorias)
+	i18n_input
+		name = brand_shoppable_stories_title
+		description = Titulo de la seccion (vacio = texto por defecto)
+	checkbox
+		name = brand_shoppable_stories_autoplay
+		description = Autoplay de videos (recomendado con silencio)
+	checkbox
+		name = brand_shoppable_stories_muted
+		description = Iniciar videos en silencio
+	dropdown
+		name = brand_shoppable_stories_layout
+		description = Carrusel: en escritorio siempre hasta 3 tarjetas. En movil, vista parcial (peek) o 2 columnas a todo el ancho de pantalla. El bloque de producto va flotante sobre el video (fondo transparente, centrado).
+		values
+			classic = Movil peek + escritorio 3
+			mobile_two_full = Movil 2 columnas pantalla ancha + escritorio 3
+	subtitle
+		subtitle = Slide 1
+	i18n_input
+		name = brand_shoppable_slide_1_video_url
+		description = Enlace del video (YouTube, Vimeo o URL directa .mp4/.webm)
+	text
+		name = brand_shoppable_slide_1_product_id
+		description = ID del producto (solo numeros)
+		placeholder = Ej. 98765432
+	subtitle
+		subtitle = Slide 2
+	i18n_input
+		name = brand_shoppable_slide_2_video_url
+		description = Enlace del video
+	text
+		name = brand_shoppable_slide_2_product_id
+		description = ID del producto
+		placeholder = Ej. 98765432
+	subtitle
+		subtitle = Slide 3
+	i18n_input
+		name = brand_shoppable_slide_3_video_url
+		description = Enlace del video
+	text
+		name = brand_shoppable_slide_3_product_id
+		description = ID del producto
+		placeholder = Ej. 98765432
+	subtitle
+		subtitle = Slide 4
+	i18n_input
+		name = brand_shoppable_slide_4_video_url
+		description = Enlace del video
+	text
+		name = brand_shoppable_slide_4_product_id
+		description = ID del producto
+		placeholder = Ej. 98765432
+	subtitle
+		subtitle = Slide 5
+	i18n_input
+		name = brand_shoppable_slide_5_video_url
+		description = Enlace del video
+	text
+		name = brand_shoppable_slide_5_product_id
+		description = ID del producto
+		placeholder = Ej. 98765432
+	subtitle
+		subtitle = Slide 6
+	i18n_input
+		name = brand_shoppable_slide_6_video_url
+		description = Enlace del video
+	text
+		name = brand_shoppable_slide_6_product_id
+		description = ID del producto
+		placeholder = Ej. 98765432
 
 Carril categorías
 	meta
@@ -1708,6 +1957,12 @@ Listado de productos
 	checkbox
 		name = filters_desktop_modal
 		description = Abrir filtros a la derecha del listado de productos al cliquear en 'filtrar' (solo en computadoras)
+	checkbox
+		name = catalog_benefits_bar_show
+		description = Mostrar barra de beneficios (cuotas sin interés si aplica, envío gratis, transferencia) y leyenda opcional sobre el listado en categoría y búsqueda
+	i18n_input
+		name = catalog_financing_legend
+		description = Leyenda bajo la barra de beneficios (ej. tarjetas y bancos válidos). Dejala vacía para ocultar.
 	subtitle
 		subtitle = <span class='js-description-html'><strong>Configurá los filtros</strong> de tu tienda desde <a target='_blank' href='/admin/v2/filters' class='font-bold'>el administrador</a></span>
 	title
@@ -1755,6 +2010,9 @@ Listado de productos
 	checkbox
 		name = product_color_variants
 		description = Mostrar variantes de color en listado de productos
+	checkbox
+		name = product_listing_variant_images
+		description = Mostrar miniaturas de variante con imagen en el listado (Color/Cor). Requiere imagen por variante. Si está activo, sustituye a las pastillas de color en la tarjeta.
 	title
 		title = Fotos del producto
 	checkbox

@@ -1,5 +1,6 @@
 {% if products or has_filters_available %}
-  <section class="js-category-controls category-controls visible-when-content-ready {% if not settings.filters_desktop_modal %}d-md-none{% endif %}">
+  {# En móvil el dock compacto (catalog-top-bar) abre los mismos modales; esta fila solo en escritorio si hace falta. #}
+  <section class="js-category-controls category-controls visible-when-content-ready {% if settings.filters_desktop_modal | default(false) %}d-none d-md-block{% else %}d-none{% endif %}">
     <div class="container-fluid category-controls-container">
       <div class="category-controls-row py-3 py-md-0">
         {% if products and not has_filters_available %}

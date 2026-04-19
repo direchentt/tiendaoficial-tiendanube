@@ -1,9 +1,11 @@
 {# Cookie validation #}
 
 {% if show_cookie_banner and not params.preview %}
-    <div class="js-notification js-notification-cookie-banner notification notification-fixed-bottom notification-primary text-left" style="display: none;">
-        {{ 'Al navegar por este sitio <strong>aceptás el uso de cookies</strong> para agilizar tu experiencia de compra.' | translate }}
-        <a href="#" class="js-notification-close js-acknowledge-cookies btn btn-link pt-1 pl-1 d-inline-block" data-amplitude-event-name="cookie_banner_acknowledge_click">{{ "Entendido" | translate }}</a>
+    <div class="js-notification js-notification-cookie-banner notification notification-cookie-glass notification-fixed-bottom text-left" style="display: none;">
+        <div class="notification-cookie-glass__inner">
+            <p class="notification-cookie-glass__text mb-0">{{ 'Al navegar por este sitio <strong>aceptás el uso de cookies</strong> para agilizar tu experiencia de compra.' | translate }}</p>
+            <a href="#" class="js-notification-close js-acknowledge-cookies notification-cookie-glass__btn" data-amplitude-event-name="cookie_banner_acknowledge_click">{{ "Entendido" | translate }}</a>
+        </div>
     </div>
 {% endif %}
 

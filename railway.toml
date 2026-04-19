@@ -1,0 +1,14 @@
+# Railway: usa Nixpacks (NO Dockerfile)
+# Root Directory del servicio debe ser "store-admin"
+# o bien el monorepo usa este railway.toml en la raíz apuntando al subdirectorio.
+
+[build]
+builder = "NIXPACKS"
+buildCommand = "cd store-admin && npm ci && npx prisma generate && npm run build"
+
+[deploy]
+startCommand = "cd store-admin && npx prisma migrate deploy && npx next start -H 0.0.0.0 -p ${PORT:-3000}"
+healthcheckPath = "/api/health"
+healthcheckTimeout = 120
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3

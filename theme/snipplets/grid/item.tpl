@@ -65,7 +65,7 @@
 
     <div class="js-item-product{% if slide_item %} js-item-slide swiper-slide{% endif %} {{ columns_mobile_class }} {{ columns_desktop_class }} item-product {% if reduced_item %}item-product-reduced{% endif %} col-grid" data-product-type="list" data-product-id="{{ product.id }}" data-store="product-item-{{ product.id }}" data-component="product-list-item" data-component-value="{{ product.id }}"{% if buy_label_custom != '' %} data-list-buy-label-cart="{{ buy_label_custom | e('html_attr') }}"{% endif %}>
         <div class="item {% if reduced_item %}mb-0{% endif %}">
-            {% if (settings.quick_shop or settings.product_color_variants) and not reduced_item %}
+            {% if (settings.quick_shop or settings.product_color_variants or (settings.product_listing_variant_images | default(false))) and not reduced_item %}
                 <div class="js-product-container js-quickshop-container{% if product.variations %} js-quickshop-has-variants{% endif %} position-relative" data-variants="{{ product.variants_object | json_encode }}" data-quickshop-id="quick{{ product.id }}">
             {% endif %}
             {% set product_url_with_selected_variant = has_filters ?  ( product.url | add_param('variant', product.selected_or_first_available_variant.id)) : product.url  %}
@@ -162,7 +162,7 @@
             {% endif %}
     
             {% if 
-                ((settings.quick_shop and not product.isSubscribable()) or settings.product_color_variants)
+                ((settings.quick_shop and not product.isSubscribable()) or settings.product_color_variants or (settings.product_listing_variant_images | default(false)))
                 and product.available 
                 and product.display_price 
                 and product.variations 
@@ -192,7 +192,7 @@
 
                             <div class="{% if show_product_quantity %}col-8 pl-0{% else %}col-12{% endif %}">
 
-                                <input type="submit" class="js-addtocart js-prod-submit-form btn-add-to-cart btn btn-primary btn-big w-100 brand-pdp-cta {{ state }}" value="{{ texts[state] | translate }}" {% if state == 'nostock' %}disabled{% endif %} />
+                                <input type="submit" class="js-addtocart js-prod-submit-form btn-add-to-cart btn btn-primary btn-big w-100 {{ state }}" value="{{ texts[state] | translate }}" {% if state == 'nostock' %}disabled{% endif %} />
 
                                 {# Fake add to cart CTA visible during add to cart event #}
 
@@ -209,8 +209,11 @@
             {% set show_labels = not product.has_stock or product.compare_at_price or product.hasVisiblePromotionLabel %}
             <div class="item-description pt-3" data-store="product-item-info-{{ product.id }}">
                 <a href="{{ product_url_with_selected_variant }}" title="{{ product.name }}" aria-label="{{ product.name }}" class="item-link">
-                    {% if settings.product_color_variants and not reduced_item %}
+                    {% if settings.product_color_variants and not (settings.product_listing_variant_images | default(false)) and not reduced_item %}
                         {% include 'snipplets/grid/item-colors.tpl' %}
+                    {% endif %}
+                    {% if (settings.product_listing_variant_images | default(false)) and not reduced_item %}
+                        {% include 'snipplets/grid/item-variant-thumbs.tpl' %}
                     {% endif %}
                     <div class="js-item-name item-name mb-2 font-weight-bold" data-store="product-item-name-{{ product.id }}">{{ product.name }}</div>
                     {% if product.display_price %}
@@ -319,7 +322,7 @@
                         {% endif %}
                     {% endif %}
             </div>
-            {% if (settings.quick_shop or settings.product_color_variants) and not reduced_item %}
+            {% if (settings.quick_shop or settings.product_color_variants or (settings.product_listing_variant_images | default(false))) and not reduced_item %}
                 </div>{# This closes the quickshop tag #}
             {% endif %}
 

@@ -20,33 +20,51 @@
     {% include 'snipplets/category-banner.tpl' %}
 {% endif %}
 
-{% if category.description or not category_banner %}
+{% if not category_banner or category.description or products %}
 	<div class="container-fluid">
-		{% set page_header_padding = category.description ? false : true %}
-		{% set page_header_classes = category.description ? 'pt-4 pb-2 pt-md-4 pb-md-2' %}
-		{% if category_banner %}
-			{% include 'snipplets/breadcrumbs.tpl' with {breadcrumbs_custom_class: 'mt-4'} %}
+		{% if products %}
+			{% if category_banner %}
+				{% include 'snipplets/grid/catalog-nav-strip.tpl' with { nav_breadcrumbs_class: 'mt-2 mb-0' } %}
+			{% else %}
+				{% set _nav_pad = category.description ? 'pt-3 pb-1' : 'py-2' %}
+				<div class="{{ _nav_pad }}">
+					{% include 'snipplets/grid/catalog-nav-strip.tpl' with { nav_category_title: category.name, nav_breadcrumbs_class: 'mb-0' } %}
+				</div>
+			{% endif %}
+		{% elseif category_banner %}
+			{% include 'snipplets/breadcrumbs.tpl' with {breadcrumbs_custom_class: 'mt-2 mb-0'} %}
 		{% else %}
+			{% set page_header_padding = category.description ? false : true %}
+			{% set page_header_classes = category.description ? 'pt-4 pb-2 pt-md-4 pb-md-2' %}
 			{% embed "snipplets/page-header.tpl" with {container: false, padding: page_header_padding, page_header_class: page_header_classes} %}
-			    {% block page_header_text %}{{ category.name }}{% endblock page_header_text %}
+				{% block page_header_text %}{{ category.name }}{% endblock page_header_text %}
 			{% endembed %}
 		{% endif %}
-		{% if category.description %}
-			<p class="{% if category_banner %}mt-3 py-md-2{% else %}mb-4 pb-1{% endif %}">{{ category.description }}</p>
+		{% set category_desc_trim = category.description | trim %}
+		{% if category_desc_trim != '' %}
+			<p class="{% if category_banner %}mt-2 py-md-2 mb-0{% else %}mb-4 pb-1{% endif %}">{{ category.description }}</p>
 		{% endif %}
+	</div>
+{% elseif category_banner %}
+	<div class="container-fluid">
+		{% include 'snipplets/breadcrumbs.tpl' with {breadcrumbs_custom_class: 'mt-2 mb-0'} %}
 	</div>
 {% endif %}
 
 {% include 'snipplets/grid/filters-modals.tpl' %}
 
 <section class="category-body {% if settings.filters_desktop_modal %}pt-md-2{% endif %}" data-store="category-grid-{{ category.id }}" aria-label="{{ category.name }}: {{ 'Listado de productos' | translate }}">
-	<div class="container-fluid mt-3 mb-5">
+	<div class="container-fluid mt-2 mb-5">
 		<div class="row">
 			{% include 'snipplets/grid/filters-sidebar.tpl' %}
 			{% include 'snipplets/grid/products-list.tpl' %}
 		</div>
 	</div>
 </section>
+
+{% include 'snipplets/home/home-brand-routine-showcase.tpl' %}
+{% include 'snipplets/home/home-brand-shoppable-stories.tpl' %}
+
 {% elseif show_help %}
 	{# Category Placeholder #}
 	{% include 'snipplets/defaults/show_help_category.tpl' %}

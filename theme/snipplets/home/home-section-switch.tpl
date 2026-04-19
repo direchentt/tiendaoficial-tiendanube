@@ -24,7 +24,10 @@
   brand_editorial: show_help or (show_component_help and not has_brand_editorial),
   brand_split_video: show_help or (show_component_help and not has_brand_split_video),
   brand_category_triptych: show_help or (show_component_help and not has_brand_category_triptych),
-  brand_category_rail: show_help or (show_component_help and not settings.brand_category_rail_enable)
+  brand_category_carousel: show_help or (show_component_help and not has_brand_category_carousel),
+  brand_category_rail: show_help or (show_component_help and not settings.brand_category_rail_enable),
+  brand_routine_showcase: show_help or (show_component_help and not (settings.brand_routine_showcase_enable | default(false))),
+  brand_shoppable_stories: show_help or (show_component_help and not (settings.brand_shoppable_stories_enable | default(false)))
 } %}
 
 {% if section_select == 'slider' %}
@@ -207,12 +210,36 @@
 		{% include 'snipplets/home/home-brand-category-triptych.tpl' %}
 	{% endif %}
 
+{% elseif section_select == 'brand_category_carousel' %}
+
+	{% if home_help.brand_category_carousel %}
+		{% include 'snipplets/defaults/home/brand_category_carousel_help.tpl' %}
+	{% else %}
+		{% include 'snipplets/home/home-brand-category-carousel.tpl' %}
+	{% endif %}
+
 {% elseif section_select == 'brand_category_rail' %}
 
 	{% if home_help.brand_category_rail %}
 		{% snipplet 'defaults/home/brand_category_rail_help.tpl' %}
 	{% else %}
 		{% include 'snipplets/brand/brand-category-rail.tpl' with { rail_context: 'home' } %}
+	{% endif %}
+
+{% elseif section_select == 'brand_routine_showcase' %}
+
+	{% if home_help.brand_routine_showcase %}
+		{% include 'snipplets/defaults/home/brand_routine_showcase_help.tpl' %}
+	{% else %}
+		{% include 'snipplets/home/home-brand-routine-showcase.tpl' %}
+	{% endif %}
+
+{% elseif section_select == 'brand_shoppable_stories' %}
+
+	{% if home_help.brand_shoppable_stories %}
+		{% include 'snipplets/defaults/home/brand_shoppable_stories_help.tpl' %}
+	{% else %}
+		{% include 'snipplets/home/home-brand-shoppable-stories.tpl' %}
 	{% endif %}
 
 {% endif %}

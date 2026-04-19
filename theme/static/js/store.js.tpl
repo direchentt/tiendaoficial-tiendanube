@@ -2019,6 +2019,49 @@ DOMContentLoaded.addEventOrExecute(() => {
             }
         });
 
+        {# PDP boutique: ocultar boton secundario tipo "Pago exprés" que inyecta la plataforma junto al formulario #}
+        (function () {
+            var box = document.querySelector('#single-product.pdp-app--represent .pdp-app-buybox');
+            if (!box) {
+                return;
+            }
+            var rx = /(pago\s*expres|pago\s*exprés|pago\s*express|express\s*checkout)/i;
+            function hideExpressCheckoutButtons() {
+                jQueryNuvem(box).find('a, button').each(function () {
+                    var el = jQueryNuvem(this);
+                    if (el.closest('.form-quantity').length || el.hasClass('js-addtocart') || el.hasClass('js-prod-submit-form') || el.hasClass('js-modal-open') || el.closest('.js-modal-open').length) {
+                        return;
+                    }
+                    var txt = (el.text() || '').trim();
+                    if (!txt || txt.length > 120) {
+                        return;
+                    }
+                    if (!rx.test(txt)) {
+                        return;
+                    }
+                    var col = el.closest('.col-12');
+                    if (col.length && col.children('a, button').length <= 4) {
+                        col.css('display', 'none');
+                    } else {
+                        el.css('display', 'none');
+                    }
+                });
+            }
+            hideExpressCheckoutButtons();
+            setTimeout(hideExpressCheckoutButtons, 800);
+            setTimeout(hideExpressCheckoutButtons, 2600);
+            if (typeof MutationObserver !== 'undefined') {
+                var moTimer;
+                var mo = new MutationObserver(function () {
+                    if (moTimer) {
+                        clearTimeout(moTimer);
+                    }
+                    moTimer = setTimeout(hideExpressCheckoutButtons, 80);
+                });
+                mo.observe(box, { childList: true, subtree: true });
+            }
+        })();
+
 
     {% endif %}
 
@@ -2188,24 +2231,33 @@ DOMContentLoaded.addEventOrExecute(() => {
             }
 
             function syncToolbar(wrap) {
+                var ctx = wrap.getAttribute('data-grid-context');
+                if (!ctx) {
+                    return;
+                }
                 var um = wrap.getAttribute('data-user-mobile') || '';
                 var ud = wrap.getAttribute('data-user-desktop') || '';
-                wrap.querySelectorAll('[data-user-grid-set-mobile]').forEach(function (btn) {
-                    var v = btn.getAttribute('data-user-grid-set-mobile');
-                    var on = um !== '' && v === um;
-                    btn.classList.toggle('active', on);
-                    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+                var roots = document.querySelectorAll(
+                    '.js-user-product-grid[data-grid-context="' + ctx + '"], [data-user-grid-toolbar-for="' + ctx + '"]'
+                );
+                roots.forEach(function (root) {
+                    root.querySelectorAll('[data-user-grid-set-mobile]').forEach(function (btn) {
+                        var v = btn.getAttribute('data-user-grid-set-mobile');
+                        var on = um !== '' && v === um;
+                        btn.classList.toggle('active', on);
+                        btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+                    });
+                    root.querySelectorAll('[data-user-grid-set-desktop]').forEach(function (btn) {
+                        var v = btn.getAttribute('data-user-grid-set-desktop');
+                        var on = ud !== '' && v === ud;
+                        btn.classList.toggle('active', on);
+                        btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+                    });
+                    var resetBtn = root.querySelector('[data-user-grid-reset]');
+                    if (resetBtn) {
+                        resetBtn.disabled = !(um || ud);
+                    }
                 });
-                wrap.querySelectorAll('[data-user-grid-set-desktop]').forEach(function (btn) {
-                    var v = btn.getAttribute('data-user-grid-set-desktop');
-                    var on = ud !== '' && v === ud;
-                    btn.classList.toggle('active', on);
-                    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
-                });
-                var resetBtn = wrap.querySelector('[data-user-grid-reset]');
-                if (resetBtn) {
-                    resetBtn.disabled = !(um || ud);
-                }
             }
 
             function applyFromStorage(wrap) {
@@ -2244,44 +2296,56 @@ DOMContentLoaded.addEventOrExecute(() => {
                 notifyLayoutAfterGridDensityChange();
             }
 
+            document.addEventListener('click', function (e) {
+                var t = e.target;
+                if (!t || !t.closest) {
+                    return;
+                }
+                var mb = t.closest('[data-user-grid-set-mobile]');
+                var db = t.closest('[data-user-grid-set-desktop]');
+                var rs = t.closest('[data-user-grid-reset]');
+                if (!mb && !db && !rs) {
+                    return;
+                }
+                var toolbar = t.closest('[data-user-grid-toolbar-for]');
+                var wrap = toolbar
+                    ? document.querySelector('.js-user-product-grid[data-grid-context="' + toolbar.getAttribute('data-user-grid-toolbar-for') + '"]')
+                    : t.closest('.js-user-product-grid');
+                if (!wrap) {
+                    return;
+                }
+                if (mb) {
+                    var vm = mb.getAttribute('data-user-grid-set-mobile');
+                    wrap.setAttribute('data-user-mobile', vm);
+                    try {
+                        localStorage.setItem(storageKey(wrap.getAttribute('data-grid-context'), 'm'), vm);
+                    } catch (e3) {
+                        /* ignore */
+                    }
+                    syncToolbar(wrap);
+                    notifyLayoutAfterGridDensityChange();
+                    return;
+                }
+                if (db) {
+                    var vd = db.getAttribute('data-user-grid-set-desktop');
+                    wrap.setAttribute('data-user-desktop', vd);
+                    try {
+                        localStorage.setItem(storageKey(wrap.getAttribute('data-grid-context'), 'd'), vd);
+                    } catch (e4) {
+                        /* ignore */
+                    }
+                    syncToolbar(wrap);
+                    notifyLayoutAfterGridDensityChange();
+                    return;
+                }
+                if (rs) {
+                    clearOverride(wrap);
+                }
+            });
+
             var userGridWraps = document.querySelectorAll('.js-user-product-grid');
             userGridWraps.forEach(function (wrap) {
                 applyFromStorage(wrap);
-                wrap.addEventListener('click', function (e) {
-                    var t = e.target;
-                    if (!t || !t.closest) {
-                        return;
-                    }
-                    var mb = t.closest('[data-user-grid-set-mobile]');
-                    if (mb) {
-                        var vm = mb.getAttribute('data-user-grid-set-mobile');
-                        wrap.setAttribute('data-user-mobile', vm);
-                        try {
-                            localStorage.setItem(storageKey(wrap.getAttribute('data-grid-context'), 'm'), vm);
-                        } catch (e3) {
-                            /* ignore */
-                        }
-                        syncToolbar(wrap);
-                        notifyLayoutAfterGridDensityChange();
-                        return;
-                    }
-                    var db = t.closest('[data-user-grid-set-desktop]');
-                    if (db) {
-                        var vd = db.getAttribute('data-user-grid-set-desktop');
-                        wrap.setAttribute('data-user-desktop', vd);
-                        try {
-                            localStorage.setItem(storageKey(wrap.getAttribute('data-grid-context'), 'd'), vd);
-                        } catch (e4) {
-                            /* ignore */
-                        }
-                        syncToolbar(wrap);
-                        notifyLayoutAfterGridDensityChange();
-                        return;
-                    }
-                    if (t.closest('[data-user-grid-reset]')) {
-                        clearOverride(wrap);
-                    }
-                });
             });
             if (userGridWraps.length) {
                 notifyLayoutAfterGridDensityChange();
@@ -2292,6 +2356,67 @@ DOMContentLoaded.addEventOrExecute(() => {
     {% set has_item_slider = settings.product_item_slider %}
 
     {% if template == 'category' or template == 'search' %}
+
+        (function initCatalogBenefitsTicker() {
+            var mq = window.matchMedia('(max-width: 767px)');
+            var roots = document.querySelectorAll('[data-catalog-benefits-ticker]');
+            var timers = [];
+
+            function clearTimers() {
+                timers.forEach(function (id) {
+                    clearInterval(id);
+                });
+                timers = [];
+            }
+
+            function clearActive(root) {
+                root.querySelectorAll('.catalog-benefits-bar__item[data-benefit-tick]').forEach(function (el) {
+                    el.classList.remove('is-active');
+                });
+            }
+
+            function setupRoot(root) {
+                var items = root.querySelectorAll('.catalog-benefits-bar__item[data-benefit-tick]');
+                if (items.length < 2) {
+                    return;
+                }
+                var i = 0;
+                function tick() {
+                    items.forEach(function (el, idx) {
+                        el.classList.toggle('is-active', idx === i);
+                    });
+                    i = (i + 1) % items.length;
+                }
+                tick();
+                timers.push(setInterval(tick, 4500));
+            }
+
+            function run() {
+                clearTimers();
+                roots.forEach(function (root) {
+                    clearActive(root);
+                });
+                if (!mq.matches || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                    roots.forEach(function (root) {
+                        var first = root.querySelector('.catalog-benefits-bar__item[data-benefit-tick]');
+                        if (first) {
+                            first.classList.add('is-active');
+                        }
+                    });
+                    return;
+                }
+                roots.forEach(setupRoot);
+            }
+
+            if (roots.length) {
+                run();
+                if (mq.addEventListener) {
+                    mq.addEventListener('change', run);
+                } else if (mq.addListener) {
+                    mq.addListener(run);
+                }
+            }
+        })();
 
         {# /* // Product item slider */ #}
         {# Barajar ítems antes de inicializar Swiper por producto (reordenar después rompe el carrusel). #}
@@ -2444,7 +2569,7 @@ DOMContentLoaded.addEventOrExecute(() => {
 
     {% endif %}
 
-    {% if settings.bullet_variants or settings.product_color_variants or settings.image_color_variants %}
+    {% if settings.bullet_variants or settings.product_color_variants or settings.image_color_variants or (settings.product_listing_variant_images | default(false)) %}
         changeVariantButton = function(selector, parentSelector) {
             selector.siblings().removeClass("selected");
             selector.addClass("selected");
@@ -2489,9 +2614,9 @@ DOMContentLoaded.addEventOrExecute(() => {
 
         {% if settings.product_color_variants %}
 
-            {# Product color variations #}
+            {# Product color variations (pastillas hex; en móvil no aplica salvo miniaturas de listado) #}
             if (window.innerWidth > 767) {
-                jQueryNuvem(document).on("click", ".js-color-variant", function(e) {
+                jQueryNuvem(document).on("click", ".js-item-product .js-color-variant:not(.js-listing-variant-thumb)", function(e) {
                     e.preventDefault();
                     $this = jQueryNuvem(this);
                     changeVariantButton($this, '.js-item-product');
@@ -2499,9 +2624,19 @@ DOMContentLoaded.addEventOrExecute(() => {
             }
         {% endif %}
 
+        {% if (settings.product_listing_variant_images | default(false)) %}
+            {# Miniaturas con imagen de variante en grilla (todas las anchuras) #}
+            jQueryNuvem(document).on("click", ".js-item-product .js-listing-variant-thumb", function(e) {
+                e.preventDefault();
+                $this = jQueryNuvem(this);
+                changeVariantButton($this, '.js-item-product');
+                $this.attr('aria-pressed', 'true').siblings('.js-listing-variant-thumb').attr('aria-pressed', 'false');
+            });
+        {% endif %}
+
     {% endif %}
 
-    {% if settings.quick_shop or settings.product_color_variants %}
+    {% if settings.quick_shop or settings.product_color_variants or (settings.product_listing_variant_images | default(false)) %}
 
         LS.registerOnChangeVariant(function(variant){
             {# Show product image on color change #}
@@ -2821,7 +2956,7 @@ DOMContentLoaded.addEventOrExecute(() => {
 
             LS.changeVariant(changeVariant, $quickshop_variant_selector);
 
-            {% if settings.product_color_variants or settings.bullet_variants or settings.image_color_variants %}
+            {% if settings.product_color_variants or settings.bullet_variants or settings.image_color_variants or (settings.product_listing_variant_images | default(false)) %}
                 {# Match selected color variant with selected quickshop variant #}
 
                 var selected_option_id = jQueryNuvem(this).val();
@@ -2829,6 +2964,9 @@ DOMContentLoaded.addEventOrExecute(() => {
 
                 {# Update all color buttons on several places (quickshop, item, product detail) #}
                 $color_parent_to_update.find('.js-color-variant[data-option="'+selected_option_id+'"]').addClass("selected").siblings().removeClass("selected");
+                $color_parent_to_update.find('.js-listing-variant-thumb').attr('aria-pressed', function () {
+                    return jQueryNuvem(this).attr('data-option') == selected_option_id ? 'true' : 'false';
+                });
                 {# Update this specific variant button #}
                 $variants_group.find('.js-insta-variant[data-option="'+selected_option_id+'"]').addClass("selected").siblings().removeClass("selected");
             {% endif %}
@@ -3266,20 +3404,14 @@ DOMContentLoaded.addEventOrExecute(() => {
             }
 
             $productButtonPlaceholder.width(productButtonWidth).css('display' , 'block');
-            $productButtonPlaceholder.removeClass("theme-cta-state--success").addClass("theme-cta-state--adding");
-            {# Quick shop: fades más cortos y discretos (evita sensación “pesada”). #}
-            var themeQsAddFade = isQuickShop ? 120 : 320;
-            var themeQsAddFadeIn = isQuickShop ? 160 : 360;
-            {# fadeTo: no usa display:none (fadeOut colapsa el contenedor con hijos absolute → “hueco” en blanco). #}
-            $productButtonText.stop(true, true).show().fadeTo(themeQsAddFade, 0);
+            $productButtonText.fadeOut();
             $productButtonAdding.addClass("active");
 
             {# Restore button state in case of error #}
 
             function restore_button_initial_state(){
-                $productButtonPlaceholder.removeClass("theme-cta-state--adding theme-cta-state--success");
                 $productButtonAdding.removeClass("active");
-                $productButtonText.stop(true, true).css("opacity", "").fadeTo(themeQsAddFadeIn, 1);
+                $productButtonText.fadeIn();
                 $productButtonPlaceholder.removeAttr("style").hide();
                 $productButton.show();
                 if (isQuickShop) {
@@ -3349,39 +3481,30 @@ DOMContentLoaded.addEventOrExecute(() => {
                     }
 
                     {# Show button placeholder with transitions #}
-                    {# Activar “¡Listo!” antes de quitar “Agregando…” (evita un frame sin ningún .active). #}
 
-                    $productButtonSuccess.addClass("active");
                     $productButtonAdding.removeClass("active");
-                    $productButtonPlaceholder.removeClass("theme-cta-state--adding").addClass("theme-cta-state--success");
-                    var themeQsSuccessHold = isQuickShop ? 720 : 2000;
-                    var themeQsRestoreDelay = isQuickShop ? 980 : 3000;
+                    $productButtonSuccess.addClass("active");
                     setTimeout(function(){
                         $productButtonSuccess.removeClass("active");
-                        $productButtonPlaceholder.removeClass("theme-cta-state--success");
-                        $productButtonText.stop(true, true).css("opacity", "").fadeTo(isQuickShop ? 160 : 360, 1);
-                    }, themeQsSuccessHold);
+                        $productButtonText.fadeIn();
+                    },2000);
                     setTimeout(function(){
-                        $productButtonPlaceholder.removeClass("theme-cta-state--adding theme-cta-state--success");
-                        $productButtonText.stop(true, true).css("opacity", "");
                         $productButtonPlaceholder.removeAttr("style").hide();
                         $productButton.show();
                         if (isQuickShop) {
                             $productButtonContainer.show();
                         }
-                    }, themeQsRestoreDelay);
+                    },3000);
 
                     $productContainer.find(".js-added-to-cart-product-message").slideDown();
 
                     if (isQuickShop) {
-                        if (jQueryNuvem("#quickshop-modal").hasClass("modal-show")) {
-                            jQueryNuvem("#quickshop-modal").removeClass('modal-show');
-                            jQueryNuvem(".js-modal-overlay[data-modal-id='#quickshop-modal']").hide();
-                            jQueryNuvem("body").removeClass("overflow-none");
-                            restoreQuickshopForm();
-                            if (window.innerWidth < 768) {
-                                cleanURLHash();
-                            }
+                        jQueryNuvem("#quickshop-modal").removeClass('modal-show');
+                        jQueryNuvem(".js-modal-overlay[data-modal-id='#quickshop-modal']").hide();
+                        jQueryNuvem("body").removeClass("overflow-none");
+                        restoreQuickshopForm();
+                        if (window.innerWidth < 768) {
+                            cleanURLHash();
                         }
                     }
 
@@ -3900,6 +4023,436 @@ DOMContentLoaded.addEventOrExecute(() => {
                 },
             });
         }
+    {% endif %}
+
+    {% if template == 'home' and settings.brand_category_carousel_enable | default(false) %}
+        (function () {
+            var root = document.querySelector('.js-swiper-brand-category-carousel');
+            if (!root || !root.querySelector('.swiper-slide')) {
+                return;
+            }
+            createSwiper('.js-swiper-brand-category-carousel', {
+                slidesPerView: 1,
+                spaceBetween: 0,
+                speed: 520,
+                watchOverflow: true,
+                grabCursor: true,
+                roundLengths: true,
+                navigation: {
+                    nextEl: '.js-swiper-brand-category-carousel-next',
+                    prevEl: '.js-swiper-brand-category-carousel-prev',
+                },
+                pagination: {
+                    el: '.js-swiper-brand-category-carousel-pagination',
+                    clickable: true,
+                },
+                breakpoints: {
+                    768: {
+                        slidesPerView: 3,
+                        spaceBetween: 0,
+                    },
+                },
+            });
+        })();
+    {% endif %}
+
+    {% if (template == 'home' or template == 'product' or template == 'category') and settings.brand_shoppable_stories_enable | default(false) %}
+        (function () {
+            var root = document.querySelector('.js-brand-shoppable-stories-root');
+            if (!root) {
+                return;
+            }
+            var elSwiper = root.querySelector('.js-swiper-brand-shoppable-stories');
+            if (!elSwiper || !elSwiper.querySelector('.swiper-slide')) {
+                return;
+            }
+            var brandShoppableSwiper = null;
+
+            function pauseAllNativeVideos() {
+                root.querySelectorAll('.swiper-slide video').forEach(function (v) {
+                    try {
+                        v.pause();
+                    } catch (eV) {}
+                });
+            }
+
+            {# Sin vid.load(): con el mismo src en varios <video>, load() en uno puede dejar al resto sin decodificar. Solo seek si ya hay datos. #}
+            function primeShoppableNativeVideoFrames(visibleSlideEls) {
+                var vis = visibleSlideEls && visibleSlideEls.length ? visibleSlideEls : [];
+                root.querySelectorAll('.swiper-slide').forEach(function (slide) {
+                    var vid = slide.querySelector('video');
+                    if (!vid) {
+                        return;
+                    }
+                    if (vis.indexOf(slide) !== -1) {
+                        return;
+                    }
+                    try {
+                        vid.muted = true;
+                        if (vid.preload !== 'auto') {
+                            vid.preload = 'auto';
+                        }
+                        if (vid.readyState >= 2) {
+                            try {
+                                if (vid.duration && !isNaN(vid.duration) && vid.duration > 0) {
+                                    vid.currentTime = Math.min(0.12, vid.duration * 0.02);
+                                } else {
+                                    vid.currentTime = 0.001;
+                                }
+                            } catch (eS) {}
+                            try {
+                                vid.pause();
+                            } catch (eP) {}
+                        }
+                    } catch (ePrime) {}
+                });
+            }
+
+            function getSwiperVisibleSlideEls(swiper) {
+                var out = [];
+                if (!swiper || !swiper.slides || !swiper.slides.length) {
+                    return out;
+                }
+                for (var vi = 0; vi < swiper.slides.length; vi++) {
+                    var s = swiper.slides[vi];
+                    if (s && s.classList && s.classList.contains('swiper-slide-visible')) {
+                        out.push(s);
+                    }
+                }
+                if (!out.length) {
+                    var only = getSwiperActiveSlideEl(swiper);
+                    if (only) {
+                        out.push(only);
+                    }
+                }
+                return out;
+            }
+
+            function getSwiperActiveSlideEl(swiper) {
+                if (!swiper || !swiper.slides || !swiper.slides.length) {
+                    return null;
+                }
+                var el = swiper.slides[swiper.activeIndex];
+                return el && el.nodeType === 1 ? el : null;
+            }
+
+            function cacheIframeOriginalSrc() {
+                root.querySelectorAll('.brand-shoppable-stories__slide-card .brand-split-video__iframe').forEach(function (ifr) {
+                    if (!ifr.getAttribute('data-src-original')) {
+                        ifr.setAttribute('data-src-original', ifr.getAttribute('src') || '');
+                    }
+                });
+            }
+
+            function applyIframePlayState(activeSlide) {
+                root.querySelectorAll('.brand-shoppable-stories__slide-card .brand-split-video__iframe').forEach(function (ifr) {
+                    var slide = ifr.closest('.swiper-slide');
+                    var base = ifr.getAttribute('data-src-original') || '';
+                    if (!base) {
+                        return;
+                    }
+                    var isActive = activeSlide && slide === activeSlide;
+                    try {
+                        var u = new URL(base, window.location.origin);
+                        var host = u.hostname || '';
+                        if (host.indexOf('youtube.com') !== -1) {
+                            if (isActive) {
+                                u.searchParams.set('autoplay', '1');
+                                u.searchParams.set('mute', '1');
+                                u.searchParams.set('playsinline', '1');
+                            } else {
+                                u.searchParams.delete('autoplay');
+                                u.searchParams.set('mute', '1');
+                            }
+                        } else if (host.indexOf('player.vimeo.com') !== -1) {
+                            if (isActive) {
+                                u.searchParams.set('autoplay', '1');
+                                u.searchParams.set('muted', '1');
+                                u.searchParams.set('playsinline', '1');
+                            } else {
+                                u.searchParams.delete('autoplay');
+                            }
+                        } else if (host.indexOf('tiktok.com') !== -1) {
+                            {# Varios embeds TikTok a la vez suelen fallar o congelar el navegador: solo el slide activo carga src. #}
+                            if (isActive) {
+                                u.searchParams.set('autoplay', '1');
+                                ifr.setAttribute('src', u.toString());
+                            } else {
+                                ifr.removeAttribute('src');
+                            }
+                            return;
+                        }
+                        ifr.setAttribute('src', u.toString());
+                    } catch (eIframe) {
+                        ifr.setAttribute('src', base);
+                    }
+                });
+            }
+
+            function playVisibleNativeVideos(swiper) {
+                var visible = getSwiperVisibleSlideEls(swiper);
+                var active = getSwiperActiveSlideEl(swiper) || elSwiper.querySelector('.swiper-slide-active');
+                var muteCtrl = root.querySelector('.js-brand-story-mute');
+                var wantMuted = !muteCtrl || muteCtrl.getAttribute('aria-pressed') === 'true';
+                visible.forEach(function (slideEl) {
+                    var vid = slideEl.querySelector('video');
+                    if (!vid) {
+                        return;
+                    }
+                    try {
+                        vid.muted = active && slideEl === active ? wantMuted : true;
+                        vid.currentTime = 0;
+                    } catch (eCt) {}
+                    var p = vid.play();
+                    if (p && typeof p.catch === 'function') {
+                        p.catch(function () {});
+                    }
+                });
+            }
+
+            function syncVideosFromSwiper(swiper) {
+                var active = getSwiperActiveSlideEl(swiper) || elSwiper.querySelector('.swiper-slide-active');
+                var visible = getSwiperVisibleSlideEls(swiper);
+                pauseAllNativeVideos();
+                primeShoppableNativeVideoFrames(visible);
+                playVisibleNativeVideos(swiper);
+                applyIframePlayState(active);
+            }
+
+            cacheIframeOriginalSrc();
+
+            var shoppableLayout = (root.getAttribute('data-shoppable-layout') || 'classic').trim();
+            var shoppableSwiperParams = {
+                centeredSlides: false,
+                speed: 520,
+                watchOverflow: true,
+                watchSlidesVisibility: true,
+                grabCursor: true,
+                roundLengths: true,
+                pagination: {
+                    el: root.querySelector('.js-swiper-brand-shoppable-stories-pagination'),
+                    clickable: true,
+                },
+                on: {
+                    init: function () {
+                        brandShoppableSwiper = this;
+                        syncVideosFromSwiper(this);
+                        var self = this;
+                        window.setTimeout(function () {
+                            syncVideosFromSwiper(self);
+                        }, 80);
+                    },
+                    slideChange: function () {
+                        syncVideosFromSwiper(this);
+                    },
+                    slideChangeTransitionEnd: function () {
+                        syncVideosFromSwiper(this);
+                    },
+                    resize: function () {
+                        syncVideosFromSwiper(this);
+                    },
+                },
+            };
+            if (shoppableLayout === 'mobile_two_full') {
+                shoppableSwiperParams.slidesPerView = 2;
+                shoppableSwiperParams.spaceBetween = 8;
+                shoppableSwiperParams.breakpoints = {
+                    576: {
+                        slidesPerView: 2,
+                        spaceBetween: 10,
+                    },
+                    992: {
+                        slidesPerView: 3,
+                        spaceBetween: 12,
+                    },
+                };
+            } else {
+                shoppableSwiperParams.slidesPerView = 1.12;
+                shoppableSwiperParams.spaceBetween = 10;
+                shoppableSwiperParams.breakpoints = {
+                    576: {
+                        slidesPerView: 2,
+                        spaceBetween: 10,
+                    },
+                    992: {
+                        slidesPerView: 3.15,
+                        spaceBetween: 12,
+                    },
+                };
+            }
+
+            createSwiper(
+                '.js-swiper-brand-shoppable-stories',
+                shoppableSwiperParams,
+                function (swiperInstance) {
+                    brandShoppableSwiper = swiperInstance;
+                }
+            );
+
+            var labelMute = root.getAttribute('data-story-aria-mute');
+            var labelUnmute = root.getAttribute('data-story-aria-unmute');
+            var muteBtn = root.querySelector('.js-brand-story-mute');
+            if (muteBtn) {
+                muteBtn.addEventListener('click', function () {
+                    var active = getSwiperActiveSlideEl(brandShoppableSwiper) || elSwiper.querySelector('.swiper-slide-active');
+                    if (!active) {
+                        return;
+                    }
+                    var video = active.querySelector('video');
+                    var iframe = active.querySelector('iframe');
+                    var muted;
+
+                    if (video) {
+                        video.muted = !video.muted;
+                        muted = video.muted;
+                    } else if (iframe) {
+                        var currentlyMuted = muteBtn.getAttribute('aria-pressed') === 'true';
+                        muted = !currentlyMuted;
+                        try {
+                            var src = iframe.getAttribute('src') || '';
+                            var u = new URL(src, window.location.origin);
+                            if (u.hostname.indexOf('youtube.com') !== -1) {
+                                u.searchParams.set('mute', muted ? '1' : '0');
+                                iframe.setAttribute('src', u.toString());
+                            } else if (u.hostname.indexOf('player.vimeo.com') !== -1) {
+                                u.searchParams.set('muted', muted ? '1' : '0');
+                                iframe.setAttribute('src', u.toString());
+                            } else if (u.hostname.indexOf('tiktok.com') !== -1) {
+                                u.searchParams.set('mute', muted ? '1' : '0');
+                                iframe.setAttribute('src', u.toString());
+                            }
+                        } catch (eMute) {}
+                    } else {
+                        return;
+                    }
+
+                    muteBtn.setAttribute('aria-pressed', muted ? 'true' : 'false');
+                    muteBtn.classList.toggle('is-muted', muted);
+                    muteBtn.classList.toggle('is-unmuted', !muted);
+                    if (labelMute && labelUnmute) {
+                        muteBtn.setAttribute('aria-label', muted ? labelUnmute : labelMute);
+                    }
+                });
+            }
+        })();
+    {% endif %}
+
+    {% if (template == 'home' or template == 'product' or template == 'blog' or template == 'blog-post') and settings.brand_routine_showcase_enable | default(false) %}
+        (function () {
+            var root = document.querySelector('.js-brand-routine-showcase');
+            if (!root) {
+                return;
+            }
+            var elJson = root.querySelector('.js-brand-routine-data');
+            if (!elJson) {
+                return;
+            }
+            var items;
+            try {
+                items = JSON.parse(elJson.textContent || '[]');
+            } catch (e) {
+                return;
+            }
+            if (!items.length) {
+                return;
+            }
+            var intervalMs = parseInt(root.getAttribute('data-interval') || '6000', 10);
+            var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            var idx = 0;
+            var hero = root.querySelector('[data-routine-hero]');
+            var thumb = root.querySelector('[data-routine-thumb]');
+            var nameEl = root.querySelector('[data-routine-name]');
+            var descEl = root.querySelector('[data-routine-desc]');
+            var linkEl = root.querySelector('[data-routine-link]');
+            var steps = root.querySelectorAll('.js-brand-routine-step');
+
+            function apply(i) {
+                var it = items[i];
+                if (!it) {
+                    return;
+                }
+                idx = i;
+                if (hero) {
+                    hero.src = it.hero;
+                    hero.alt = it.name || '';
+                    if (it.heroLarge) {
+                        hero.setAttribute('srcset', it.heroLarge + ' 720w, ' + it.hero + ' 1200w');
+                        hero.setAttribute('sizes', '(max-width: 991px) 100vw, 42vw');
+                    } else {
+                        hero.removeAttribute('srcset');
+                        hero.removeAttribute('sizes');
+                    }
+                }
+                if (thumb) {
+                    thumb.src = it.thumb;
+                    thumb.alt = it.name || '';
+                }
+                if (nameEl) {
+                    nameEl.textContent = it.name || '';
+                }
+                if (descEl) {
+                    descEl.textContent = it.desc || '';
+                }
+                if (linkEl) {
+                    linkEl.setAttribute('href', it.url || '#');
+                }
+                for (var s = 0; s < steps.length; s++) {
+                    var on = s === i;
+                    steps[s].classList.toggle('is-active', on);
+                    steps[s].setAttribute('aria-pressed', on ? 'true' : 'false');
+                }
+            }
+
+            function randomNext() {
+                if (items.length < 2) {
+                    return 0;
+                }
+                var next = idx;
+                var guard = 0;
+                while (next === idx && guard < 16) {
+                    next = Math.floor(Math.random() * items.length);
+                    guard++;
+                }
+                return next;
+            }
+
+            apply(0);
+
+            var timer = null;
+            function clearTimer() {
+                if (timer) {
+                    clearInterval(timer);
+                    timer = null;
+                }
+            }
+
+            function startTimer() {
+                clearTimer();
+                if (reduceMotion || !intervalMs) {
+                    return;
+                }
+                timer = setInterval(function () {
+                    apply(randomNext());
+                }, intervalMs);
+            }
+
+            startTimer();
+
+            for (var b = 0; b < steps.length; b++) {
+                steps[b].addEventListener(
+                    'click',
+                    (function (stepIndex) {
+                        return function () {
+                            apply(stepIndex);
+                            startTimer();
+                        };
+                    })(b)
+                );
+            }
+
+            root.addEventListener('mouseenter', clearTimer);
+            root.addEventListener('mouseleave', startTimer);
+        })();
     {% endif %}
 
     {% if settings.brand_category_rail_enable %}

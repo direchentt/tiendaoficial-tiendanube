@@ -7,7 +7,10 @@
 {% endif %}
 
 <div class="container-fluid">
-	{% embed "snipplets/page-header.tpl" with { breadcrumbs: false, container: false} %}
+	{% if products %}
+		{% include 'snipplets/grid/catalog-nav-strip.tpl' with { nav_breadcrumbs_class: 'mb-0 mt-2' } %}
+	{% endif %}
+	{% embed "snipplets/page-header.tpl" with { breadcrumbs: false, container: false, page_header_class: products ? 'text-center' : '' } %}
 		{% block page_header_text %}
 			{% if products %}
 				{{ 'Resultados de búsqueda' | translate }}
@@ -17,7 +20,7 @@
 		{% endblock page_header_text %}
 	{% endembed %}
 	{% if products %}
-		<h2 class="font-body font-family-body mb-4 pb-2 font-weight-normal">
+		<h2 class="font-body font-family-body mb-3 pb-1 font-weight-normal text-center">
 			{{ "Mostrando los resultados para" | translate }}<span class="ml-2 font-weight-bold">"{{ query }}"</span>
 		</h2>
 	{% endif %}
@@ -26,7 +29,7 @@
 {% include 'snipplets/grid/filters-modals.tpl' %}
 
 <section class="category-body {% if settings.filters_desktop_modal %}pt-md-2{% endif %} overflow-none" aria-label="{{ 'Resultados de búsqueda' | translate }}{% if query %}: {{ query }}{% endif %}">
-  <div class="container-fluid {% if products %}mt-3{% endif %} mb-5">
+  <div class="container-fluid {% if products %}mt-2{% endif %} mb-5">
 		{% if products or has_applied_filters %}
 			<div class="row">
 		{% endif %}

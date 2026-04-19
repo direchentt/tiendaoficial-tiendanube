@@ -10,7 +10,6 @@
     {% else %}
         {% if template == 'product' %}
             <div class="pdp-represent-head">
-                {% include 'snipplets/breadcrumbs.tpl' with { breadcrumbs_custom_class: 'pdp-breadcrumbs mb-2 mb-md-3' } %}
                 <div class="pdp-represent-head-line">
                 <section class="pdp-section pdp-section--intro" aria-label="{{ 'Información del producto' | translate }}">
                     <div class="page-header pdp-page-header pb-0">
@@ -53,15 +52,28 @@
                 <div id="compare_price_display" class="js-compare-price-display price-compare" {% if not product.compare_at_price or not product.display_price %}style="display:none;"{% else %} style="display:block;"{% endif %}>{% if product.compare_at_price and product.display_price %}{{ product.compare_at_price | money_nocents }}{% endif %}</div>
                 </span>
                 
+                {% if not (template == 'product' and not home_main_product) %}
                 {{ component('price-discount-disclaimer', {
                   container_classes: 'font-small opacity-60 mt-1 mb-2',
-                }) }}   
-                
+                }) }}
+                {% endif %}
+
                 {{ component('price-without-taxes', {
                         container_classes: "mt-1 mb-2 font-small opacity-60",
                     })
                 }}
 
+                {% if template == 'product' and not home_main_product %}
+                {{ component('payment-discount-price', {
+                        visibility_condition: settings.payment_discount_price,
+                        location: 'product',
+                        container_classes: "mt-2 mb-1 font-small pdp-transfer-price-line",
+                        text_classes: {
+                            price: 'h6 font-weight-semibold font-family-body text-accent mb-0'
+                        }
+                    })
+                }}
+                {% else %}
                 {{ component('payment-discount-price', {
                         visibility_condition: settings.payment_discount_price,
                         location: 'product',
@@ -71,6 +83,7 @@
                         }
                     })
                 }}
+                {% endif %}
             </div>
         {% endif %}
 
@@ -89,35 +102,57 @@
         {% set installments_info = product.installments_info_from_any_variant %}
         {% set hasDiscount = product.maxPaymentDiscount.value > 0 %}
         {% set show_payments_info = settings.product_detail_installments and product.show_installments and product.display_price and installments_info %}
+        {% set show_pdp_payments_row = product.display_price and (
+            show_payments_info
+            or installments_info
+            or hasDiscount
+        ) %}
 
-        {% if not home_main_product and (show_payments_info or hasDiscount) %}
-            <div {% if installments_info %}data-toggle="#installments-modal" data-modal-url="modal-fullscreen-payments"{% endif %} class="{% if installments_info %}js-modal-open js-fullscreen-modal-open{% endif %} js-product-payments-container pdp-payments-strip my-3 px-0" {% if not product.display_price or not (product.get_max_installments and product.get_max_installments(false)) %}style="display: none;"{% endif %}>
-        {% endif %}
-            {% if show_payments_info %}
-                {{ component('installments', {'location' : 'product_detail', container_classes: { installment: "font-small"}}) }}
+        {% if not home_main_product %}
+            {% if template == 'product' %}
+                {% if show_pdp_payments_row %}
+                    <div {% if installments_info %}data-toggle="#installments-modal" data-modal-url="modal-fullscreen-payments"{% endif %} class="{% if installments_info %}js-modal-open js-fullscreen-modal-open{% endif %} js-product-payments-container pdp-payments-strip my-3 px-0"{% if not product.display_price %} style="display: none;"{% endif %}>
+                        {% if settings.product_detail_installments and product.show_installments and product.display_price %}
+                            {{ component('installments', {'location' : 'product_detail', container_classes: { installment: "font-small"}}) }}
+                        {% endif %}
+                        <a id="btn-installments" class="d-inline-block btn-link mt-1 font-small" href="#" {% if not (product.get_max_installments and product.get_max_installments(false)) %}style="display: none;"{% endif %}>
+                            {% if not hasDiscount and not settings.product_detail_installments %}
+                                {{ "Ver medios de pago" | translate }}
+                            {% else %}
+                                {{ "Ver más detalles" | translate }}
+                            {% endif %}
+                        </a>
+                    </div>
+                {% endif %}
+            {% else %}
+                {% if show_payments_info or hasDiscount %}
+                    <div {% if installments_info %}data-toggle="#installments-modal" data-modal-url="modal-fullscreen-payments"{% endif %} class="{% if installments_info %}js-modal-open js-fullscreen-modal-open{% endif %} js-product-payments-container pdp-payments-strip my-3 px-0" {% if not product.display_price or not (product.get_max_installments and product.get_max_installments(false)) %}style="display: none;"{% endif %}>
+                        {% if show_payments_info %}
+                            {{ component('installments', {'location' : 'product_detail', container_classes: { installment: "font-small"}}) }}
+                        {% endif %}
+
+                        {% set hideDiscountContainer = not (hasDiscount and product.showMaxPaymentDiscount) %}
+                        {% set hideDiscountDisclaimer = not product.showMaxPaymentDiscountNotCombinableDisclaimer %}
+
+                        <div class="js-product-discount-container my-1 font-small" {% if hideDiscountContainer %}style="display: none;"{% endif %}>
+                            <span class="text-accent">{{ product.maxPaymentDiscount.value }}% {{'de descuento' | translate }}</span> {{'pagando con' | translate }} {{ product.maxPaymentDiscount.paymentProviderName }}
+                            <div class="js-product-discount-disclaimer opacity-60 mt-1" {% if hideDiscountDisclaimer %}style="display: none;"{% endif %}>
+                                {{ (product.showMaxPaymentDiscountCombinesWithSomeDiscounts
+                                    ? "No acumulable con algunas promociones"
+                                    : "No acumulable con otras promociones")
+                                | translate }}
+                            </div>
+                        </div>
+                        <a id="btn-installments" class="d-inline-block btn-link mt-1 font-small" href="#" {% if not (product.get_max_installments and product.get_max_installments(false)) %}style="display: none;"{% endif %}>
+                            {% if not hasDiscount and not settings.product_detail_installments %}
+                                {{ "Ver medios de pago" | translate }}
+                            {% else %}
+                                {{ "Ver más detalles" | translate }}
+                            {% endif %}
+                        </a>
+                    </div>
+                {% endif %}
             {% endif %}
-
-            {% set hideDiscountContainer = not (hasDiscount and product.showMaxPaymentDiscount) %}
-            {% set hideDiscountDisclaimer = not product.showMaxPaymentDiscountNotCombinableDisclaimer %}
-
-            <div class="js-product-discount-container my-1 font-small" {% if hideDiscountContainer %}style="display: none;"{% endif %}>
-                <span class="text-accent">{{ product.maxPaymentDiscount.value }}% {{'de descuento' | translate }}</span> {{'pagando con' | translate }} {{ product.maxPaymentDiscount.paymentProviderName }}
-                <div class="js-product-discount-disclaimer opacity-60 mt-1" {% if hideDiscountDisclaimer %}style="display: none;"{% endif %}>
-                    {{ (product.showMaxPaymentDiscountCombinesWithSomeDiscounts
-                        ? "No acumulable con algunas promociones"
-                        : "No acumulable con otras promociones")
-                    | translate }}
-                </div>
-            </div>
-        {% if not home_main_product and (show_payments_info or hasDiscount) %}
-                <a id="btn-installments" class="d-inline-block btn-link mt-1 font-small" href="#" {% if not (product.get_max_installments and product.get_max_installments(false)) %}style="display: none;"{% endif %}>
-                    {% if not hasDiscount and not settings.product_detail_installments %}
-                        {{ "Ver medios de pago" | translate }}
-                    {% else %}
-                        {{ "Ver más detalles" | translate }}
-                    {% endif %}
-                </a>
-            </div>
         {% endif %}
 
         {# Product availability #}
@@ -151,16 +186,6 @@
 
     {% if template != 'product' %}
         {% include 'snipplets/product/product-pdp-highlights.tpl' %}
-    {% endif %}
-
-    {% if template == 'product' %}
-        {% set pdp_show_fulfillment = settings.shipping_calculator_product_page and (store.has_shipping or store.branches) and not product.free_shipping and not product.is_non_shippable %}
-        <nav class="pdp-subnav mb-2 mb-md-0" aria-label="{{ 'Secciones de la ficha' | translate }}">
-            <a href="#pdp-visual-tabs" class="pdp-subnav__link">{{ "Detalles" | translate }}</a>
-            {% if pdp_show_fulfillment %}
-                <a href="#pdp-zone-shipping" class="pdp-subnav__link">{{ "Envío" | translate }}</a>
-            {% endif %}
-        </nav>
     {% endif %}
 
     {# Promotional text: arriba del formulario o debajo del CTA (setting brand_pdp_promos_below_purchase) #}
@@ -264,7 +289,7 @@
 
                 {# Add to cart CTA #}
 
-                <input type="submit" class="js-addtocart js-prod-submit-form btn-add-to-cart btn btn-primary btn-big btn-block brand-pdp-cta {{ state }}" value="{{ texts[state] | translate }}" aria-label="{{ texts[state] | translate }}: {{ product.name }}" {% if state == 'nostock' %}disabled{% endif %} data-store="product-buy-button" data-component="product.add-to-cart"/>
+                <input type="submit" class="js-addtocart js-prod-submit-form btn-add-to-cart btn btn-primary btn-big btn-block {{ state }}" value="{{ texts[state] | translate }}" aria-label="{{ texts[state] | translate }}: {{ product.name }}" {% if state == 'nostock' %}disabled{% endif %} data-store="product-buy-button" data-component="product.add-to-cart"/>
 
                 {# Fake add to cart CTA visible during add to cart event #}
 
@@ -317,23 +342,8 @@
 
             {% set show_product_fulfillment = settings.shipping_calculator_product_page and (store.has_shipping or store.branches) and not product.free_shipping and not product.is_non_shippable %}
 
-            {% if show_product_fulfillment %}
-                <div id="pdp-zone-shipping" class="pdp-shipping-card mb-4 pb-2" role="region" aria-label="{{ 'Envío' | translate }}">
-                    <p class="pdp-shipping-card__label mb-3">{{ "Envíos y locales" | translate }}</p>
-                    {# Shipping calculator and branch link #}
-
-                    <div id="product-shipping-container" class="product-shipping-calculator list" {% if not product.display_price or not product.has_stock %}style="display:none;"{% endif %} data-shipping-url="{{ store.shipping_calculator_url }}">
-                        {% if store.has_shipping %}
-                            {% include "snipplets/shipping/shipping-calculator.tpl" with {'shipping_calculator_variant' : product.selected_or_first_available_variant, 'product_detail': true} %}
-                        {% endif %}
-                    </div>
-
-                    {% if store.branches %}
-                        {# Link for branches #}
-                        {% include "snipplets/shipping/branches.tpl" with {'product_detail': true} %}
-                    {% endif %}
-                </div>
-
+            {% if not home_main_product %}
+                {% include 'snipplets/product/product-pdp-buybox-accordions.tpl' %}
             {% endif %}
 
             {% include 'snipplets/product/product-pdp-highlights.tpl' %}

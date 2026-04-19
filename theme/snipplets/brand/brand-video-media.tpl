@@ -4,6 +4,8 @@
    - video_autoplay (bool)
    - video_muted (bool)
    - video_class (optional extra class for <video>)
+   - video_poster (optional URL for <video poster=""> — evita pantalla negra en carruseles)
+   - video_preload (optional: metadata | auto | none; default metadata)
 #}
 {% set raw = video_raw_url|default('')|trim %}
 {% if raw %}
@@ -12,6 +14,11 @@
 	{% set embed_src = '' %}
 	{% set yt_id = '' %}
 	{% set video_extra_class = video_class|default('')|trim %}
+	{% set video_poster = video_poster|default('')|trim %}
+	{% set video_preload = (video_preload|default('metadata'))|lower %}
+	{% if video_preload not in ['none', 'metadata', 'auto'] %}
+		{% set video_preload = 'metadata' %}
+	{% endif %}
 	{% set is_file =
 		(lower|split('.mp4')|length > 1) or
 		(lower|split('.webm')|length > 1) or
@@ -38,6 +45,14 @@
 	{% elseif 'vimeo.com/' in raw %}
 		{% set vm = raw|split('vimeo.com/')|last|split('?')|first|split('/')|last %}
 		{% set embed_src = 'https://player.vimeo.com/video/' ~ vm %}
+	{% elseif 'tiktok.com/embed' in lower %}
+		{# URL ya es embed (v2 u otra); el admin puede pegar el iframe src tal cual #}
+		{% set embed_src = raw|split('#')|first|trim %}
+	{% elseif 'tiktok.com/' in lower and '/video/' in lower %}
+		{% set tk_tail = raw|split('/video/')|last|split('?')|first|split('/')|first %}
+		{% if tk_tail|length > 5 %}
+			{% set embed_src = 'https://www.tiktok.com/embed/v2/' ~ tk_tail %}
+		{% endif %}
 	{% elseif raw|length > 7 and (raw|slice(0, 8) == 'https://' or raw|slice(0, 7) == 'http://') %}
 		{% set embed_src = raw %}
 	{% else %}
@@ -69,7 +84,7 @@
 	%}
 
 	{% if embed_type == 'file' %}
-		<video class="brand-split-video__video-el{% if video_extra_class %} {{ video_extra_class }}{% endif %}" playsinline preload="metadata"{% if video_muted %} muted{% endif %}{% if video_autoplay %} autoplay loop{% endif %}>
+		<video class="brand-split-video__video-el{% if video_extra_class %} {{ video_extra_class }}{% endif %}" playsinline preload="{{ video_preload }}"{% if video_poster != '' %} poster="{{ video_poster|e('html_attr') }}"{% endif %}{% if video_muted %} muted{% endif %}{% if video_autoplay %} autoplay loop{% endif %}>
 			<source src="{{ raw|e('html_attr') }}" type="{{ file_mime }}">
 		</video>
 	{% elseif embed_type == 'iframe' and embed_src %}

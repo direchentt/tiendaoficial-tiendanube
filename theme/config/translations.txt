@@ -567,6 +567,156 @@ pt "Envie a imagem e os textos em Design > Marca editorial (layout) e coloque es
 en "Upload the image and copy under Design > Brand editorial (layout), then add this section to the home order."
 es_mx "Sube la imagen y los textos en Diseno > Marca editorial (layout), y coloca esta seccion en el orden del inicio."
 
+es "Vitrina Arma tu rutina (productos)"
+pt "Vitrina Arme sua rotina (produtos)"
+en "Build your routine showcase (products)"
+es_mx "Vitrina Arma tu rutina (productos)"
+
+es "Activa la vitrina en Diseno > Marca editorial (layout) y agrega esta seccion al inicio. Necesitas productos con al menos dos fotos en destacados, novedades u ofertas."
+pt "Ative a vitrina em Design > Marca editorial (layout) e adicione esta secao na home. E preciso ter produtos com pelo menos duas fotos em destaques, novidades ou promocoes."
+en "Enable the showcase under Design > Brand editorial (layout) and add this section to the home order. You need products with at least two photos in featured, new or sale lists."
+es_mx "Activa la vitrina en Diseno > Marca editorial (layout) y agrega esta seccion al inicio. Necesitas productos con al menos dos fotos en destacados, novedades u ofertas."
+
+es "Arma tu rutina"
+pt "Arme sua rotina"
+en "Build your routine"
+es_mx "Arma tu rutina"
+
+es "Pasos"
+pt "Etapas"
+en "Steps"
+es_mx "Pasos"
+
+es "BASE"
+pt "BASE"
+en "BASE"
+es_mx "BASE"
+
+es "COMBINÁ"
+pt "COMBINÁ"
+en "MIX"
+es_mx "COMBINÁ"
+
+es "SUMÁ"
+pt "SUMÁ"
+en "ADD"
+es_mx "SUMÁ"
+
+es "EXTRA"
+pt "EXTRA"
+en "EXTRA"
+es_mx "EXTRA"
+
+es "CIERRE"
+pt "CIERRE"
+en "FINISH"
+es_mx "CIERRE"
+
+es "Marca rutina paso 01"
+pt "BASE"
+en "BASE"
+es_mx "BASE"
+
+es "Marca rutina paso 02"
+pt "COMBINAR"
+en "MIX"
+es_mx "COMBINÁ"
+
+es "Marca rutina paso 03"
+pt "SOMAR"
+en "ADD"
+es_mx "SUMÁ"
+
+es "Marca rutina paso 04"
+pt "EXTRA"
+en "EXTRA"
+es_mx "EXTRA"
+
+es "Marca rutina paso 05"
+pt "FECHAMENTO"
+en "FINISH"
+es_mx "CIERRE"
+
+es "Hasta 5 productos elegidos al azar entre destacados, novedades y ofertas, con al menos 2 fotos cada uno. Foto grande izquierda = 2da imagen del producto; miniatura = 1ra. Activa aca y agrega la seccion \"Vitrina Arma tu rutina (productos)\" en el orden del inicio."
+pt "Ate 5 produtos aleatorios entre destaques, novidades e promocoes, com pelo menos 2 fotos cada. Foto grande a esquerda = 2a imagem; miniatura = 1a. Ative aqui e adicione a secao na home."
+en "Up to 5 random products from featured, new and sale, each with at least 2 photos. Large left image = 2nd product photo; thumbnail = 1st. Enable here and add the section to the home order."
+es_mx "Hasta 5 productos elegidos al azar entre destacados, novedades y ofertas, con al menos 2 fotos cada uno. Foto grande izquierda = 2da imagen del producto; miniatura = 1ra. Activa aca y agrega la seccion \"Vitrina Arma tu rutina (productos)\" en el orden del inicio."
+
+es "Mostrar vitrina en la pagina de inicio"
+pt "Mostrar vitrina na pagina inicial"
+en "Show showcase on the home page"
+es_mx "Mostrar vitrina en la pagina de inicio"
+
+es "Cambio automatico de paso (elige un paso al azar en cada intervalo)"
+pt "Troca automatica de etapa (aleatoria a cada intervalo)"
+en "Automatic step change (random step each interval)"
+es_mx "Cambio automatico de paso (elige un paso al azar en cada intervalo)"
+
+es "Cada 4 segundos"
+pt "A cada 4 segundos"
+en "Every 4 seconds"
+es_mx "Cada 4 segundos"
+
+es "Cada 6 segundos"
+pt "A cada 6 segundos"
+en "Every 6 seconds"
+es_mx "Cada 6 segundos"
+
+es "Cada 8 segundos"
+pt "A cada 8 segundos"
+en "Every 8 seconds"
+es_mx "Cada 8 segundos"
+
+es "Solo manual (clic en pasos)"
+pt "Somente manual (clique nas etapas)"
+en "Manual only (click steps)"
+es_mx "Solo manual (clic en pasos)"
+
+es "Titulo principal (si queda vacio se usa texto por defecto)"
+pt "Titulo principal (se vazio, usa texto padrao)"
+en "Main title (if empty, default copy is used)"
+es_mx "Titulo principal (si queda vacio se usa texto por defecto)"
+
+es "Texto intro debajo del titulo (opcional)"
+pt "Texto intro abaixo do titulo (opcional)"
+en "Intro text under the title (optional)"
+es_mx "Texto intro debajo del titulo (opcional)"
+
+es "Carrusel video shoppable (Stories)"
+pt "Carrossel de video shoppable (Stories)"
+en "Shoppable video carousel (Stories)"
+es_mx "Carrusel video shoppable (Stories)"
+
+es "Mira nuestros productos en accion"
+pt "Veja nossos produtos em acao"
+en "See our products in action"
+es_mx "Mira nuestros productos en accion"
+
+es "Videos y productos en carrusel"
+pt "Videos e produtos em carrossel"
+en "Videos and products in a carousel"
+es_mx "Videos y productos en carrusel"
+
+es "Cada slide es un video con miniatura, nombre, precio y boton Comprar. No usa el mismo layout que la vitrina Arma tu rutina."
+pt "Cada slide e um video com miniatura, nome, preco e botao Comprar. Nao usa o mesmo layout da vitrine Arma sua rotina."
+en "Each slide is a video with thumbnail, name, price, and Buy button. It does not use the same layout as the Build your routine showcase."
+es_mx "Cada slide es un video con miniatura, nombre, precio y boton Comprar. No usa el mismo layout que la vitrina Arma tu rutina."
+
+es "Silenciar video"
+pt "Silenciar video"
+en "Mute video"
+es_mx "Silenciar video"
+
+es "Activar audio del video"
+pt "Ativar audio do video"
+en "Unmute video"
+es_mx "Activar audio del video"
+
+es "Carrusel de videos con productos"
+pt "Carrossel de videos com produtos"
+en "Video carousel with products"
+es_mx "Carrusel de videos con productos"
+
 --- --- Notifications
 
 es "Al navegar por este sitio <strong>aceptás el uso de cookies</strong> para agilizar tu experiencia de compra."
@@ -4201,6 +4351,11 @@ es "Mostrar variantes de color en listado de productos"
 pt "Mostrar variações de cores na lista de produtos"
 en "Show color variants in product list"
 es_mx "Mostrar variantes de color en listado de productos"
+
+es "Mostrar miniaturas de variante con imagen en el listado (Color/Cor). Requiere imagen por variante. Si está activo, sustituye a las pastillas de color en la tarjeta."
+pt "Mostrar miniaturas de variante com imagem na listagem (Cor). Exige imagem por variante. Se estiver ativo, substitui as pastilhas de cor no card."
+en "Show variant image thumbnails in the product list (Color). Requires an image per variant. When enabled, replaces color swatches on the card."
+es_mx "Mostrar miniaturas de variante con imagen en el listado (Color/Cor). Requiere imagen por variante. Si está activo, sustituye a las pastillas de color en la tarjeta."
 
 --- --- Details
 
