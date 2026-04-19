@@ -22,22 +22,30 @@
 {% elseif use_account %}
 	<span class="utilities-container text-transform">
 		{% if login_only %}
-			<a href="{% if not customer %}{{ store.customer_login_url }}{% else %}{{ store.customer_home_url }}{% endif %}" class="btn btn-utility" aria-label="{% if customer %}{{ 'Mi cuenta' | translate }}{% else %}{{ 'Login' | translate }}{% endif %}" style="position:relative;display:inline-flex;align-items:center;">
-				{% if account_disp == 'icon_custom' and settings.header_account_svg|default('')|trim %}
-					<span class="header-utility-icon" aria-hidden="true">{{ settings.header_account_svg|raw }}</span>
-				{% elseif account_disp == 'icon' %}
-					<svg class="icon-inline header-utility-svg" aria-hidden="true"><use xlink:href="#brand-utility-user"/></svg>
-				{% else %}
-					<span class="utilities-text">
-						{% if customer %}
-							{{ 'Mi cuenta' | translate }}
-						{% else %}
-							{{ 'Login' | translate }}
-						{% endif %}
-					</span>
-				{% endif %}
-				{# ── Login status dot: verde=logueado, rojo=visitante ── #}
-				<span aria-hidden="true" style="position:absolute;bottom:4px;right:2px;width:8px;height:8px;border-radius:50%;background:{% if customer %}#22c55e{% else %}#ef4444{% endif %};border:1.5px solid #fff;display:block;"></span>
+			<a href="{% if not customer %}{{ store.customer_login_url }}{% else %}{{ store.customer_home_url }}{% endif %}" class="btn btn-utility" aria-label="{% if customer %}{{ 'Mi cuenta' | translate }}{% else %}{{ 'Login' | translate }}{% endif %}">
+				<span style="position:relative; display:inline-flex; align-items:center; justify-content:center;">
+					{% if account_disp == 'icon_custom' and settings.header_account_svg|default('')|trim %}
+						<span class="header-utility-icon" aria-hidden="true">{{ settings.header_account_svg|raw }}</span>
+					{% elseif account_disp == 'icon' %}
+						<svg class="icon-inline header-utility-svg" aria-hidden="true"><use xlink:href="#brand-utility-user"/></svg>
+					{% else %}
+						<span class="utilities-text">
+							{% if customer %}
+								{{ 'Mi cuenta' | translate }}
+							{% else %}
+								{{ 'Login' | translate }}
+							{% endif %}
+						</span>
+					{% endif %}
+					{# ── Login status dot: verde=logueado, rojo=visitante ── #}
+					<span aria-hidden="true" style="position:absolute; bottom:0px; right:-2px; width:8px; height:8px; border-radius:50%; background:{% if customer %}#22c55e{% else %}#ef4444{% endif %}; border:1.5px solid #fff; display:block; animation: blink-dot 1.5s infinite ease-in-out;"></span>
+				</span>
+				<style>
+					@keyframes blink-dot {
+						0%, 100% { opacity: 1; transform: scale(1); }
+						50% { opacity: 0.4; transform: scale(0.9); }
+					}
+				</style>
 			</a>
 		{% else %}
 			{% if not customer %}
