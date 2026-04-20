@@ -337,6 +337,7 @@
             {% set show_product_fulfillment = settings.shipping_calculator_product_page and (store.has_shipping or store.branches) and not product.free_shipping and not product.is_non_shippable %}
 
             {% if not home_main_product %}
+                {% include "snipplets/shipping/benefit-bar.tpl" %}
                 {% include 'snipplets/product/product-pdp-buybox-accordions.tpl' %}
             {% endif %}
 

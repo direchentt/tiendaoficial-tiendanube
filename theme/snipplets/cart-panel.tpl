@@ -1,4 +1,5 @@
 <div class="js-ajax-cart-list">
+    {% include "snipplets/shipping/benefit-bar.tpl" %}
     {# Cart panel items #}
     {% if cart.items %}
       {% for item in cart.items %}

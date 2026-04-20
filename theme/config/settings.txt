@@ -2342,4 +2342,24 @@ Categoría Privada VIP
 		description = Mensaje explicativo para el cliente
 		placeholder = Ej: Colección Prêt-à-porter exclusiva. Ingresá la clave.
 
+Barra de Progreso de Beneficios
+	meta
+		icon = gift
+		advanced = true
+	title
+		title = Barra de Envíos y Cuotas
+	checkbox
+		name = benefit_bar_enabled
+		description = Mostrar barra interactiva para llegar a los beneficios (faltan $X para envío/cuotas).
+	text
+		name = benefit_bar_fs_min
+		description = Monto mínimo Envío Gratis (sólo números, ej: 80000). Si configuraste envío gratuito en tu tienda, poné ese mismo valor.
+	text
+		name = benefit_bar_inst_min
+		description = Monto mínimo para Cuotas Sin Interés (sólo números, ej: 150000).
+	text
+		name = benefit_bar_inst_amount
+		description = Etiqueta de la opción de cuotas en la barra.
+		placeholder = Ej: 6 CUOTAS
+
 

@@ -43,6 +43,7 @@
                     </div>
 
                     <div class="js-ajax-cart-list">
+                        {% include "snipplets/shipping/benefit-bar.tpl" %}
 
                         {# Cart items #}
 
