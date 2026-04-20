@@ -79,6 +79,15 @@
 {% set head_transparent_color_class = head_transparent and settings.head_transparent_contrast_options ? 'head-transparent-contrast' %}
 {% set head_transparent_logo_class = head_transparent and settings.head_transparent_contrast_options and "logo-transparent.jpg" | has_custom_image ? 'head-transparent-logo' %}
 
+{% set brand_header_glass_class = settings.brand_header_glass_bar ? 'head-brand-glass-bar' : '' %}
+{% set brand_tr_style = settings.brand_header_transparent_style|default(settings.brand_header_transparent_boost ? 'veil' : 'off') %}
+{% set brand_transparent_style_class = '' %}
+{% if head_transparent and brand_tr_style == 'veil' %}
+    {% set brand_transparent_style_class = 'head-brand-transparent-veil' %}
+{% elseif head_transparent and brand_tr_style == 'minimal' %}
+    {% set brand_transparent_style_class = 'head-brand-transparent-minimal' %}
+{% endif %}
+
 {# Header position type #}
 
 {% set head_position = head_transparent_with_media ? 'position-fixed' : 'position-sticky' %}
@@ -86,7 +95,7 @@
     ? (head_transparent_with_media ? 'position-fixed-md' : 'position-sticky-md')
     : (head_transparent_with_media ? 'position-absolute-md' : 'position-relative-md') %}
 
-<header class="js-head-main head-main {{ header_transparent_classes }} {{ head_transparent_color_class }} {{ head_transparent_logo_class }} {{ header_colors_classes }} {{ head_position }} {{ header_md_position }} {{ header_logo_classes }} {{ header_logo_md_classes }} {{ header_logo_left_nav_below_md_classes }} {{ header_nav_inline_md_classes }} {{ header_hamburger_md_classes }} {{ header_search_big_classes }} {{ header_search_big_md_classes }} transition-soft" data-store="head">
+<header class="js-head-main head-main {{ header_transparent_classes }} {{ head_transparent_color_class }} {{ head_transparent_logo_class }} {{ brand_header_glass_class }} {{ brand_transparent_style_class }} {{ header_colors_classes }} {{ head_position }} {{ header_md_position }} {{ header_logo_classes }} {{ header_logo_md_classes }} {{ header_logo_left_nav_below_md_classes }} {{ header_nav_inline_md_classes }} {{ header_hamburger_md_classes }} {{ header_search_big_classes }} {{ header_search_big_md_classes }} transition-soft" data-store="head">
     {# Adversiting bar #}
     {% if settings.ad_bar %}
         {% snipplet "header/header-advertising.tpl" %}

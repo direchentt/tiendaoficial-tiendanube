@@ -1,6 +1,8 @@
 {% set logo_size_thumbnail = settings.logo_size == 'big' ? 'huge' : 'large' %}
 {% set logo_size_class = settings.logo_size == 'small' ? 'logo-img-small' : settings.logo_size == 'big' ? 'logo-img-big' %}
+{% set brand_logo_fx = settings.brand_logo_fx|default('none') %}
 
+<div class="head-brand-logo-shell{% if brand_logo_fx != 'none' %} head-brand-logo-shell--{{ brand_logo_fx }}{% endif %}">
 {{ component('logos/logo', {
     logo_size: logo_size_thumbnail,
     logo_img_classes: 'transition-soft ' ~ logo_size_class, 
@@ -14,3 +16,4 @@
         logo_img_classes: 'transition-soft '  ~ logo_size_class}) 
     }}
 {% endif %}
+</div>

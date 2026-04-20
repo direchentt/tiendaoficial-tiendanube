@@ -1274,7 +1274,7 @@ DOMContentLoaded.addEventOrExecute(() => {
                     try {
                         document
                             .querySelectorAll(
-                                '.js-swiper-featured, .js-swiper-new, .js-swiper-sale, .js-swiper-related, .js-swiper-complementary'
+                                '.js-swiper-featured, .js-swiper-new, .js-swiper-sale, .js-swiper-related, .js-swiper-complementary, .js-swiper-pdp-sec-complementary, .js-swiper-pdp-sec-alternative'
                             )
                             .forEach(function (root) {
                                 if (!root.classList.contains('swiper-container-initialized')) {
@@ -2255,6 +2255,70 @@ DOMContentLoaded.addEventOrExecute(() => {
                 }
             }
         });
+
+        {% if settings.brand_pdp_store_sections_enable %}
+        {# Carruseles PDP desde secciones de tienda (pdp_bundles_*) #}
+
+        if (jQueryNuvem('.js-swiper-pdp-sec-complementary').length) {
+            let pdpSecCompLoopVal = calculateRelatedLoopVal('.js-pdp-sec-complementary-products');
+            createSwiper('.js-swiper-pdp-sec-complementary', {
+                lazy: true,
+                loop: pdpSecCompLoopVal,
+                watchOverflow: true,
+                threshold: 5,
+                watchSlideProgress: true,
+                watchSlidesVisibility: true,
+                spaceBetween: itemSwiperSpaceBetween,
+                slideVisibleClass: 'js-swiper-slide-visible',
+                slidesPerView: slidesPerViewMobileVal,
+                navigation: {
+                    nextEl: '.js-swiper-pdp-sec-complementary-next',
+                    prevEl: '.js-swiper-pdp-sec-complementary-prev',
+                },
+                on: {
+                    afterInit: function () {
+                        hideSwiperControls('.js-swiper-pdp-sec-complementary-prev', '.js-swiper-pdp-sec-complementary-next');
+                        themeNestedProductItemSliderRefresh();
+                    },
+                },
+                breakpoints: {
+                    768: {
+                        slidesPerView: slidesPerViewDesktopVal,
+                    },
+                },
+            });
+        }
+
+        if (jQueryNuvem('.js-swiper-pdp-sec-alternative').length) {
+            let pdpSecAltLoopVal = calculateRelatedLoopVal('.js-pdp-sec-alternatives-products');
+            createSwiper('.js-swiper-pdp-sec-alternative', {
+                lazy: true,
+                loop: pdpSecAltLoopVal,
+                watchOverflow: true,
+                threshold: 5,
+                watchSlideProgress: true,
+                watchSlidesVisibility: true,
+                spaceBetween: itemSwiperSpaceBetween,
+                slideVisibleClass: 'js-swiper-slide-visible',
+                slidesPerView: slidesPerViewMobileVal,
+                navigation: {
+                    nextEl: '.js-swiper-pdp-sec-alternative-next',
+                    prevEl: '.js-swiper-pdp-sec-alternative-prev',
+                },
+                on: {
+                    afterInit: function () {
+                        hideSwiperControls('.js-swiper-pdp-sec-alternative-prev', '.js-swiper-pdp-sec-alternative-next');
+                        themeNestedProductItemSliderRefresh();
+                    },
+                },
+                breakpoints: {
+                    768: {
+                        slidesPerView: slidesPerViewDesktopVal,
+                    },
+                },
+            });
+        }
+        {% endif %}
 
         {# PDP boutique: ocultar boton secundario tipo "Pago exprés" que inyecta la plataforma junto al formulario #}
         (function () {

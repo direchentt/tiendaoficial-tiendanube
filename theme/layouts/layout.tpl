@@ -9,6 +9,10 @@
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        {% if customer %}
+        <meta name="x-hache-customer-id" content="{{ customer.id }}" />
+        <meta name="x-hache-customer-email" content="{{ customer.email|e('html_attr') }}" />
+        {% endif %}
         <title>{{ page_title }}</title>
         <meta name="description" content="{{ page_description }}" />
         <link rel="preload" as="style" href="{{ [settings.font_headings, settings.font_rest] | google_fonts_url('400,500,600,700') }}" />
@@ -217,8 +221,16 @@
                 });
             </script>
         {% endif %}
-        {# Hache Suite — Business Rules Engine #}
-        {# CartGift | CategoryGate | DynamicPricing | BundlePage #}
+        {# Hache Suite — Business Rules Engine + wishlist (cliente TN en sesion) #}
+        <script>
+            {% set _hache_backend = settings.hache_backend_url|default('')|trim %}
+            {% if _hache_backend != '' %}
+            window.HACHE_BACKEND_URL = {{ _hache_backend|json_encode|raw }};
+            {% endif %}
+            window.__HACHE_CUSTOMER__ = {% if customer %}{{ { id: customer.id, email: customer.email } | json_encode | raw }}{% else %}null{% endif %};
+            window.__HACHE_LOGIN_URL__ = {{ store.customer_login_url | json_encode | raw }};
+        </script>
+        {# CartGift | CategoryGate | DynamicPricing | BundlePage | Wishlist #}
         <script src="{{ 'js/hache-suite.js' | static_url }}" defer></script>
 
     </body>

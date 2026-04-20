@@ -42,6 +42,8 @@
                         <a href="{{ store.customer_new_address_url }}" class="btn-link font-small font-weight-bold">{{ 'Agregar dirección' | translate }}</a>
                     {% endif %}
 
+                    {% include 'snipplets/account/account-wishlist-section.tpl' %}
+
                     <div class="mt-5 pt-4" style="border-top:1px solid #eaeaea;">
                         <a href="{{ store.customer_logout_url }}" class="btn btn-secondary btn-block text-uppercase border-radius-0" style="letter-spacing:0.05em;">{{ "Cerrar sesión" | translate }}</a>
                     </div>

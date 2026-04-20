@@ -12,24 +12,94 @@
  *   LS.product.id     → productId en PDP
  *   LS.category.id    → categoryId en PLP
  *   LS.cart           → objeto del carrito
+ *
+ * Wishlist: requiere cuenta TN; verificacion en backend con API read_customers.
  */
 
 (function (window) {
   "use strict";
 
   // ─── CONFIG ────────────────────────────────────────────────────────────────
-  const BACKEND_URL =
-    window.HACHE_BACKEND_URL ||
-    "https://tiendaoficial-tiendanube-production.up.railway.app";
+  const BACKEND_URL = (
+    (typeof window.HACHE_BACKEND_URL === "string" && window.HACHE_BACKEND_URL.trim()) ||
+    "https://tiendaoficial-tiendanube-production.up.railway.app"
+  ).replace(/\/+$/, "");
 
-  const STORE_ID =
-    window.LS?.store?.id?.toString() ||
-    window.store_id?.toString() ||
-    "";
+  /** TN a veces hidrata `LS.store` después del primer paint; no cortar el bundle entero. */
+  function getStoreId() {
+    const id =
+      window.LS?.store?.id?.toString() ||
+      window.store_id?.toString() ||
+      "";
+    return id.trim();
+  }
 
-  if (!STORE_ID) {
-    console.warn("[HacheSuite] storeId no encontrado — módulos deshabilitados.");
-    return;
+  /** GET/POST wishlist: mismo parseo de JSON + errores que postToggle. */
+  async function wishlistRequestJson(url, init) {
+    const res = await fetch(url, { mode: "cors", ...init });
+    const raw = await res.text();
+    let data = {};
+    try {
+      data = raw ? JSON.parse(raw) : {};
+    } catch (_) {
+      data = { error: "invalid_response" };
+    }
+    if (!res.ok) {
+      const code =
+        typeof data.error === "string" && data.error.trim()
+          ? data.error.trim()
+          : "http_" + res.status;
+      const err = new Error(code);
+      err.httpStatus = res.status;
+      err.bodyPreview = String(raw).slice(0, 180);
+      throw err;
+    }
+    return data;
+  }
+
+  function wishlistUserFacingMessage(code, st, err, opts) {
+    const failVerb = (opts && opts.failVerb) || "guardar";
+    if (code === "tn_scope") {
+      return "El token de la app no puede leer clientes: agregá scope read_customers y volvé a autorizar la app en Tiendanube.";
+    }
+    if (code === "forbidden") {
+      return "El email de la sesión no coincide con el cliente en Tiendanube (o el cliente no existe). Volvé a iniciar sesión.";
+    }
+    if (code === "tn_misconfigured") {
+      return "Wishlist no disponible: falta TN_USER_AGENT o token en el servidor.";
+    }
+    if (code === "tn_error") {
+      return "Tiendanube no respondió al validar el cliente (revisá token y TN_USER_AGENT).";
+    }
+    if (code === "store_not_found") {
+      return "El id de tienda no coincide con el panel: TN_STORE_USER_ID en Railway debe ser el mismo LS.store.id de esta tienda.";
+    }
+    if (code === "missing_fields" || code === "missing_params" || code === "invalid_product" || code === "invalid_json") {
+      return "Datos incompletos al guardar. Recargá la página.";
+    }
+    if (code === "db_write_failed") {
+      return "Error al escribir en la base de datos del panel (¿migraciones aplicadas?).";
+    }
+    if (code === "invalid_response") {
+      return "El servidor respondió algo que no es JSON (¿URL del panel incorrecta?).";
+    }
+    if (st === 403) {
+      return "Acceso denegado (403). Revisá permisos OAuth o sesión.";
+    }
+    if (code && code.indexOf("http_") === 0) {
+      return "Error del servidor (" + code.replace("http_", "HTTP ") + ").";
+    }
+    if (code === "Failed to fetch" || String(err && err.message) === "Failed to fetch") {
+      return "No hay conexión con el panel (CORS, URL o bloqueo). En el administrador del tema: URL del panel Hache, o variable global HACHE_BACKEND_URL.";
+    }
+    return (
+      "No se pudo " +
+      failVerb +
+      " (" +
+      (code || "desconocido") +
+      (st ? ", HTTP " + st : "") +
+      "). Revisá la consola (F12)."
+    );
   }
 
   const NS = "hs2_"; // localStorage namespace
@@ -185,6 +255,7 @@
     },
 
     async check() {
+      if (!getStoreId()) return;
       const total = getCartTotal();
       if (total <= 0) return;
 
@@ -195,7 +266,7 @@
       } else {
         try {
           const res = await apiGet(
-            `/api/storefront/cart-gifts?storeId=${STORE_ID}&total=${total}`
+            `/api/storefront/cart-gifts?storeId=${getStoreId()}&total=${total}`
           );
           gifts = res.gifts || [];
           lsSet("cart_gifts_" + Math.floor(total / 100), gifts, 10 * 1000); // 10 seg cache para desarrollo
@@ -250,6 +321,7 @@
 
   const CategoryGateModule = {
     async init() {
+      if (!getStoreId()) return;
       const categoryId = window.LS?.category?.id;
       if (!categoryId) return;
 
@@ -262,7 +334,7 @@
       } else {
         try {
           status = await apiGet(
-            `/api/storefront/category-gate?storeId=${STORE_ID}&categoryId=${categoryId}`
+            `/api/storefront/category-gate?storeId=${getStoreId()}&categoryId=${categoryId}`
           );
           lsSet(cacheKey, status, 60 * 60 * 1000); // 1h cache
         } catch (e) {
@@ -352,7 +424,7 @@
 
         try {
           const res = await apiPost("/api/storefront/category-gate", {
-            storeId: STORE_ID,
+            storeId: getStoreId(),
             categoryId: parseInt(categoryId),
             password,
           });
@@ -434,7 +506,7 @@
         headers: { "Content-Type": "application/json" },
         mode: "cors",
         body: JSON.stringify({
-          storeId: STORE_ID,
+          storeId: getStoreId(),
           productId: productId,
           variantId: variantId || undefined,
           visitCount: visitCount,
@@ -461,6 +533,7 @@
     commitOnAddToCart: false,
 
     async init() {
+      if (!getStoreId()) return;
       const productIds = this.collectProductIds();
       if (productIds.length === 0) return;
 
@@ -471,7 +544,7 @@
       if (!data) {
         try {
           data = await apiGet(
-            `/api/storefront/dynamic-prices?storeId=${STORE_ID}&products=${productIds.join(",")}&visitCount=${visitCount}`
+            `/api/storefront/dynamic-prices?storeId=${getStoreId()}&products=${productIds.join(",")}&visitCount=${visitCount}`
           );
           if (data.enabled) {
             lsSet(cacheKey, data, (data.cacheTtlHours || 4) * 60 * 60 * 1000);
@@ -598,6 +671,7 @@
     async init() {
       const container = document.getElementById("hs-bundles-container");
       if (!container) return;
+      if (!getStoreId()) return;
 
       container.innerHTML = `<p style="color:#888;text-align:center;padding:2rem;">Cargando combos...</p>`;
 
@@ -607,7 +681,7 @@
         data = cached;
       } else {
         try {
-          data = await apiGet(`/api/storefront/bundles?storeId=${STORE_ID}`);
+          data = await apiGet(`/api/storefront/bundles?storeId=${getStoreId()}`);
           lsSet("bundles_temp", data, 10 * 1000); // 10 seg cache para desarrollo (forzado a nuevo key)
         } catch (e) {
           container.innerHTML = `<p style="color:#ef4444;text-align:center;">No se pudieron cargar los combos.</p>`;
@@ -742,30 +816,370 @@
     },
   };
 
+  // ─── Wishlist (PDP; anonimos -> login TN) ─────────────────────────────────
+
+  let wishlistClickDelegationBound = false;
+
+  const WishlistModule = {
+    pendingKey() {
+      return NS + "wishlist_pending";
+    },
+    getPendingProductId() {
+      try {
+        const v = localStorage.getItem(this.pendingKey());
+        if (!v) return null;
+        const id = parseInt(v, 10);
+        return id > 0 ? id : null;
+      } catch (_) {
+        return null;
+      }
+    },
+    setPendingProductId(id) {
+      try {
+        localStorage.setItem(this.pendingKey(), String(id));
+      } catch (_) {}
+    },
+    clearPending() {
+      try {
+        localStorage.removeItem(this.pendingKey());
+      } catch (_) {}
+    },
+
+    getCustomer() {
+      let rawId;
+      let rawEmail;
+      const c = window.__HACHE_CUSTOMER__;
+      if (c && (c.email != null || c.Email != null)) {
+        rawId = c.id;
+        rawEmail = c.email != null ? c.email : c.Email;
+      } else {
+        const mId = document.querySelector('meta[name="x-hache-customer-id"]');
+        const mEm = document.querySelector('meta[name="x-hache-customer-email"]');
+        if (!mId || !mEm) return null;
+        rawId = mId.getAttribute("content");
+        rawEmail = mEm.getAttribute("content");
+      }
+      const id = typeof rawId === "number" ? rawId : parseInt(String(rawId), 10);
+      const email = String(rawEmail ?? "").trim();
+      if (!Number.isFinite(id) || id <= 0 || !email) return null;
+      return { id, email };
+    },
+
+    loginUrl() {
+      const u = window.__HACHE_LOGIN_URL__;
+      return typeof u === "string" && u.trim() ? u.trim() : "/account/login/";
+    },
+
+    setButtonState(btn, inList) {
+      btn.classList.toggle("is-active", Boolean(inList));
+      btn.setAttribute("aria-pressed", inList ? "true" : "false");
+      const addLabel = btn.getAttribute("data-wishlist-label-add") || "Save to wishlist";
+      const removeLabel = btn.getAttribute("data-wishlist-label-remove") || "Remove from wishlist";
+      const label = inList ? removeLabel : addLabel;
+      btn.setAttribute("aria-label", label);
+      const hidden = btn.querySelector(".visually-hidden");
+      if (hidden) hidden.textContent = label;
+    },
+
+    wishlistToast(msg, isError) {
+      const el = document.createElement("div");
+      el.setAttribute("role", "status");
+      el.style.cssText =
+        "position:fixed;bottom:88px;left:50%;transform:translateX(-50%);max-width:min(420px,92vw);" +
+        "padding:12px 16px;border-radius:12px;font:600 13px/1.35 system-ui,sans-serif;z-index:99999;" +
+        "box-shadow:0 8px 28px rgba(0,0,0,.12);" +
+        (isError ? "background:#111;color:#fff;" : "background:#fff;color:#111;border:1px solid rgba(0,0,0,.08);");
+      el.textContent = msg;
+      document.body.appendChild(el);
+      setTimeout(() => {
+        el.style.opacity = "0";
+        el.style.transition = "opacity .35s ease";
+        setTimeout(() => el.remove(), 400);
+      }, 3200);
+    },
+
+    handleWishlistButtonClick(btn) {
+      const productId = parseInt(btn.getAttribute("data-product-id") || "", 10);
+      if (!productId) return;
+      if (!getStoreId()) {
+        this.wishlistToast("Tienda no lista aún. Recargá la página en unos segundos.", true);
+        console.warn("[HacheSuite][Wishlist] Sin store id");
+        return;
+      }
+
+      const customer = this.getCustomer();
+      if (!customer) {
+        this.setPendingProductId(productId);
+        window.location.href = this.loginUrl();
+        return;
+      }
+
+      const prev = btn.classList.contains("is-active");
+      this.setButtonState(btn, !prev);
+      this.postToggle(customer, productId)
+        .then((data) => {
+          this.setButtonState(btn, Boolean(data.inWishlist));
+          this.wishlistToast(
+            data.inWishlist ? "Guardado en favoritos" : "Quitado de favoritos",
+            false
+          );
+        })
+        .catch((err) => {
+          this.setButtonState(btn, prev);
+          const code = err && typeof err.message === "string" ? err.message : "";
+          const st = err && typeof err.httpStatus === "number" ? err.httpStatus : 0;
+          this.wishlistToast(wishlistUserFacingMessage(code, st, err), true);
+          console.warn("[HacheSuite][Wishlist]", code, st, err && err.bodyPreview, err);
+        });
+    },
+
+    attachClickDelegation() {
+      if (wishlistClickDelegationBound) return;
+      wishlistClickDelegationBound = true;
+      /* capture=true: corre antes que handlers en burbuja que hagan stopPropagation (TN / jQuery). */
+      document.addEventListener(
+        "click",
+        (ev) => {
+          const btn = ev.target.closest(".js-wishlist-toggle");
+          if (!btn) return;
+          ev.preventDefault();
+          WishlistModule.handleWishlistButtonClick(btn);
+        },
+        true
+      );
+    },
+
+    async fetchList(customer) {
+      const q = new URLSearchParams({
+        storeId: getStoreId(),
+        customerId: String(customer.id),
+        email: customer.email,
+      });
+      const data = await wishlistRequestJson(BACKEND_URL + "/api/storefront/wishlist?" + q.toString(), {});
+      return Array.isArray(data.productIds) ? data.productIds : [];
+    },
+
+    async postToggle(customer, productId) {
+      return wishlistRequestJson(BACKEND_URL + "/api/storefront/wishlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          storeId: getStoreId(),
+          customerId: customer.id,
+          customerEmail: customer.email,
+          productId,
+        }),
+      });
+    },
+
+    async syncInitialState(buttons) {
+      if (!getStoreId()) return;
+      const customer = this.getCustomer();
+      if (!customer || !buttons.length) return;
+      let ids = [];
+      try {
+        ids = await this.fetchList(customer);
+      } catch (e) {
+        console.warn("[HacheSuite][Wishlist] No se pudo leer la lista", e);
+        return;
+      }
+      const set = new Set(ids.map(Number));
+      buttons.forEach((btn) => {
+        const id = parseInt(btn.getAttribute("data-product-id") || "", 10);
+        if (!id) return;
+        this.setButtonState(btn, set.has(id));
+      });
+    },
+
+    async refreshAllWishlistButtons() {
+      const buttons = Array.from(document.querySelectorAll(".js-wishlist-toggle"));
+      if (!buttons.length) return;
+      await this.syncInitialState(buttons);
+    },
+
+    async consumePending() {
+      if (!getStoreId()) return;
+      const customer = this.getCustomer();
+      const pending = this.getPendingProductId();
+      if (!customer || !pending) return;
+      this.clearPending();
+      try {
+        await this.postToggle(customer, pending);
+      } catch (e) {
+        const code = e && typeof e.message === "string" ? e.message : "";
+        const st = e && typeof e.httpStatus === "number" ? e.httpStatus : 0;
+        this.wishlistToast(wishlistUserFacingMessage(code, st, e), true);
+        console.warn("[HacheSuite][Wishlist] Pendiente no aplicado", e);
+        return;
+      }
+      document.querySelectorAll(".js-wishlist-toggle").forEach((btn) => {
+        const id = parseInt(btn.getAttribute("data-product-id") || "", 10);
+        if (id === pending) this.setButtonState(btn, true);
+      });
+    },
+
+    async init() {
+      this.attachClickDelegation();
+      await this.consumePending();
+      await this.refreshAllWishlistButtons();
+      setTimeout(() => {
+        WishlistModule.refreshAllWishlistButtons().catch(console.warn);
+      }, 1200);
+    },
+  };
+
+  /* No esperar LS.ready: si esa promesa no resuelve, igual el PDP debe poder guardar favoritos. */
+  try {
+    WishlistModule.attachClickDelegation();
+  } catch (e) {
+    console.warn("[HacheSuite][Wishlist] attach inmediato", e);
+  }
+  setTimeout(() => {
+    WishlistModule.init().catch(console.warn);
+  }, 350);
+
+  // ─── Wishlist pagina (ruta /SLUG, ej. /my-wishlist) ────────────────────────
+
+  function escapeHtmlWishlist(s) {
+    return String(s ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  const WishlistPageModule = {
+    async init() {
+      const root = document.getElementById("hs-wishlist-page");
+      if (!root || root.getAttribute("data-logged") !== "1") return;
+
+      const customer = WishlistModule.getCustomer();
+      if (!customer) return;
+
+      const storeId = getStoreId();
+      if (!storeId) {
+        const err = root.getAttribute("data-msg-error") || "Error";
+        root.innerHTML = '<p class="text-muted text-center py-4">' + escapeHtmlWishlist(err) + "</p>";
+        return;
+      }
+
+      const q = new URLSearchParams({
+        storeId,
+        customerId: String(customer.id),
+        email: customer.email,
+        details: "1",
+      });
+
+      let data;
+      try {
+        data = await wishlistRequestJson(BACKEND_URL + "/api/storefront/wishlist?" + q.toString(), {});
+      } catch (e) {
+        console.warn("[HacheSuite][WishlistPage]", e);
+        const code = e && typeof e.message === "string" ? e.message : "";
+        const st = e && typeof e.httpStatus === "number" ? e.httpStatus : 0;
+        const line = wishlistUserFacingMessage(code, st, e, { failVerb: "cargar favoritos" });
+        const load = root.querySelector(".hs-wishlist-loading");
+        if (load) load.remove();
+        root.innerHTML = '<p class="text-muted text-center py-4">' + escapeHtmlWishlist(line) + "</p>";
+        return;
+      }
+
+      const items = Array.isArray(data.items) ? data.items : [];
+      const loadEl = root.querySelector(".hs-wishlist-loading");
+      if (loadEl) loadEl.remove();
+
+      if (!items.length) {
+        const empty = root.getAttribute("data-msg-empty") || "";
+        root.innerHTML =
+          '<p class="text-muted text-center py-4 mb-0">' + escapeHtmlWishlist(empty) + "</p>";
+        return;
+      }
+
+      const grid = document.createElement("div");
+      grid.className = "row hs-wishlist-grid";
+
+      items.forEach((it) => {
+        const col = document.createElement("div");
+        col.className = "col-6 col-md-4 col-lg-3 mb-4";
+        const href =
+          typeof it.url === "string" && it.url && it.url !== "#" ? it.url : "#";
+        const name = typeof it.name === "string" ? it.name : "Producto";
+        const imgSrc = typeof it.image === "string" && it.image ? it.image : "";
+
+        const card = document.createElement("article");
+        card.className = "hs-wishlist-card h-100 border bg-white";
+
+        const link = document.createElement("a");
+        link.className = "d-block text-reset text-decoration-none h-100 p-2 p-md-3";
+        link.href = href;
+        if (href === "#") link.setAttribute("aria-disabled", "true");
+
+        if (imgSrc) {
+          const wrap = document.createElement("div");
+          wrap.className = "hs-wishlist-card__img-wrap mb-2";
+          const img = document.createElement("img");
+          img.src = imgSrc;
+          img.alt = "";
+          img.className = "img-fluid w-100 hs-wishlist-card__img";
+          img.loading = "lazy";
+          wrap.appendChild(img);
+          link.appendChild(wrap);
+        }
+
+        const title = document.createElement("h3");
+        title.className = "font-small font-weight-semibold mb-0 text-uppercase";
+        title.style.letterSpacing = "0.04em";
+        title.style.lineHeight = "1.35";
+        title.textContent = name;
+
+        link.appendChild(title);
+        card.appendChild(link);
+        col.appendChild(card);
+        grid.appendChild(col);
+      });
+
+      root.appendChild(grid);
+    },
+  };
+
   // ─── BOOT ──────────────────────────────────────────────────────────────────
 
   function boot() {
-    const pageType = getCurrentPageType();
-    console.log("[HacheSuite] Iniciando — página:", pageType, "| tienda:", STORE_ID);
+    const run = () => {
+      const pageType = getCurrentPageType();
+      console.log("[HacheSuite] Iniciando — página:", pageType, "| tienda:", getStoreId() || "(sin id aún)");
 
-    // Cart Gifts — run on all pages except bundle page
-    if (pageType !== "bundle") {
-      CartGiftModule.init().catch(console.warn);
-    }
+      // Cart Gifts — run on all pages except bundle page
+      if (pageType !== "bundle") {
+        CartGiftModule.init().catch(console.warn);
+      }
 
-    // Category Gate — only on category pages
-    if (pageType === "category") {
-      CategoryGateModule.init().catch(console.warn);
-    }
+      // Category Gate — only on category pages
+      if (pageType === "category") {
+        CategoryGateModule.init().catch(console.warn);
+      }
 
-    // Dynamic Pricing — on product and category pages
-    if (pageType === "product" || pageType === "category" || pageType === "home") {
-      DynamicPricingModule.init().catch(console.warn);
-    }
+      // Dynamic Pricing — on product and category pages
+      if (pageType === "product" || pageType === "category" || pageType === "home") {
+        DynamicPricingModule.init().catch(console.warn);
+      }
 
-    // Bundle Page — only on /pages/combos
-    if (pageType === "bundle") {
-      BundlePageModule.init().catch(console.warn);
+      // Bundle Page — only on /pages/combos
+      if (pageType === "bundle") {
+        BundlePageModule.init().catch(console.warn);
+      }
+
+      // Wishlist — PDP button + aplicar pendiente tras login en cualquier pagina
+      WishlistModule.init().catch(console.warn);
+
+      // Wishlist — pagina institucional (handle configurado en el tema)
+      WishlistPageModule.init().catch(console.warn);
+    };
+
+    if (window.LS && window.LS.ready && typeof window.LS.ready.then === "function") {
+      window.LS.ready.then(run).catch(run);
+    } else {
+      run();
     }
   }
 

@@ -2048,6 +2048,142 @@ footer.section-footer-home {
     letter-spacing: 0.08em;
     border-radius: 0;
   }
+
+}
+
+/* PDP wishlist (HacheSuite): bookmark junto al titulo, estilo minimal tipo vitrina */
+.theme-brand-phase1 .pdp-title-wishlist-row {
+  align-items: center;
+}
+
+.theme-brand-phase1 .pdp-wishlist-btn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  margin-top: 0.1rem;
+  padding: 0;
+  border: 1px solid var(--brand-border-medium, rgba(0, 0, 0, 0.14));
+  border-radius: var(--brand-ui-r-sm, 10px);
+  background: rgba(255, 255, 255, 0.92);
+  color: #111;
+  line-height: 0;
+  font-size: 0;
+  letter-spacing: 0;
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: color var(--brand-motion-fast, 0.18s) var(--brand-ease-smooth, ease),
+    border-color var(--brand-motion-fast, 0.18s) var(--brand-ease-smooth, ease),
+    background-color var(--brand-motion-fast, 0.18s) var(--brand-ease-smooth, ease),
+    box-shadow var(--brand-motion-fast, 0.18s) var(--brand-ease-smooth, ease);
+}
+
+/* Boton junto al titulo: tamano tocable y SVG nitido (evita texto fantasma si falta .visually-hidden) */
+.theme-brand-phase1 .pdp-wishlist-btn.pdp-wishlist-btn--pdp-title {
+  margin-top: 0;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  width: 2.75rem;
+  height: 2.75rem;
+}
+
+.theme-brand-phase1 .pdp-wishlist-btn.pdp-wishlist-btn--pdp-title .pdp-wishlist-btn__svg {
+  width: 1.375rem;
+  height: 1.375rem;
+  min-width: 1.375rem;
+  min-height: 1.375rem;
+  flex-shrink: 0;
+}
+
+/* PDP represent: overlays o capas no deben “tapar” el boton de favoritos */
+.theme-brand-phase1.template-product .pdp-app--represent .js-wishlist-toggle.pdp-wishlist-btn {
+  pointer-events: auto !important;
+  position: relative;
+  z-index: 4;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.theme-brand-phase1 .pdp-wishlist-btn:hover {
+  border-color: rgba(0, 0, 0, 0.22);
+  box-shadow: var(--brand-elev-1, 0 1px 2px rgba(0, 0, 0, 0.06));
+}
+
+.theme-brand-phase1 .pdp-wishlist-btn:focus-visible {
+  outline: 2px solid var(--accent-color, #000);
+  outline-offset: 2px;
+}
+
+.theme-brand-phase1 .pdp-wishlist-btn__svg {
+  display: block;
+}
+
+.theme-brand-phase1 .pdp-wishlist-btn.is-active {
+  color: var(--accent-color, #000);
+  border-color: rgba(0, 0, 0, 0.18);
+  background: rgba(255, 255, 255, 1);
+}
+
+.theme-brand-phase1 .pdp-wishlist-btn.is-active .pdp-wishlist-btn__svg path {
+  fill: var(--accent-color, #111);
+  stroke: var(--accent-color, #111);
+}
+
+/* Icono bookmark decorativo (titulo pagina / cuenta), mismo trazo que el boton PDP */
+.theme-brand-phase1 .pdp-wishlist-btn--static {
+  pointer-events: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  flex-shrink: 0;
+  border: 1px solid var(--brand-border-medium, rgba(0, 0, 0, 0.14));
+  border-radius: var(--brand-ui-r-sm, 10px);
+  background: rgba(255, 255, 255, 0.92);
+  color: #111;
+  line-height: 0;
+}
+
+.theme-brand-phase1 .pdp-wishlist-btn--static.pdp-wishlist-btn--inline {
+  width: 2rem;
+  height: 2rem;
+}
+
+.theme-brand-phase1 .hs-wishlist-page .hs-wishlist-card {
+  border-radius: var(--brand-ui-r-sm, 10px);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: box-shadow var(--brand-motion-fast, 0.18s) var(--brand-ease-smooth, ease);
+}
+
+.theme-brand-phase1 .hs-wishlist-page .hs-wishlist-card:hover {
+  box-shadow: var(--brand-elev-1, 0 1px 2px rgba(0, 0, 0, 0.06));
+}
+
+.theme-brand-phase1 .hs-wishlist-page .hs-wishlist-card__img-wrap {
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  border-radius: calc(var(--brand-ui-r-sm, 10px) - 2px);
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.theme-brand-phase1 .hs-wishlist-page .hs-wishlist-card__img {
+  object-fit: cover;
+  height: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-brand-phase1 .pdp-wishlist-btn {
+    transition: none;
+  }
+
+  .theme-brand-phase1 .hs-wishlist-page .hs-wishlist-card {
+    transition: none;
+  }
 }
 
 /* Category/search: scroll anchor for product list (fixed bar overlap) */
@@ -2312,6 +2448,447 @@ body.theme-brand-phase1 b {
 .theme-brand-phase1.brand-header-no-rule .head-main .head-logo-row,
 .theme-brand-phase1.brand-header-no-rule .head-nav {
   border-bottom: none;
+}
+
+/*============================================================================
+  #Header brand: glass bar, logo-only PNG motion, transparent veil or minimal
+==============================================================================*/
+
+.head-main.head-brand-glass-bar .head-logo-row {
+  background: rgba(255, 255, 255, 0.52);
+  backdrop-filter: blur(14px) saturate(1.12);
+  -webkit-backdrop-filter: blur(14px) saturate(1.12);
+}
+
+.head-main.head-colors.head-brand-glass-bar .head-logo-row {
+  background: color-mix(in srgb, var(--header-background, #fff) 58%, transparent);
+}
+
+/* Solo la imagen del logo (PNG): filtros y movimiento, sin tocar la barra entera */
+.head-brand-logo-shell {
+  display: inline-block;
+  max-width: 100%;
+  vertical-align: middle;
+  position: relative;
+}
+
+.head-brand-logo-shell img {
+  isolation: isolate;
+  vertical-align: middle;
+}
+
+@keyframes head-brand-logo-chroma-strong {
+  0%,
+  100% {
+    filter: hue-rotate(0deg) saturate(1) contrast(1);
+  }
+
+  33% {
+    filter: hue-rotate(28deg) saturate(1.12) contrast(1.03);
+  }
+
+  66% {
+    filter: hue-rotate(-18deg) saturate(1.08) contrast(1.02);
+  }
+}
+
+@keyframes head-brand-logo-spectral {
+  0%,
+  100% {
+    filter: hue-rotate(0deg) saturate(1) contrast(1) brightness(1);
+  }
+
+  20% {
+    filter: hue-rotate(55deg) saturate(1.22) contrast(1.06) brightness(1.04);
+  }
+
+  45% {
+    filter: hue-rotate(-35deg) saturate(1.18) contrast(1.05) brightness(1.02);
+  }
+
+  70% {
+    filter: hue-rotate(28deg) saturate(1.15) contrast(1.04) brightness(1.05);
+  }
+}
+
+@keyframes head-brand-logo-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes head-brand-logo-pulse-bright {
+  0%,
+  100% {
+    filter: brightness(1);
+  }
+
+  50% {
+    filter: brightness(1.12);
+  }
+}
+
+@keyframes head-brand-logo-pulse-scale {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+
+  50% {
+    transform: translateY(-1px) scale(1.04);
+  }
+}
+
+.head-brand-logo-shell--chroma img {
+  animation:
+    head-brand-logo-chroma-strong 7s ease-in-out infinite,
+    head-brand-logo-float 4.2s ease-in-out infinite;
+  will-change: filter, transform;
+}
+
+.head-brand-logo-shell--spectral img {
+  animation:
+    head-brand-logo-spectral 5.5s ease-in-out infinite,
+    head-brand-logo-float 3.4s ease-in-out infinite;
+  will-change: filter, transform;
+}
+
+.head-brand-logo-shell--frost {
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.2);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.28) inset,
+    0 8px 28px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.head-main.head-colors .head-brand-logo-shell--frost {
+  background: color-mix(in srgb, var(--header-background, #fff) 35%, transparent);
+}
+
+.head-brand-logo-shell--pulse img {
+  animation:
+    head-brand-logo-pulse-bright 2.8s ease-in-out infinite,
+    head-brand-logo-pulse-scale 2.8s ease-in-out infinite;
+  will-change: filter, transform;
+}
+
+/* Velo: capa + barra con tinte (solo modo veil) */
+.head-main.head-brand-transparent-veil.head-transparent .head-logo-row,
+.head-main.head-brand-transparent-veil.head-transparent-on-section .head-logo-row,
+.head-main.head-brand-transparent-veil.head-transparent .head-nav,
+.head-main.head-brand-transparent-veil.head-transparent-on-section .head-nav {
+  position: relative;
+}
+
+.head-main.head-brand-transparent-veil.head-transparent .head-logo-row::before,
+.head-main.head-brand-transparent-veil.head-transparent-on-section .head-logo-row::before,
+.head-main.head-brand-transparent-veil.head-transparent .head-nav::before,
+.head-main.head-brand-transparent-veil.head-transparent-on-section .head-nav::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.48) 0%, rgba(0, 0, 0, 0.18) 100%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.head-main.head-brand-transparent-veil.head-transparent .head-logo-row > .container-fluid,
+.head-main.head-brand-transparent-veil.head-transparent-on-section .head-logo-row > .container-fluid,
+.head-main.head-brand-transparent-veil.head-transparent .head-nav > .container-fluid,
+.head-main.head-brand-transparent-veil.head-transparent-on-section .head-nav > .container-fluid {
+  position: relative;
+  z-index: 1;
+}
+
+/* Velo: tinte en toda la fila (hereda texto auxiliar) */
+.head-main.head-brand-transparent-veil.head-transparent:not(:hover):not(.head-transparent-contrast) .head-logo-row,
+.head-main.head-brand-transparent-veil.head-transparent-on-section:not(:hover):not(.head-transparent-contrast) .head-logo-row,
+.head-main.head-brand-transparent-veil.head-transparent:not(:hover):not(.head-transparent-contrast) .head-nav,
+.head-main.head-brand-transparent-veil.head-transparent-on-section:not(:hover):not(.head-transparent-contrast) .head-nav {
+  color: rgba(255, 255, 255, 0.94);
+  fill: rgba(255, 255, 255, 0.94);
+}
+
+/* Minimal + velo: mismos acentos en enlaces, iconos, lineas (sin tinte de fila en minimal) */
+.head-main.head-brand-transparent-veil.head-transparent:not(:hover):not(.head-transparent-contrast) .head-logo-row a,
+.head-main.head-brand-transparent-veil.head-transparent:not(:hover):not(.head-transparent-contrast) .head-logo-row .svg-icon-text,
+.head-main.head-brand-transparent-veil.head-transparent:not(:hover):not(.head-transparent-contrast) .head-logo-row .search-btn,
+.head-main.head-brand-transparent-veil.head-transparent-on-section:not(:hover):not(.head-transparent-contrast) .head-logo-row a,
+.head-main.head-brand-transparent-veil.head-transparent-on-section:not(:hover):not(.head-transparent-contrast) .head-logo-row .svg-icon-text,
+.head-main.head-brand-transparent-veil.head-transparent-on-section:not(:hover):not(.head-transparent-contrast) .head-logo-row .search-btn,
+.head-main.head-brand-transparent-veil.head-transparent:not(:hover):not(.head-transparent-contrast) .head-nav a,
+.head-main.head-brand-transparent-veil.head-transparent:not(:hover):not(.head-transparent-contrast) .head-nav .svg-icon-text,
+.head-main.head-brand-transparent-veil.head-transparent:not(:hover):not(.head-transparent-contrast) .head-nav .search-btn,
+.head-main.head-brand-transparent-veil.head-transparent-on-section:not(:hover):not(.head-transparent-contrast) .head-nav a,
+.head-main.head-brand-transparent-veil.head-transparent-on-section:not(:hover):not(.head-transparent-contrast) .head-nav .svg-icon-text,
+.head-main.head-brand-transparent-veil.head-transparent-on-section:not(:hover):not(.head-transparent-contrast) .head-nav .search-btn,
+.head-main.head-brand-transparent-minimal.head-transparent:not(:hover):not(.head-transparent-contrast) .head-logo-row a,
+.head-main.head-brand-transparent-minimal.head-transparent:not(:hover):not(.head-transparent-contrast) .head-logo-row .svg-icon-text,
+.head-main.head-brand-transparent-minimal.head-transparent:not(:hover):not(.head-transparent-contrast) .head-logo-row .search-btn,
+.head-main.head-brand-transparent-minimal.head-transparent-on-section:not(:hover):not(.head-transparent-contrast) .head-logo-row a,
+.head-main.head-brand-transparent-minimal.head-transparent-on-section:not(:hover):not(.head-transparent-contrast) .head-logo-row .svg-icon-text,
+.head-main.head-brand-transparent-minimal.head-transparent-on-section:not(:hover):not(.head-transparent-contrast) .head-logo-row .search-btn,
+.head-main.head-brand-transparent-minimal.head-transparent:not(:hover):not(.head-transparent-contrast) .head-nav a,
+.head-main.head-brand-transparent-minimal.head-transparent:not(:hover):not(.head-transparent-contrast) .head-nav .svg-icon-text,
+.head-main.head-brand-transparent-minimal.head-transparent:not(:hover):not(.head-transparent-contrast) .head-nav .search-btn,
+.head-main.head-brand-transparent-minimal.head-transparent-on-section:not(:hover):not(.head-transparent-contrast) .head-nav a,
+.head-main.head-brand-transparent-minimal.head-transparent-on-section:not(:hover):not(.head-transparent-contrast) .head-nav .svg-icon-text,
+.head-main.head-brand-transparent-minimal.head-transparent-on-section:not(:hover):not(.head-transparent-contrast) .head-nav .search-btn {
+  color: rgba(255, 255, 255, 0.94);
+  fill: rgba(255, 255, 255, 0.94);
+}
+
+.head-main.head-brand-transparent-veil.head-transparent:not(:hover):not(.head-transparent-contrast) .head-logo-row .form-control,
+.head-main.head-brand-transparent-veil.head-transparent-on-section:not(:hover):not(.head-transparent-contrast) .head-logo-row .form-control,
+.head-main.head-brand-transparent-veil.head-transparent:not(:hover):not(.head-transparent-contrast) .head-nav .form-control,
+.head-main.head-brand-transparent-veil.head-transparent-on-section:not(:hover):not(.head-transparent-contrast) .head-nav .form-control,
+.head-main.head-brand-transparent-minimal.head-transparent:not(:hover):not(.head-transparent-contrast) .head-logo-row .form-control,
+.head-main.head-brand-transparent-minimal.head-transparent-on-section:not(:hover):not(.head-transparent-contrast) .head-logo-row .form-control,
+.head-main.head-brand-transparent-minimal.head-transparent:not(:hover):not(.head-transparent-contrast) .head-nav .form-control,
+.head-main.head-brand-transparent-minimal.head-transparent-on-section:not(:hover):not(.head-transparent-contrast) .head-nav .form-control {
+  color: rgba(255, 255, 255, 0.94);
+  border-bottom-color: rgba(255, 255, 255, 0.55);
+}
+
+.head-main.head-brand-transparent-veil.head-transparent:not(:hover):not(.head-transparent-contrast) .head-logo-row .form-control::-webkit-input-placeholder,
+.head-main.head-brand-transparent-veil.head-transparent-on-section:not(:hover):not(.head-transparent-contrast) .head-logo-row .form-control::-webkit-input-placeholder,
+.head-main.head-brand-transparent-veil.head-transparent:not(:hover):not(.head-transparent-contrast) .head-nav .form-control::-webkit-input-placeholder,
+.head-main.head-brand-transparent-veil.head-transparent-on-section:not(:hover):not(.head-transparent-contrast) .head-nav .form-control::-webkit-input-placeholder,
+.head-main.head-brand-transparent-minimal.head-transparent:not(:hover):not(.head-transparent-contrast) .head-logo-row .form-control::-webkit-input-placeholder,
+.head-main.head-brand-transparent-minimal.head-transparent-on-section:not(:hover):not(.head-transparent-contrast) .head-logo-row .form-control::-webkit-input-placeholder,
+.head-main.head-brand-transparent-minimal.head-transparent:not(:hover):not(.head-transparent-contrast) .head-nav .form-control::-webkit-input-placeholder,
+.head-main.head-brand-transparent-minimal.head-transparent-on-section:not(:hover):not(.head-transparent-contrast) .head-nav .form-control::-webkit-input-placeholder {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.head-main.head-brand-transparent-veil.head-transparent:not(:hover):not(.head-transparent-contrast) .head-logo-row .form-control:-moz-placeholder,
+.head-main.head-brand-transparent-veil.head-transparent-on-section:not(:hover):not(.head-transparent-contrast) .head-logo-row .form-control:-moz-placeholder,
+.head-main.head-brand-transparent-veil.head-transparent:not(:hover):not(.head-transparent-contrast) .head-nav .form-control:-moz-placeholder,
+.head-main.head-brand-transparent-veil.head-transparent-on-section:not(:hover):not(.head-transparent-contrast) .head-nav .form-control:-moz-placeholder,
+.head-main.head-brand-transparent-minimal.head-transparent:not(:hover):not(.head-transparent-contrast) .head-logo-row .form-control:-moz-placeholder,
+.head-main.head-brand-transparent-minimal.head-transparent-on-section:not(:hover):not(.head-transparent-contrast) .head-logo-row .form-control:-moz-placeholder,
+.head-main.head-brand-transparent-minimal.head-transparent:not(:hover):not(.head-transparent-contrast) .head-nav .form-control:-moz-placeholder,
+.head-main.head-brand-transparent-minimal.head-transparent-on-section:not(:hover):not(.head-transparent-contrast) .head-nav .form-control:-moz-placeholder {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.head-main.head-brand-transparent-veil.head-transparent:not(:hover):not(.head-transparent-contrast) .head-logo-row .form-control::-moz-placeholder,
+.head-main.head-brand-transparent-veil.head-transparent-on-section:not(:hover):not(.head-transparent-contrast) .head-logo-row .form-control::-moz-placeholder,
+.head-main.head-brand-transparent-veil.head-transparent:not(:hover):not(.head-transparent-contrast) .head-nav .form-control::-moz-placeholder,
+.head-main.head-brand-transparent-veil.head-transparent-on-section:not(:hover):not(.head-transparent-contrast) .head-nav .form-control::-moz-placeholder,
+.head-main.head-brand-transparent-minimal.head-transparent:not(:hover):not(.head-transparent-contrast) .head-logo-row .form-control::-moz-placeholder,
+.head-main.head-brand-transparent-minimal.head-transparent-on-section:not(:hover):not(.head-transparent-contrast) .head-logo-row .form-control::-moz-placeholder,
+.head-main.head-brand-transparent-minimal.head-transparent:not(:hover):not(.head-transparent-contrast) .head-nav .form-control::-moz-placeholder,
+.head-main.head-brand-transparent-minimal.head-transparent-on-section:not(:hover):not(.head-transparent-contrast) .head-nav .form-control::-moz-placeholder {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.head-main.head-brand-transparent-veil.head-transparent:not(:hover):not(.head-transparent-contrast) .head-logo-row .form-control:-ms-input-placeholder,
+.head-main.head-brand-transparent-veil.head-transparent-on-section:not(:hover):not(.head-transparent-contrast) .head-logo-row .form-control:-ms-input-placeholder,
+.head-main.head-brand-transparent-veil.head-transparent:not(:hover):not(.head-transparent-contrast) .head-nav .form-control:-ms-input-placeholder,
+.head-main.head-brand-transparent-veil.head-transparent-on-section:not(:hover):not(.head-transparent-contrast) .head-nav .form-control:-ms-input-placeholder,
+.head-main.head-brand-transparent-minimal.head-transparent:not(:hover):not(.head-transparent-contrast) .head-logo-row .form-control:-ms-input-placeholder,
+.head-main.head-brand-transparent-minimal.head-transparent-on-section:not(:hover):not(.head-transparent-contrast) .head-logo-row .form-control:-ms-input-placeholder,
+.head-main.head-brand-transparent-minimal.head-transparent:not(:hover):not(.head-transparent-contrast) .head-nav .form-control:-ms-input-placeholder,
+.head-main.head-brand-transparent-minimal.head-transparent-on-section:not(:hover):not(.head-transparent-contrast) .head-nav .form-control:-ms-input-placeholder {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.head-main.head-brand-transparent-veil.head-transparent:not(:hover):not(.head-transparent-contrast) .head-logo-row .badge,
+.head-main.head-brand-transparent-veil.head-transparent-on-section:not(:hover):not(.head-transparent-contrast) .head-logo-row .badge,
+.head-main.head-brand-transparent-veil.head-transparent:not(:hover):not(.head-transparent-contrast) .head-nav .badge,
+.head-main.head-brand-transparent-veil.head-transparent-on-section:not(:hover):not(.head-transparent-contrast) .head-nav .badge,
+.head-main.head-brand-transparent-minimal.head-transparent:not(:hover):not(.head-transparent-contrast) .head-logo-row .badge,
+.head-main.head-brand-transparent-minimal.head-transparent-on-section:not(:hover):not(.head-transparent-contrast) .head-logo-row .badge,
+.head-main.head-brand-transparent-minimal.head-transparent:not(:hover):not(.head-transparent-contrast) .head-nav .badge,
+.head-main.head-brand-transparent-minimal.head-transparent-on-section:not(:hover):not(.head-transparent-contrast) .head-nav .badge {
+  color: rgba(255, 255, 255, 0.95);
+  border-color: rgba(255, 255, 255, 0.55);
+  background-color: transparent;
+}
+
+.head-main.head-brand-transparent-veil.head-transparent:not(:hover):not(.head-transparent-contrast) .head-logo-row .nav-desktop .nav-list-link,
+.head-main.head-brand-transparent-veil.head-transparent-on-section:not(:hover):not(.head-transparent-contrast) .head-logo-row .nav-desktop .nav-list-link,
+.head-main.head-brand-transparent-veil.head-transparent:not(:hover):not(.head-transparent-contrast) .head-nav .nav-desktop .nav-list-link,
+.head-main.head-brand-transparent-veil.head-transparent-on-section:not(:hover):not(.head-transparent-contrast) .head-nav .nav-desktop .nav-list-link,
+.head-main.head-brand-transparent-minimal.head-transparent:not(:hover):not(.head-transparent-contrast) .head-logo-row .nav-desktop .nav-list-link,
+.head-main.head-brand-transparent-minimal.head-transparent-on-section:not(:hover):not(.head-transparent-contrast) .head-logo-row .nav-desktop .nav-list-link,
+.head-main.head-brand-transparent-minimal.head-transparent:not(:hover):not(.head-transparent-contrast) .head-nav .nav-desktop .nav-list-link,
+.head-main.head-brand-transparent-minimal.head-transparent-on-section:not(:hover):not(.head-transparent-contrast) .head-nav .nav-desktop .nav-list-link {
+  color: rgba(255, 255, 255, 0.94);
+  fill: rgba(255, 255, 255, 0.94);
+}
+
+.head-main.head-brand-transparent-veil.head-transparent:not(:hover):not(.head-transparent-contrast) .head-logo-row .btn-utility,
+.head-main.head-brand-transparent-veil.head-transparent-on-section:not(:hover):not(.head-transparent-contrast) .head-logo-row .btn-utility,
+.head-main.head-brand-transparent-veil.head-transparent:not(:hover):not(.head-transparent-contrast) .head-nav .btn-utility,
+.head-main.head-brand-transparent-veil.head-transparent-on-section:not(:hover):not(.head-transparent-contrast) .head-nav .btn-utility,
+.head-main.head-brand-transparent-minimal.head-transparent:not(:hover):not(.head-transparent-contrast) .head-logo-row .btn-utility,
+.head-main.head-brand-transparent-minimal.head-transparent-on-section:not(:hover):not(.head-transparent-contrast) .head-logo-row .btn-utility,
+.head-main.head-brand-transparent-minimal.head-transparent:not(:hover):not(.head-transparent-contrast) .head-nav .btn-utility,
+.head-main.head-brand-transparent-minimal.head-transparent-on-section:not(:hover):not(.head-transparent-contrast) .head-nav .btn-utility {
+  color: rgba(255, 255, 255, 0.94);
+}
+
+.head-main.head-brand-transparent-veil.head-transparent:not(:hover):not(.head-transparent-contrast) .head-logo-row .header-utility-svg,
+.head-main.head-brand-transparent-veil.head-transparent-on-section:not(:hover):not(.head-transparent-contrast) .head-logo-row .header-utility-svg,
+.head-main.head-brand-transparent-veil.head-transparent:not(:hover):not(.head-transparent-contrast) .head-nav .header-utility-svg,
+.head-main.head-brand-transparent-veil.head-transparent-on-section:not(:hover):not(.head-transparent-contrast) .head-nav .header-utility-svg,
+.head-main.head-brand-transparent-minimal.head-transparent:not(:hover):not(.head-transparent-contrast) .head-logo-row .header-utility-svg,
+.head-main.head-brand-transparent-minimal.head-transparent-on-section:not(:hover):not(.head-transparent-contrast) .head-logo-row .header-utility-svg,
+.head-main.head-brand-transparent-minimal.head-transparent:not(:hover):not(.head-transparent-contrast) .head-nav .header-utility-svg,
+.head-main.head-brand-transparent-minimal.head-transparent-on-section:not(:hover):not(.head-transparent-contrast) .head-nav .header-utility-svg {
+  color: rgba(255, 255, 255, 0.94);
+  fill: currentColor;
+}
+
+/* Con paleta alternativa: sin tinte de fila en minimal; velo si respeta variable */
+.head-main.head-brand-transparent-veil.head-transparent.head-transparent-contrast:not(:hover) .head-logo-row,
+.head-main.head-brand-transparent-veil.head-transparent.head-transparent-contrast:not(:hover) .head-nav,
+.head-main.head-brand-transparent-veil.head-transparent-on-section.head-transparent-contrast:not(:hover) .head-logo-row,
+.head-main.head-brand-transparent-veil.head-transparent-on-section.head-transparent-contrast:not(:hover) .head-nav {
+  color: var(--header-transparent-foreground);
+  fill: var(--header-transparent-foreground);
+}
+
+.head-main.head-brand-transparent-veil.head-transparent.head-transparent-contrast:not(:hover) .head-logo-row a,
+.head-main.head-brand-transparent-veil.head-transparent.head-transparent-contrast:not(:hover) .head-logo-row .svg-icon-text,
+.head-main.head-brand-transparent-veil.head-transparent.head-transparent-contrast:not(:hover) .head-logo-row .search-btn,
+.head-main.head-brand-transparent-veil.head-transparent.head-transparent-contrast:not(:hover) .head-nav a,
+.head-main.head-brand-transparent-veil.head-transparent.head-transparent-contrast:not(:hover) .head-nav .svg-icon-text,
+.head-main.head-brand-transparent-veil.head-transparent.head-transparent-contrast:not(:hover) .head-nav .search-btn,
+.head-main.head-brand-transparent-veil.head-transparent-on-section.head-transparent-contrast:not(:hover) .head-logo-row a,
+.head-main.head-brand-transparent-veil.head-transparent-on-section.head-transparent-contrast:not(:hover) .head-logo-row .svg-icon-text,
+.head-main.head-brand-transparent-veil.head-transparent-on-section.head-transparent-contrast:not(:hover) .head-logo-row .search-btn,
+.head-main.head-brand-transparent-veil.head-transparent-on-section.head-transparent-contrast:not(:hover) .head-nav a,
+.head-main.head-brand-transparent-veil.head-transparent-on-section.head-transparent-contrast:not(:hover) .head-nav .svg-icon-text,
+.head-main.head-brand-transparent-veil.head-transparent-on-section.head-transparent-contrast:not(:hover) .head-nav .search-btn,
+.head-main.head-brand-transparent-minimal.head-transparent.head-transparent-contrast:not(:hover) .head-logo-row a,
+.head-main.head-brand-transparent-minimal.head-transparent.head-transparent-contrast:not(:hover) .head-logo-row .svg-icon-text,
+.head-main.head-brand-transparent-minimal.head-transparent.head-transparent-contrast:not(:hover) .head-logo-row .search-btn,
+.head-main.head-brand-transparent-minimal.head-transparent.head-transparent-contrast:not(:hover) .head-nav a,
+.head-main.head-brand-transparent-minimal.head-transparent.head-transparent-contrast:not(:hover) .head-nav .svg-icon-text,
+.head-main.head-brand-transparent-minimal.head-transparent.head-transparent-contrast:not(:hover) .head-nav .search-btn,
+.head-main.head-brand-transparent-minimal.head-transparent-on-section.head-transparent-contrast:not(:hover) .head-logo-row a,
+.head-main.head-brand-transparent-minimal.head-transparent-on-section.head-transparent-contrast:not(:hover) .head-logo-row .svg-icon-text,
+.head-main.head-brand-transparent-minimal.head-transparent-on-section.head-transparent-contrast:not(:hover) .head-logo-row .search-btn,
+.head-main.head-brand-transparent-minimal.head-transparent-on-section.head-transparent-contrast:not(:hover) .head-nav a,
+.head-main.head-brand-transparent-minimal.head-transparent-on-section.head-transparent-contrast:not(:hover) .head-nav .svg-icon-text,
+.head-main.head-brand-transparent-minimal.head-transparent-on-section.head-transparent-contrast:not(:hover) .head-nav .search-btn {
+  color: var(--header-transparent-foreground);
+  fill: var(--header-transparent-foreground);
+}
+
+.head-main.head-brand-transparent-veil.head-transparent.head-transparent-contrast:not(:hover) .head-logo-row .form-control,
+.head-main.head-brand-transparent-veil.head-transparent.head-transparent-contrast:not(:hover) .head-nav .form-control,
+.head-main.head-brand-transparent-veil.head-transparent-on-section.head-transparent-contrast:not(:hover) .head-logo-row .form-control,
+.head-main.head-brand-transparent-veil.head-transparent-on-section.head-transparent-contrast:not(:hover) .head-nav .form-control,
+.head-main.head-brand-transparent-minimal.head-transparent.head-transparent-contrast:not(:hover) .head-logo-row .form-control,
+.head-main.head-brand-transparent-minimal.head-transparent.head-transparent-contrast:not(:hover) .head-nav .form-control,
+.head-main.head-brand-transparent-minimal.head-transparent-on-section.head-transparent-contrast:not(:hover) .head-logo-row .form-control,
+.head-main.head-brand-transparent-minimal.head-transparent-on-section.head-transparent-contrast:not(:hover) .head-nav .form-control {
+  color: var(--header-transparent-foreground);
+  border-bottom-color: var(--header-transparent-foreground);
+}
+
+.head-main.head-brand-transparent-veil.head-transparent.head-transparent-contrast:not(:hover) .head-logo-row .form-control::-webkit-input-placeholder,
+.head-main.head-brand-transparent-veil.head-transparent.head-transparent-contrast:not(:hover) .head-logo-row .form-control:-moz-placeholder,
+.head-main.head-brand-transparent-veil.head-transparent.head-transparent-contrast:not(:hover) .head-logo-row .form-control::-moz-placeholder,
+.head-main.head-brand-transparent-veil.head-transparent.head-transparent-contrast:not(:hover) .head-logo-row .form-control:-ms-input-placeholder,
+.head-main.head-brand-transparent-veil.head-transparent.head-transparent-contrast:not(:hover) .head-nav .form-control::-webkit-input-placeholder,
+.head-main.head-brand-transparent-veil.head-transparent.head-transparent-contrast:not(:hover) .head-nav .form-control:-moz-placeholder,
+.head-main.head-brand-transparent-veil.head-transparent.head-transparent-contrast:not(:hover) .head-nav .form-control::-moz-placeholder,
+.head-main.head-brand-transparent-veil.head-transparent.head-transparent-contrast:not(:hover) .head-nav .form-control:-ms-input-placeholder,
+.head-main.head-brand-transparent-veil.head-transparent-on-section.head-transparent-contrast:not(:hover) .head-logo-row .form-control::-webkit-input-placeholder,
+.head-main.head-brand-transparent-veil.head-transparent-on-section.head-transparent-contrast:not(:hover) .head-logo-row .form-control:-moz-placeholder,
+.head-main.head-brand-transparent-veil.head-transparent-on-section.head-transparent-contrast:not(:hover) .head-logo-row .form-control::-moz-placeholder,
+.head-main.head-brand-transparent-veil.head-transparent-on-section.head-transparent-contrast:not(:hover) .head-logo-row .form-control:-ms-input-placeholder,
+.head-main.head-brand-transparent-veil.head-transparent-on-section.head-transparent-contrast:not(:hover) .head-nav .form-control::-webkit-input-placeholder,
+.head-main.head-brand-transparent-veil.head-transparent-on-section.head-transparent-contrast:not(:hover) .head-nav .form-control:-moz-placeholder,
+.head-main.head-brand-transparent-veil.head-transparent-on-section.head-transparent-contrast:not(:hover) .head-nav .form-control::-moz-placeholder,
+.head-main.head-brand-transparent-veil.head-transparent-on-section.head-transparent-contrast:not(:hover) .head-nav .form-control:-ms-input-placeholder,
+.head-main.head-brand-transparent-minimal.head-transparent.head-transparent-contrast:not(:hover) .head-logo-row .form-control::-webkit-input-placeholder,
+.head-main.head-brand-transparent-minimal.head-transparent.head-transparent-contrast:not(:hover) .head-logo-row .form-control:-moz-placeholder,
+.head-main.head-brand-transparent-minimal.head-transparent.head-transparent-contrast:not(:hover) .head-logo-row .form-control::-moz-placeholder,
+.head-main.head-brand-transparent-minimal.head-transparent.head-transparent-contrast:not(:hover) .head-logo-row .form-control:-ms-input-placeholder,
+.head-main.head-brand-transparent-minimal.head-transparent.head-transparent-contrast:not(:hover) .head-nav .form-control::-webkit-input-placeholder,
+.head-main.head-brand-transparent-minimal.head-transparent.head-transparent-contrast:not(:hover) .head-nav .form-control:-moz-placeholder,
+.head-main.head-brand-transparent-minimal.head-transparent.head-transparent-contrast:not(:hover) .head-nav .form-control::-moz-placeholder,
+.head-main.head-brand-transparent-minimal.head-transparent.head-transparent-contrast:not(:hover) .head-nav .form-control:-ms-input-placeholder,
+.head-main.head-brand-transparent-minimal.head-transparent-on-section.head-transparent-contrast:not(:hover) .head-logo-row .form-control::-webkit-input-placeholder,
+.head-main.head-brand-transparent-minimal.head-transparent-on-section.head-transparent-contrast:not(:hover) .head-logo-row .form-control:-moz-placeholder,
+.head-main.head-brand-transparent-minimal.head-transparent-on-section.head-transparent-contrast:not(:hover) .head-logo-row .form-control::-moz-placeholder,
+.head-main.head-brand-transparent-minimal.head-transparent-on-section.head-transparent-contrast:not(:hover) .head-logo-row .form-control:-ms-input-placeholder,
+.head-main.head-brand-transparent-minimal.head-transparent-on-section.head-transparent-contrast:not(:hover) .head-nav .form-control::-webkit-input-placeholder,
+.head-main.head-brand-transparent-minimal.head-transparent-on-section.head-transparent-contrast:not(:hover) .head-nav .form-control:-moz-placeholder,
+.head-main.head-brand-transparent-minimal.head-transparent-on-section.head-transparent-contrast:not(:hover) .head-nav .form-control::-moz-placeholder,
+.head-main.head-brand-transparent-minimal.head-transparent-on-section.head-transparent-contrast:not(:hover) .head-nav .form-control:-ms-input-placeholder {
+  color: var(--header-transparent-foreground);
+}
+
+.head-main.head-brand-transparent-veil.head-transparent.head-transparent-contrast:not(:hover) .head-logo-row .badge,
+.head-main.head-brand-transparent-veil.head-transparent.head-transparent-contrast:not(:hover) .head-nav .badge,
+.head-main.head-brand-transparent-veil.head-transparent-on-section.head-transparent-contrast:not(:hover) .head-logo-row .badge,
+.head-main.head-brand-transparent-veil.head-transparent-on-section.head-transparent-contrast:not(:hover) .head-nav .badge,
+.head-main.head-brand-transparent-minimal.head-transparent.head-transparent-contrast:not(:hover) .head-logo-row .badge,
+.head-main.head-brand-transparent-minimal.head-transparent.head-transparent-contrast:not(:hover) .head-nav .badge,
+.head-main.head-brand-transparent-minimal.head-transparent-on-section.head-transparent-contrast:not(:hover) .head-logo-row .badge,
+.head-main.head-brand-transparent-minimal.head-transparent-on-section.head-transparent-contrast:not(:hover) .head-nav .badge {
+  color: var(--header-transparent-foreground);
+  border-color: var(--header-transparent-foreground);
+}
+
+.head-main.head-brand-transparent-veil.head-transparent.head-transparent-contrast:not(:hover) .head-logo-row .nav-desktop .nav-list-link,
+.head-main.head-brand-transparent-veil.head-transparent.head-transparent-contrast:not(:hover) .head-nav .nav-desktop .nav-list-link,
+.head-main.head-brand-transparent-veil.head-transparent-on-section.head-transparent-contrast:not(:hover) .head-logo-row .nav-desktop .nav-list-link,
+.head-main.head-brand-transparent-veil.head-transparent-on-section.head-transparent-contrast:not(:hover) .head-nav .nav-desktop .nav-list-link,
+.head-main.head-brand-transparent-minimal.head-transparent.head-transparent-contrast:not(:hover) .head-logo-row .nav-desktop .nav-list-link,
+.head-main.head-brand-transparent-minimal.head-transparent.head-transparent-contrast:not(:hover) .head-nav .nav-desktop .nav-list-link,
+.head-main.head-brand-transparent-minimal.head-transparent-on-section.head-transparent-contrast:not(:hover) .head-logo-row .nav-desktop .nav-list-link,
+.head-main.head-brand-transparent-minimal.head-transparent-on-section.head-transparent-contrast:not(:hover) .head-nav .nav-desktop .nav-list-link {
+  color: var(--header-transparent-foreground);
+  fill: var(--header-transparent-foreground);
+}
+
+.head-main.head-brand-transparent-veil.head-transparent.head-transparent-contrast:not(:hover) .head-logo-row .btn-utility,
+.head-main.head-brand-transparent-veil.head-transparent.head-transparent-contrast:not(:hover) .head-nav .btn-utility,
+.head-main.head-brand-transparent-veil.head-transparent-on-section.head-transparent-contrast:not(:hover) .head-logo-row .btn-utility,
+.head-main.head-brand-transparent-veil.head-transparent-on-section.head-transparent-contrast:not(:hover) .head-nav .btn-utility,
+.head-main.head-brand-transparent-minimal.head-transparent.head-transparent-contrast:not(:hover) .head-logo-row .btn-utility,
+.head-main.head-brand-transparent-minimal.head-transparent.head-transparent-contrast:not(:hover) .head-nav .btn-utility,
+.head-main.head-brand-transparent-minimal.head-transparent-on-section.head-transparent-contrast:not(:hover) .head-logo-row .btn-utility,
+.head-main.head-brand-transparent-minimal.head-transparent-on-section.head-transparent-contrast:not(:hover) .head-nav .btn-utility {
+  color: var(--header-transparent-foreground);
+}
+
+.head-main.head-brand-transparent-veil.head-transparent.head-transparent-contrast:not(:hover) .head-logo-row .header-utility-svg,
+.head-main.head-brand-transparent-veil.head-transparent.head-transparent-contrast:not(:hover) .head-nav .header-utility-svg,
+.head-main.head-brand-transparent-veil.head-transparent-on-section.head-transparent-contrast:not(:hover) .head-logo-row .header-utility-svg,
+.head-main.head-brand-transparent-veil.head-transparent-on-section.head-transparent-contrast:not(:hover) .head-nav .header-utility-svg,
+.head-main.head-brand-transparent-minimal.head-transparent.head-transparent-contrast:not(:hover) .head-logo-row .header-utility-svg,
+.head-main.head-brand-transparent-minimal.head-transparent.head-transparent-contrast:not(:hover) .head-nav .header-utility-svg,
+.head-main.head-brand-transparent-minimal.head-transparent-on-section.head-transparent-contrast:not(:hover) .head-logo-row .header-utility-svg,
+.head-main.head-brand-transparent-minimal.head-transparent-on-section.head-transparent-contrast:not(:hover) .head-nav .header-utility-svg {
+  color: var(--header-transparent-foreground);
+  fill: currentColor;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .head-brand-logo-shell--chroma img,
+  .head-brand-logo-shell--spectral img,
+  .head-brand-logo-shell--pulse img {
+    animation: none !important;
+  }
 }
 
 /* Desktop: items principales compactos, mayusculas, tracking */

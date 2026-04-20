@@ -105,14 +105,29 @@ export type ProductListItem = {
   variants?: { id: number; price?: string | null }[];
 };
 
-/** Detalle mínimo de producto para leer precio de variante (commit dinámico, etc.). */
+/** Detalle de producto (campos extra opcionales para wishlist / admin). */
 export type ProductDetail = {
   id: number;
+  name?: string | Record<string, string>;
+  handle?: string;
+  canonical_url?: string;
+  permalink?: string;
+  images?: { src?: string }[];
   variants?: { id: number; price?: string | null }[];
 };
 
 export function getProduct(config: TiendanubeClientConfig, productId: number): Promise<ProductDetail> {
   return tnFetch<ProductDetail>(config, `/products/${productId}`);
+}
+
+/** Cliente de tienda (verificación wishlist / datos mínimos). Requiere scope read_customers en el token. */
+export type CustomerSummary = { id: number; email?: string | null };
+
+export function getCustomer(
+  config: TiendanubeClientConfig,
+  customerId: number
+): Promise<CustomerSummary> {
+  return tnFetch<CustomerSummary>(config, `/customers/${customerId}`);
 }
 
 export function getProductsPage(

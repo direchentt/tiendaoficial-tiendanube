@@ -2166,6 +2166,17 @@ Detalle de producto
 	checkbox
 		name = brand_pdp_promos_below_purchase
 		description = Promociones debajo del bloque de compra (CTA)
+	checkbox
+		name = wishlist_enabled
+		description = Boton de favoritos en la ficha (clientes sin cuenta van a iniciar sesion)
+	text
+		name = wishlist_page_handle
+		description = Handle/slug de la pagina de favoritos (Mi Tiendanube > Paginas). La URL publica sera /HANDLE (ej. my-wishlist → /my-wishlist). Debe coincidir con el handle de esa pagina.
+		placeholder = my-wishlist
+	text
+		name = hache_backend_url
+		description = URL base del panel Hache (store-admin), sin barra final. Ej. https://tu-app.up.railway.app. Si queda vacio, se usa la URL por defecto del script (favoritos, bundles, precios, etc.).
+		placeholder =
 	subtitle
 		subtitle = Secciones de tienda en la ficha (bundles)
 	description

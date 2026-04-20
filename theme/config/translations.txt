@@ -1155,6 +1155,61 @@ pt "Compartilhar pelo Pinterest"
 en "Share on Pinterest"
 es_mx "Compartir en Pinterest"
 
+es "Guardar en favoritos"
+pt "Salvar nos favoritos"
+en "Save to wishlist"
+es_mx "Guardar en favoritos"
+
+es "Quitar de favoritos"
+pt "Remover dos favoritos"
+en "Remove from wishlist"
+es_mx "Quitar de favoritos"
+
+es "Inicia sesion para guardar favoritos"
+pt "Entre para salvar favoritos"
+en "Log in to save favorites"
+es_mx "Inicia sesion para guardar favoritos"
+
+es "Guardado en favoritos"
+pt "Salvo nos favoritos"
+en "Saved to wishlist"
+es_mx "Guardado en favoritos"
+
+es "Iniciá sesión para ver tus favoritos"
+pt "Entre para ver seus favoritos"
+en "Log in to see your wishlist"
+es_mx "Inicia sesión para ver tus favoritos"
+
+es "Cargando favoritos"
+pt "Carregando favoritos"
+en "Loading favorites"
+es_mx "Cargando favoritos"
+
+es "Tu lista de favoritos está vacía."
+pt "Sua lista de favoritos está vazia."
+en "Your wishlist is empty."
+es_mx "Tu lista de favoritos está vacía."
+
+es "Mis favoritos"
+pt "Meus favoritos"
+en "My favorites"
+es_mx "Mis favoritos"
+
+es "Productos que guardaste para más tarde."
+pt "Produtos que você salvou para depois."
+en "Products you saved for later."
+es_mx "Productos que guardaste para más tarde."
+
+es "Ir a favoritos"
+pt "Ir aos favoritos"
+en "Go to wishlist"
+es_mx "Ir a favoritos"
+
+es "No pudimos cargar tus favoritos. Intentá de nuevo más tarde."
+pt "Não foi possível carregar seus favoritos. Tente novamente mais tarde."
+en "We couldn't load your favorites. Please try again later."
+es_mx "No pudimos cargar tus favoritos. Intenta de nuevo más tarde."
+
 --- --- Labels
 
 es "Sin stock"
@@ -3324,6 +3379,58 @@ es "Logo alternativo (opcional)"
 pt "Logotipo alternativo (opcional)"
 es_mx "Logo alternativo (opcional)"
 
+es "Logo y barra (efectos marca)"
+pt "Logo e barra (efeitos de marca)"
+es_mx "Logo y barra (efectos marca)"
+
+es "Animaciones solo sobre la imagen del logo (ideal PNG). El estilo del encabezado transparente solo aplica si activaste transparencia arriba."
+pt "Animações só sobre a imagem do logo (ideal PNG). O estilo do cabeçalho transparente só vale se você ativou a transparência acima."
+es_mx "Animaciones solo sobre la imagen del logo (ideal PNG). El estilo del encabezado transparente solo aplica si activaste transparencia arriba."
+
+es "Barra del logo con vidrio (glass): fondo difuminado y translúcido"
+pt "Barra do logo com vidro (glass): fundo desfocado e translúcido"
+es_mx "Barra del logo con vidrio (glass): fondo difuminado y translúcido"
+
+es "Animación solo del logo (PNG)"
+pt "Animação só do logo (PNG)"
+es_mx "Animación solo del logo (PNG)"
+
+es "Sin animación"
+pt "Sem animação"
+es_mx "Sin animación"
+
+es "Color en movimiento (suave)"
+pt "Cor em movimento (suave)"
+es_mx "Color en movimiento (suave)"
+
+es "Color en movimiento (intenso)"
+pt "Cor em movimento (intenso)"
+es_mx "Color en movimiento (intenso)"
+
+es "Halo cristal solo detrás del logo"
+pt "Halo de cristal só atrás do logo"
+es_mx "Halo cristal solo detrás del logo"
+
+es "Pulso de luz y leve flotación"
+pt "Pulso de luz e leve flutuação"
+es_mx "Pulso de luz y leve flotación"
+
+es "Cuando el encabezado es transparente"
+pt "Quando o cabeçalho é transparente"
+es_mx "Cuando el encabezado es transparente"
+
+es "Sin refuerzo extra"
+pt "Sem reforço extra"
+es_mx "Sin refuerzo extra"
+
+es "Velo oscuro + textos e íconos claros"
+pt "Véu escuro + textos e ícones claros"
+es_mx "Velo oscuro + textos e íconos claros"
+
+es "Sin velo: solo íconos, enlaces y líneas en contraste (el logo se ve limpio)"
+pt "Sem véu: só ícones, links e linhas em contraste (o logo fica limpo)"
+es_mx "Sin velo: solo íconos, enlaces y líneas en contraste (el logo se ve limpio)"
+
 es "Chico"
 pt "Pequena"
 es_mx "Chico"
@@ -4465,6 +4572,11 @@ es_mx "Título para los productos alternativos"
 es "Título para los productos complementarios"
 pt "Título para os produtos complementares"
 es_mx "Título para los productos complementarios"
+
+es "Sugerencias de producto"
+pt "Sugestões de produto"
+en "Product suggestions"
+es_mx "Sugerencias de producto"
 
 --- --- Cart
 

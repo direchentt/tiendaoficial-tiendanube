@@ -1,4 +1,6 @@
 <div class="pdp-buybox-stack {% if home_main_product %}pt-md-4 mt-md-2 pt-3{% else %}pt-md-3{% endif %}">
+    {# Definir antes del titulo: en Twig el orden importa. #}
+    {% set show_wishlist_cta = settings.wishlist_enabled and template == 'product' and not home_main_product %}
 
     {% if home_main_product %}
         <h2 class="h3-huge h2-huge-md mb-3">{{ product.name }}</h2>
@@ -13,7 +15,14 @@
                 <div class="pdp-represent-head-line">
                 <section class="pdp-section pdp-section--intro" aria-label="{{ 'Información del producto' | translate }}">
                     <div class="page-header pdp-page-header pb-0">
-                        <h1 class="js-product-name pdp-product-title pdp-represent-product-title mt-0 mb-0">{{ product.name }}</h1>
+                        <div class="pdp-title-wishlist-row d-flex align-items-center justify-content-between flex-nowrap" style="gap:0.65rem;">
+                            <h1 class="js-product-name pdp-product-title pdp-represent-product-title mt-0 mb-0 flex-grow-1 min-w-0">{{ product.name }}</h1>
+                            {% if show_wishlist_cta %}
+                            <button type="button" class="pdp-wishlist-btn pdp-wishlist-btn--pdp-title js-wishlist-toggle" data-product-id="{{ product.id }}" data-wishlist-label-add="{{ 'Guardar en favoritos' | translate }}" data-wishlist-label-remove="{{ 'Quitar de favoritos' | translate }}" aria-pressed="false" aria-label="{{ 'Guardar en favoritos' | translate }}">
+                                {% include 'snipplets/icons/icon-wishlist-bookmark.tpl' with { wl_size: 22 } %}
+                            </button>
+                            {% endif %}
+                        </div>
                     </div>
                     {% if settings.product_sku and product.sku %}
                         <div class="font-small opacity-60 mb-2 pdp-sku-line">

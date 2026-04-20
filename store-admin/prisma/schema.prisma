@@ -17,6 +17,23 @@ model Store {
   paymentRules    PaymentRule[]
   pricePresets    PricePreset[]
   lockedCategories LockedCategory[]
+  wishlistItems   WishlistItem[]
+}
+
+/// Favoritos por cliente (identificado por ID de cliente TN + email verificado vía API).
+model WishlistItem {
+  id             String   @id @default(cuid())
+  storeId        String
+  store          Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  tnCustomerId   Int
+  customerEmail  String   @db.VarChar(320)
+  productId      Int
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([storeId, tnCustomerId, productId])
+  @@index([storeId, productId])
+  @@index([storeId, tnCustomerId])
 }
 
 /// Reglas evaluadas en el callback payments/before-filter (Business Rules API).

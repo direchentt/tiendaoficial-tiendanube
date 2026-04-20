@@ -14,6 +14,7 @@
             {% if settings.brand_pdp_related_position|default('below_page') == 'after_buybox' %}
                 <div class="col-12 pdp-related-region--after-buybox mt-md-4">
                     {% include 'snipplets/product/product-related.tpl' %}
+                    {% include 'snipplets/product/product-pdp-store-section-bundles.tpl' %}
                 </div>
             {% endif %}
 
@@ -62,4 +63,5 @@
 
 {% if settings.brand_pdp_related_position|default('below_page') != 'after_buybox' %}
     {% include 'snipplets/product/product-related.tpl' %}
+    {% include 'snipplets/product/product-pdp-store-section-bundles.tpl' %}
 {% endif %}
