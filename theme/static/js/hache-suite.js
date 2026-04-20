@@ -189,7 +189,7 @@
       if (total <= 0) return;
 
       let gifts;
-      const cached = lsGet("cart_gifts_" + Math.floor(total / 1000));
+      const cached = lsGet("cart_gifts_" + Math.floor(total / 100)); // check subtotal range
       if (cached) {
         gifts = cached;
       } else {
@@ -198,7 +198,7 @@
             `/api/storefront/cart-gifts?storeId=${STORE_ID}&total=${total}`
           );
           gifts = res.gifts || [];
-          lsSet("cart_gifts_" + Math.floor(total / 1000), gifts, 5 * 60 * 1000); // 5 min cache
+          lsSet("cart_gifts_" + Math.floor(total / 100), gifts, 10 * 1000); // 10 seg cache para desarrollo
         } catch (e) {
           console.warn("[HacheSuite][CartGift]", e);
           return;
@@ -602,13 +602,13 @@
       container.innerHTML = `<p style="color:#888;text-align:center;padding:2rem;">Cargando combos...</p>`;
 
       let data;
-      const cached = lsGet("bundles");
+      const cached = lsGet("bundles_temp");
       if (cached) {
         data = cached;
       } else {
         try {
           data = await apiGet(`/api/storefront/bundles?storeId=${STORE_ID}`);
-          lsSet("bundles", data, 30 * 60 * 1000); // 30 min
+          lsSet("bundles_temp", data, 10 * 1000); // 10 seg cache para desarrollo (forzado a nuevo key)
         } catch (e) {
           container.innerHTML = `<p style="color:#ef4444;text-align:center;">No se pudieron cargar los combos.</p>`;
           return;
