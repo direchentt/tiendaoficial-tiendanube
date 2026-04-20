@@ -65,5 +65,31 @@
         .cart-upsell-btn:hover { opacity: 0.8; }
         .js-addtocart.js-addtocart-adding { opacity: 0.5; pointer-events: none; }
     </style>
+    
+    <script>
+      if (!window.upsellIntervalStarted) {
+          window.upsellIntervalStarted = true;
+          setInterval(function() {
+              var containers = document.querySelectorAll('.cart-upsell-scroll');
+              containers.forEach(function(container) {
+                  // Solo scrollear si el mouse no está encima
+                  if (container.matches(':hover')) return;
+                  
+                  var maxScroll = container.scrollWidth - container.clientWidth;
+                  if (maxScroll <= 10) return; // no hay productos para scrollear
+                  
+                  if (typeof container.dataset.scrollDir === 'undefined') container.dataset.scrollDir = 1;
+                  var dir = parseInt(container.dataset.scrollDir);
+                  
+                  if (container.scrollLeft >= maxScroll - 10) dir = -1;
+                  else if (container.scrollLeft <= 10) dir = 1;
+                  
+                  container.dataset.scrollDir = dir;
+                  var scrollAmt = (container.clientWidth * 0.85) * dir;
+                  container.scrollBy({ left: scrollAmt, behavior: 'smooth' });
+              });
+          }, 5000);
+      }
+    </script>
 </div>
 {% endif %}
