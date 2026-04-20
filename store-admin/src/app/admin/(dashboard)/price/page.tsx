@@ -1,7 +1,7 @@
 "use client";
-import { adminFetch } from "@/lib/admin-fetch";
-"use client";
 
+import { adminFetch } from "@/lib/admin-fetch";
+import { formatAdminApiError } from "@/lib/format-admin-api-error";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -18,19 +18,17 @@ export default function PriceToolPage() {
     setResult(null);
     setError(null);
     try {
-      const res = await fetch("/api/admin/apply-price-percent", {
+      const res = await adminFetch("/api/admin/apply-price-percent", {
         method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           percent: parseFloat(percent.replace(",", ".")),
           dryRun,
           maxPages: parseInt(maxPages, 10) || 50,
         }),
       });
-      const data = await res.json().catch(() => ({}));
+      const data = await res.json().catch(() => null);
       if (!res.ok) {
-        setError(JSON.stringify(data, null, 2));
+        setError(formatAdminApiError(data, res.status));
       } else {
         setResult(JSON.stringify(data, null, 2));
       }
