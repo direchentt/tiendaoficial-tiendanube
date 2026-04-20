@@ -22,23 +22,23 @@
 {% set price_size = is_pdp ? '0.90rem' : '0.85rem' %}
 {% set btn_pad = is_pdp ? '9px 18px' : '7px 14px' %}
 
-<div class="cart-upsell-module" style="background: rgba(30, 30, 30, 0.45); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.15); color: #fff; padding: {{ pad }}; border-radius: 12px; margin: 0 15px 20px 15px; box-shadow: 0 8px 32px rgba(0,0,0,0.2);">
-    <h5 style="text-align: center; font-size: 0.9rem; margin-bottom: 15px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #eee;">
+<div class="cart-upsell-module" style="background: linear-gradient(135deg, rgba(60, 60, 60, 0.65) 0%, rgba(20, 20, 20, 0.85) 100%); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.2); border-top: 1px solid rgba(255, 255, 255, 0.4); color: #fff; padding: {{ pad }}; border-radius: 12px; margin: 0 15px 20px 15px; box-shadow: 0 8px 32px rgba(0,0,0,0.25);">
+    <h5 style="text-align: center; font-size: 0.9rem; margin-bottom: 15px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.8);">
         {{ settings.brand_pdp_store_section_complementary_title | default('Completá tu rutina:') }}
     </h5>
     
     <div class="cart-upsell-scroll" style="display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 12px; padding-bottom: 5px; scrollbar-width: none;">
         {% for p in cart_upsells|take(6) %}
-            <div class="cart-upsell-item" style="flex: 0 0 {% if is_pdp %}95%{% else %}90%{% endif %}; scroll-snap-align: start; display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.08); padding: 10px 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <div class="cart-upsell-item" style="flex: 0 0 {% if is_pdp %}95%{% else %}90%{% endif %}; scroll-snap-align: start; display: flex; align-items: center; justify-content: space-between; background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.03) 100%); padding: 10px 12px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.15); box-shadow: inset 0 1px 1px rgba(255,255,255,0.2), 0 4px 10px rgba(0,0,0,0.15);">
                 <div style="display: flex; align-items: center; gap: 12px;">
-                    <a href="{{ p.url }}" title="{{ p.name }}" style="flex-shrink: 0;">
-                        {{ p.featured_image | product_image_url('small') | img_tag(p.featured_image.alt, {class: 'img-fluid', style: 'width: '~img_size~'; height: '~img_size~'; object-fit: cover; border-radius: 6px;'}) }}
+                    <a href="{{ p.url }}" title="{{ p.name }}" style="flex-shrink: 0; display: block; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.4);">
+                        {{ p.featured_image | product_image_url('small') | img_tag(p.featured_image.alt, {class: 'img-fluid', style: 'width: '~img_size~'; height: '~img_size~'; object-fit: cover; border-radius: 6px; display: block;'}) }}
                     </a>
                     <div style="display: flex; flex-direction: column; line-height: 1.3;">
-                        <a href="{{ p.url }}" title="{{ p.name }}" style="color: #fff; font-size: {{ title_size }}; font-weight: 700; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
+                        <a href="{{ p.url }}" title="{{ p.name }}" style="color: #fff; font-size: {{ title_size }}; font-weight: 800; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; text-shadow: 0 1px 3px rgba(0,0,0,0.8);">
                             {{ p.name }}
                         </a>
-                        <span style="font-size: {{ price_size }}; color: #bbb; margin-top: 4px; font-weight: 600;">
+                        <span style="font-size: {{ price_size }}; color: #fff; margin-top: 4px; font-weight: 700; text-shadow: 0 1px 3px rgba(0,0,0,0.8); display: inline-block; padding-top: 2px;">
                             {% if p.display_price %}
                                 {{ p.price | money }}
                             {% endif %}
