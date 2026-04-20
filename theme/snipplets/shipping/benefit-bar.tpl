@@ -1,33 +1,34 @@
 {% if settings.benefit_bar_enabled %}
 <style>
 .benefit-prog-wrap {
-    padding: 10px 15px 20px;
-    background: #fff;
-    border-radius: 4px;
-    margin-bottom: 20px;
-    font-family: var(--font-headings, sans-serif);
+    padding: 10px 15px 30px;
+    background: transparent;
+    margin-bottom: 10px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 .benefit-prog-title {
     text-align: center;
-    font-size: 0.95rem;
-    font-weight: 500;
+    font-size: 1rem;
+    font-weight: 400;
     margin-bottom: 25px;
-    color: #111;
+    color: #000;
+    letter-spacing: -0.01em;
 }
 .benefit-prog-track {
     position: relative;
     width: 100%;
-    height: 6px;
-    background: #e5e5e5;
+    height: 18px;
+    border: 1.5px solid #000;
     border-radius: 10px;
+    background: transparent;
 }
 .benefit-prog-fill {
     position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    background: #111;
-    border-radius: 10px;
+    top: 1.5px;
+    left: 1.5px;
+    height: 12px;
+    background: #000;
+    border-radius: 20px;
     transition: width 0.4s ease-out;
 }
 .benefit-prog-node {
@@ -35,33 +36,34 @@
     top: 50%;
     transform: translate(-50%, -50%);
     background: #fff;
-    border: 1px solid #111;
-    border-radius: 4px;
+    border: 2.5px solid #888;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
     font-size: 0.65rem;
-    font-weight: 700;
-    letter-spacing: 0.05em;
-    padding: 5px 8px;
-    line-height: 1.1;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    padding: 4px;
+    line-height: 1.15;
     transition: border-color 0.4s ease, color 0.4s ease;
     z-index: 2;
-    min-width: 55px;
+    min-width: 60px;
+    height: 56px;
+    color: #000;
 }
 .benefit-prog-node.reached {
-    border-color: #22c55e;
-    color: #22c55e;
+    border-color: #000;
 }
 .benefit-prog-amount {
     position: absolute;
     top: 100%;
     left: 50%;
     transform: translateX(-50%);
-    margin-top: 8px;
-    font-size: 0.75rem;
-    color: #555;
+    margin-top: 10px;
+    font-size: 0.85rem;
+    color: #000;
     font-weight: 600;
     white-space: nowrap;
 }
@@ -77,15 +79,15 @@
     </div>
     
     <div class="benefit-prog-track">
-        <div class="benefit-prog-fill js-benefit-bar-fill" style="width: 0%;"></div>
+        <div class="benefit-prog-fill js-benefit-bar-fill" style="width: 0%; max-width: calc(100% - 3px);"></div>
         
         <div class="benefit-prog-node js-benefit-fs-marker">
-            ENVÍO<br>GRATIS
+            <span style="display:block;">ENVÍO<br>GRATIS</span>
             <div class="benefit-prog-amount js-benefit-fs-val">$80.000</div>
         </div>
         
         <div class="benefit-prog-node js-benefit-inst-marker">
-            <span class="js-benefit-inst-text">{{ settings.benefit_bar_inst_amount | default('6 CUOTAS') }}</span>
+            <span class="js-benefit-inst-text" style="display:block;">{{ settings.benefit_bar_inst_amount | default('6 CUOTAS') | replace({' ': '<br>'}) | raw }}</span>
             <div class="benefit-prog-amount js-benefit-inst-val">$150.000</div>
         </div>
     </div>
@@ -105,14 +107,10 @@
             if (window.LS && LS.cart && LS.cart.subtotal) {
                 subtotal = LS.cart.subtotal;
             } else if (document.querySelector('.js-cart-subtotal')) {
-                // Fallback for html parsing if LS is lagging
                 let txt = document.querySelector('.js-cart-subtotal').textContent.replace(/\D/g,'');
                 if (txt) subtotal = parseInt(txt);
             }
 
-            // In PDP, we might want to add the current product if they are viewing it.
-            // But since the chemist shows just cart context, we will stick to Cart subtotal 
-            // OR if subtotal is 0 on PDP, show the price of the item itself as starting point to motivate them!
             if (subtotal === 0) {
                let $pdpPrice = document.querySelector('.js-price-display[content]');
                if ($pdpPrice) {
@@ -130,7 +128,7 @@
                 let instLbl = container.getAttribute('data-inst-lbl') || '6 CUOTAS';
                 
                 let milestones = [
-                    { name: 'fs', val: fsMin, lbl: 'Envío Gratis', short: 'envío gratis' },
+                    { name: 'fs', val: fsMin, lbl: 'Envío Gratis', short: 'envío gratuito' },
                     { name: 'inst', val: instMin, lbl: instLbl, short: instLbl.toLowerCase() }
                 ].sort((a,b) => a.val - b.val);
                 
@@ -156,20 +154,20 @@
                 
                 let fillPct = (subtotal / max) * 100;
                 if (fillPct > 100) fillPct = 100;
-                $fill.style.width = fillPct + '%';
+                $fill.style.width = 'calc(' + fillPct + '% - 3px)';
                 
                 if (subtotal >= m2.val) {
-                    $text.innerHTML = '<span style="color:#22c55e;">¡Ya tenés los máximos beneficios! Envío gratis y cuotas.</span>';
+                    $text.innerHTML = '¡Ya obtuviste envío gratuito y ' + m2.short + '!';
                     if ($m1) $m1.classList.add('reached');
                     if ($m2) $m2.classList.add('reached');
                 } else if (subtotal >= m1.val) {
                     let faltan = m2.val - subtotal;
-                    $text.innerHTML = '¡Tenés ' + m1.lbl + '! Faltan <strong>' + formatMoney(faltan) + '</strong> para obtener ' + m2.short + '.';
+                    $text.innerHTML = 'Faltan ' + formatMoney(faltan) + ' para obtener ' + m2.short;
                     if ($m1) $m1.classList.add('reached');
                     if ($m2) $m2.classList.remove('reached');
                 } else {
                     let faltan = m1.val - subtotal;
-                    $text.innerHTML = 'Faltan <strong>' + formatMoney(faltan) + '</strong> para obtener ' + m1.short + '.';
+                    $text.innerHTML = 'Faltan ' + formatMoney(faltan) + ' para obtener ' + m1.short;
                     if ($m1) $m1.classList.remove('reached');
                     if ($m2) $m2.classList.remove('reached');
                 }
@@ -178,7 +176,6 @@
         
         updateBenefitBars();
         
-        // Use a lightweight interval to catch changes instead of heavy mutation observing to guarantee it works gracefully across Tiendanube versions.
         let lastSubtotal = -1;
         setInterval(function() {
             let currentSub = (window.LS && LS.cart && typeof LS.cart.subtotal !== 'undefined') ? LS.cart.subtotal : -2;
