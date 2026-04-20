@@ -22,6 +22,7 @@ const bodySchema = z.object({
   maxPct: z.number().min(0).max(99).optional(),
   cacheTtlHours: z.number().int().min(1).max(168).optional(),
   excludedCategoryIds: z.array(z.number().int()).optional(),
+  commitOnAddToCart: z.boolean().optional(),
 });
 
 export async function GET(req: NextRequest) {
@@ -49,6 +50,7 @@ export async function GET(req: NextRequest) {
         maxPct: 20,
         cacheTtlHours: 4,
         excludedCategoryIds: [],
+        commitOnAddToCart: false,
       });
     }
 
@@ -59,6 +61,7 @@ export async function GET(req: NextRequest) {
       maxPct: config.maxPct,
       cacheTtlHours: config.cacheTtlHours,
       excludedCategoryIds: parseExcludedCategoryIds(config.excludedCategoryIds),
+      commitOnAddToCart: config.commitOnAddToCart,
     });
   } catch (e) {
     const isDev = process.env.NODE_ENV === "development";
@@ -113,6 +116,7 @@ export async function PUT(req: NextRequest) {
       maxPct: config.maxPct,
       cacheTtlHours: config.cacheTtlHours,
       excludedCategoryIds: parseExcludedCategoryIds(config.excludedCategoryIds),
+      commitOnAddToCart: config.commitOnAddToCart,
     });
   } catch (e) {
     const isDev = process.env.NODE_ENV === "development";

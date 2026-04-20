@@ -126,6 +126,43 @@
     return next;
   }
 
+  /** AR: "68.000" es miles; parseFloat lo lee como 68. */
+  function parseLocaleMoneyTextToNumber(text, langEs) {
+    const cleaned = String(text || "")
+      .replace(/[^\d.,]/g, "")
+      .trim();
+    if (!cleaned) return NaN;
+    if (langEs) {
+      if (/^\d{1,3}(\.\d{3})+$/.test(cleaned)) {
+        return parseInt(cleaned.replace(/\./g, ""), 10);
+      }
+      if (/^\d{1,3}(\.\d{3})+,\d{1,2}$/.test(cleaned)) {
+        return parseFloat(cleaned.replace(/\./g, "").replace(",", "."));
+      }
+      if (cleaned.includes(",") && !cleaned.includes(".")) {
+        return parseFloat(cleaned.replace(",", "."));
+      }
+    }
+    const digits = cleaned.replace(/[^\d]/g, "");
+    if (digits) return parseInt(digits, 10);
+    return NaN;
+  }
+
+  function readCanonicalPriceFromEl(el) {
+    const content = el.getAttribute("content");
+    if (content != null && content !== "") {
+      const n = Number(content);
+      if (Number.isFinite(n) && n > 0) return n;
+    }
+    const dp = el.getAttribute("data-product-price");
+    if (dp != null && dp !== "") {
+      const n = Number(String(dp).replace(",", "."));
+      if (Number.isFinite(n) && n > 0) return n;
+    }
+    const langEs = (document.documentElement.getAttribute("lang") || "").toLowerCase().startsWith("es");
+    return parseLocaleMoneyTextToNumber(el.textContent || "", langEs);
+  }
+
   // ─── MODULE 1: CART GIFT ───────────────────────────────────────────────────
 
   const CartGiftModule = {
@@ -331,16 +368,89 @@
 
   // ─── MODULE 3: DYNAMIC PRICING ─────────────────────────────────────────────
 
+  var hsCommitClickHookInstalled = false;
+
+  function installDynamicPriceCommitHook() {
+    if (hsCommitClickHookInstalled) return;
+    hsCommitClickHookInstalled = true;
+    document.addEventListener("click", hsOnAddToCartCapture, true);
+  }
+
+  async function hsOnAddToCartCapture(e) {
+    if (!DynamicPricingModule.commitOnAddToCart) return;
+    var btn = e.target && e.target.closest && e.target.closest(".js-addtocart:not(.js-addtocart-placeholder)");
+    if (!btn || btn.disabled) return;
+    if (btn.getAttribute("data-hs-bypass-dynamic-commit") === "1") {
+      btn.removeAttribute("data-hs-bypass-dynamic-commit");
+      return;
+    }
+    if (!e.isTrusted) return;
+
+    var item = btn.closest(".js-item-product");
+    var form = btn.closest("form.js-product-form, form#product_form");
+    var productId = null;
+    if (item && item.dataset.productId) productId = parseInt(item.dataset.productId, 10);
+    if (!productId && form) {
+      var addH = form.querySelector('[name="add_to_cart"]');
+      if (addH && addH.value) productId = parseInt(addH.value, 10);
+    }
+    if (!Number.isFinite(productId) || productId <= 0) return;
+
+    var variantId = null;
+    var ship = document.getElementById("shipping-variant-id");
+    if (ship && ship.value) {
+      var vs = parseInt(ship.value, 10);
+      if (Number.isFinite(vs) && vs > 0) variantId = vs;
+    }
+    var vidInput = form && form.querySelector('input[name="variant_id"]');
+    if (!variantId && vidInput && vidInput.value) {
+      var vi = parseInt(vidInput.value, 10);
+      if (Number.isFinite(vi) && vi > 0) variantId = vi;
+    }
+
+    e.preventDefault();
+    if (typeof e.stopPropagation === "function") e.stopPropagation();
+    if (typeof e.stopImmediatePropagation === "function") e.stopImmediatePropagation();
+
+    var visitCount = lsGet("visit_count") || 1;
+    try {
+      var res = await fetch(BACKEND_URL + "/api/storefront/dynamic-price-commit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        mode: "cors",
+        body: JSON.stringify({
+          storeId: STORE_ID,
+          productId: productId,
+          variantId: variantId || undefined,
+          visitCount: visitCount,
+        }),
+      });
+      if (!res.ok) {
+        var err = await res.json().catch(function () {
+          return {};
+        });
+        console.warn("[HacheSuite][DynamicPricing][commit]", res.status, err);
+      }
+    } catch (err) {
+      console.warn("[HacheSuite][DynamicPricing][commit]", err);
+    } finally {
+      btn.setAttribute("data-hs-bypass-dynamic-commit", "1");
+      queueMicrotask(function () {
+        btn.click();
+      });
+    }
+  }
+
   const DynamicPricingModule = {
     priceMap: {},
+    commitOnAddToCart: false,
 
     async init() {
-      // Collect product IDs on current page
       const productIds = this.collectProductIds();
       if (productIds.length === 0) return;
 
       const visitCount = incrementVisitCount();
-      const cacheKey = `dyn_prices_${productIds.sort().join("_")}`;
+      const cacheKey = `dyn_prices_v3_${productIds.sort().join("_")}`;
       let data = lsGet(cacheKey);
 
       if (!data) {
@@ -359,14 +469,16 @@
 
       if (!data || !data.enabled) return;
       this.priceMap = data.prices || {};
+      this.commitOnAddToCart = Boolean(data.commitOnAddToCart);
       this.applyPrices();
+      if (this.commitOnAddToCart) {
+        installDynamicPriceCommitHook();
+      }
     },
 
     collectProductIds() {
       const ids = new Set();
-      // PDP
       if (window.LS?.product?.id) ids.add(String(window.LS.product.id));
-      // PLP via data attributes
       document.querySelectorAll("[data-product-id]").forEach((el) => {
         ids.add(el.dataset.productId);
       });
@@ -374,7 +486,6 @@
     },
 
     applyPrices() {
-      // Apply to price elements with data-product-id
       document.querySelectorAll("[data-product-id]").forEach((el) => {
         const pid = el.dataset.productId;
         const priceData = this.priceMap[pid];
@@ -383,23 +494,20 @@
         const priceEl = el.querySelector("[data-product-price], .js-price-display, .price");
         if (!priceEl) return;
 
-        const rawText = priceEl.textContent.replace(/[^0-9.,]/g, "").replace(",", ".");
-        const original = parseFloat(rawText);
-        if (!isFinite(original) || original === 0) return;
+        const original = readCanonicalPriceFromEl(priceEl);
+        if (!Number.isFinite(original) || original <= 0) return;
 
         const discounted = Math.round(original * priceData.multiplier);
         this.injectDynamicPrice(priceEl, original, discounted, priceData.pct);
       });
 
-      // Also apply on PDP if product is known
       if (window.LS?.product?.id) {
         const pid = String(window.LS.product.id);
         const priceData = this.priceMap[pid];
         if (priceData) {
           document.querySelectorAll(".js-price-display, [itemprop='price'], .product-price").forEach((el) => {
-            const rawText = el.textContent.replace(/[^0-9.,]/g, "").replace(",", ".");
-            const original = parseFloat(rawText);
-            if (!isFinite(original) || original === 0) return;
+            const original = readCanonicalPriceFromEl(el);
+            if (!Number.isFinite(original) || original <= 0) return;
             const discounted = Math.round(original * priceData.multiplier);
             this.injectDynamicPrice(el, original, discounted, priceData.pct);
           });
@@ -409,9 +517,7 @@
       if (typeof window.themeRefreshTransferLines === "function" && window.jQueryNuvem) {
         try {
           window.themeRefreshTransferLines(window.jQueryNuvem(document));
-        } catch (_) {
-          /* store.js puede no estar cargado aún */
-        }
+        } catch (_) {}
       }
     },
 
@@ -419,43 +525,51 @@
       if (el.dataset.hsProcessed) return;
       el.dataset.hsProcessed = "1";
 
-      const currency = (el.textContent.match(/[^0-9.,\s]+/) || ["$"])[0];
-      const wrapper = document.createElement("span");
+      var sym =
+        window.LS && LS.currency && LS.currency.display_short
+          ? LS.currency.display_short
+          : (el.textContent.match(/[^0-9.,\s]+/) || ["$"])[0].trim();
+      var lang = (document.documentElement.getAttribute("lang") || "").toLowerCase();
+      var locale = lang.indexOf("es") === 0 ? "es-AR" : undefined;
+      var fmtNum = function (v) {
+        return Math.round(Number(v)).toLocaleString(locale || "es-AR", {
+          maximumFractionDigits: 0,
+          minimumFractionDigits: 0,
+        });
+      };
+
+      var wrapper = document.createElement("span");
       wrapper.style.display = "inline-flex";
       wrapper.style.alignItems = "center";
       wrapper.style.gap = "6px";
       wrapper.style.flexWrap = "wrap";
-
-      const loc = (document.documentElement.getAttribute("lang") || "").toLowerCase().startsWith("es")
-        ? "es-AR"
-        : undefined;
-      const fmt = (n) =>
-        loc
-          ? n.toLocaleString(loc, { maximumFractionDigits: 0, minimumFractionDigits: 0 })
-          : n.toLocaleString(undefined, { maximumFractionDigits: 0, minimumFractionDigits: 0 });
-      wrapper.innerHTML = `
-        <span style="font-weight:700;color:#22c55e;">${currency}${fmt(discounted)}</span>
-        <span style="text-decoration:line-through;color:#888;font-size:0.85em;">${currency}${fmt(original)}</span>
-        <span style="
-          background:rgba(34,197,94,0.15);color:#22c55e;
-          padding:2px 7px;border-radius:99px;font-size:0.7em;font-weight:700;
-        ">-${pct}%</span>
-      `;
+      wrapper.innerHTML =
+        '<span style="font-weight:700;color:#22c55e;">' +
+        sym +
+        fmtNum(discounted) +
+        "</span>" +
+        '<span style="text-decoration:line-through;color:#888;font-size:0.85em;">' +
+        sym +
+        fmtNum(original) +
+        "</span>" +
+        '<span style="background:rgba(34,197,94,0.15);color:#22c55e;padding:2px 7px;border-radius:99px;font-size:0.7em;font-weight:700;">-' +
+        pct +
+        "%</span>";
 
       el.textContent = "";
       el.appendChild(wrapper);
       el.setAttribute("data-hs-effective-price", String(discounted));
 
-      const root = el.closest(".js-item-product, .js-product-container, #single-product, .js-price-container");
+      var root = el.closest(".js-item-product, .js-product-container, #single-product, .js-price-container");
       if (root) {
-        const row = root.querySelector(".js-theme-transfer-computed");
+        var row = root.querySelector(".js-theme-transfer-computed");
         if (row) {
-          const tpct = Number(row.getAttribute("data-transfer-pct"));
+          var tpct = Number(row.getAttribute("data-transfer-pct"));
           if (isFinite(tpct) && tpct > 0 && tpct < 100) {
-            const tval = Math.round((discounted * (100 - tpct)) / 100);
-            const amt = row.querySelector(".js-theme-transfer-amount");
+            var tval = Math.round((discounted * (100 - tpct)) / 100);
+            var amt = row.querySelector(".js-theme-transfer-amount");
             if (amt) {
-              amt.textContent = currency + fmt(tval);
+              amt.textContent = sym + fmtNum(tval);
             }
           }
         }

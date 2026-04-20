@@ -105,6 +105,16 @@ export type ProductListItem = {
   variants?: { id: number; price?: string | null }[];
 };
 
+/** Detalle mínimo de producto para leer precio de variante (commit dinámico, etc.). */
+export type ProductDetail = {
+  id: number;
+  variants?: { id: number; price?: string | null }[];
+};
+
+export function getProduct(config: TiendanubeClientConfig, productId: number): Promise<ProductDetail> {
+  return tnFetch<ProductDetail>(config, `/products/${productId}`);
+}
+
 export function getProductsPage(
   config: TiendanubeClientConfig,
   page: number

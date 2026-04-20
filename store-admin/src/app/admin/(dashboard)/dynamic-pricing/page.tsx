@@ -11,6 +11,7 @@ type DPConfig = {
   maxPct: number;
   cacheTtlHours: number;
   excludedCategoryIds: number[];
+  commitOnAddToCart: boolean;
 };
 
 const ALGORITHMS = [
@@ -42,6 +43,7 @@ export default function DynamicPricingPage() {
     maxPct: 20,
     cacheTtlHours: 4,
     excludedCategoryIds: [],
+    commitOnAddToCart: false,
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -62,7 +64,10 @@ export default function DynamicPricingPage() {
         }
         if (data && typeof data.enabled === "boolean") {
           setLoadError(null);
-          setConfig(data);
+          setConfig({
+            ...data,
+            commitOnAddToCart: Boolean(data.commitOnAddToCart),
+          });
           setExcludeInput((data.excludedCategoryIds ?? []).join(", "));
         }
       })
@@ -203,6 +208,37 @@ export default function DynamicPricingPage() {
                       : "Activá para empezar a mostrar precios con descuento."}
                   </div>
                 </div>
+              </label>
+            </div>
+
+            <div style={cardStyle}>
+              <h2 style={{ marginBottom: "0.75rem" }}>Sincronizar con Tiendanube (opcional)</h2>
+              <label
+                style={{
+                  display: "flex",
+                  alignItems: "flex-start",
+                  gap: "0.75rem",
+                  cursor: "pointer",
+                  fontSize: "0.88rem",
+                  lineHeight: 1.45,
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={config.commitOnAddToCart}
+                  onChange={(e) => setConfig({ ...config, commitOnAddToCart: e.target.checked })}
+                />
+                <span>
+                  Antes de <strong>Agregar al carrito</strong>, escribir en Tiendanube el precio con el descuento
+                  dinámico (API <code style={{ fontSize: "0.78rem" }}>PATCH /products/stock-price</code>). Así el
+                  checkout coincide con lo que vio el cliente.{" "}
+                  <strong style={{ color: "var(--danger)" }}>
+                    Cambia el precio del catálogo para todos los visitantes
+                  </strong>
+                  ; conviene con algoritmo estable (p. ej. seeded por día) y token OAuth con{" "}
+                  <code>write_products</code>. Listados con solo “compra rápida” y varias variantes pueden no disparar
+                  bien el hook: probá en PDP o productos sin variantes.
+                </span>
               </label>
             </div>
 

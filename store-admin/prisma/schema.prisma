@@ -98,6 +98,8 @@ model DynamicPricingConfig {
   cacheTtlHours Int    @default(4)
   /// IDs de categorias excluidas del motor (JSON array de enteros)
   excludedCategoryIds String @default("[]")
+  /// Si true, antes de agregar al carrito se hace PATCH del precio en Tiendanube (afecta a todos los compradores).
+  commitOnAddToCart Boolean @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }

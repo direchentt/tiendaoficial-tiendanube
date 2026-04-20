@@ -230,7 +230,7 @@
                         {% else %}
                             {# Normal products: original price display #}
                             <div class="item-price-container {% if settings.quick_shop and not show_qs_floating %}mb-3{% endif %}" data-store="product-item-price-{{ product.id }}">
-                                <span class="js-price-display item-price" data-product-price="{{ product.price }}">
+                                <span class="js-price-display item-price" data-product-price="{{ product.price }}"{% if attribute(product.selected_or_first_available_variant, 'price_number') is defined and product.selected_or_first_available_variant.price_number is not null and product.selected_or_first_available_variant.price_number != '' %} content="{{ product.selected_or_first_available_variant.price_number }}"{% endif %}>
                                     {{ product.price | money_nocents }}
                                 </span>
                                 {% if not reduced_item %}
