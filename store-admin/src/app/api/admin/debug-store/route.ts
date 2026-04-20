@@ -1,15 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requireAdmin } from "@/lib/require-admin";
+import { adminDebugEndpointsDisabled } from "@/lib/admin-debug";
 
 /**
  * GET /api/admin/debug-store
- * Muestra el contenido de la tabla Store y DynamicPricingConfig para debug.
+ * Solo en desarrollo, o en producción con ALLOW_ADMIN_DEBUG=1.
  */
 export async function GET(req: NextRequest) {
-  const secret = req.headers.get("x-admin-secret");
-  if (secret !== process.env.ADMIN_SECRET) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (adminDebugEndpointsDisabled()) {
+    return new NextResponse(null, { status: 404 });
   }
+
+  const unauth = await requireAdmin(req);
+  if (unauth) return unauth;
 
   const stores = await prisma.store.findMany({
     select: {
@@ -33,7 +37,7 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({
     stores,
     dynamicPricingConfigs: configs,
-    envStoreId: process.env.TN_STORE_USER_ID,
-    envTokenSet: !!process.env.TN_ACCESS_TOKEN,
+    envStoreIdConfigured: !!process.env.TN_STORE_USER_ID?.trim(),
+    envTokenConfigured: !!process.env.TN_ACCESS_TOKEN?.trim(),
   });
 }

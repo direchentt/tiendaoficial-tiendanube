@@ -1,12 +1,17 @@
 node_modules/
 .cursor/
 .env
+.env.local
+.env.*.local
+*.pem
 .tiendanube/
 .DS_Store
 
 store-admin/node_modules/
 store-admin/.next/
 store-admin/.env
+store-admin/.env.local
+store-admin/.env.*.local
 store-admin/prisma/*.db
 store-admin/prisma/*.db-journal
 store-admin/prisma/prisma/

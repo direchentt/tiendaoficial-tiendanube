@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/require-admin";
+import { devOnlyDetail } from "@/lib/safe-client-message";
 import { tnFetch, type TiendanubeClientConfig } from "@/lib/tiendanube-client";
 
 /**
@@ -43,7 +44,7 @@ export async function GET(req: NextRequest) {
   } catch (e) {
     const detail = e instanceof Error ? e.message : String(e);
     return NextResponse.json(
-      { error: "Error al consultar Tiendanube", detail },
+      { error: "Error al consultar Tiendanube", ...devOnlyDetail(detail) },
       { status: 502 }
     );
   }
