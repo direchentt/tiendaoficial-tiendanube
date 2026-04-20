@@ -3486,10 +3486,14 @@ DOMContentLoaded.addEventOrExecute(() => {
                     watchOverflow: true,
                     {% if template == 'product' %}roundLengths: true,
                     {% endif %}spaceBetween: {% if template == 'product' %}0{% else %}25{% endif %},
+                    {% if template == 'product' %}
+                    pagination: false,
+                    {% else %}
                     pagination: {
                         el: '.js-swiper-product-pagination',
                         type: 'fraction',
                     },
+                    {% endif %}
                     navigation: {
                         nextEl: '.js-swiper-product-next',
                         prevEl: '.js-swiper-product-prev',

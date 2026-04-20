@@ -24,7 +24,10 @@
 					<svg class="icon-inline icon-lg"><use xlink:href="#arrow-long"/></svg>
 				</div>
 			</div>
+			{# PDP con strip de miniaturas: no 1/N (los thumbs cumplen rol de indicadores). #}
+			{% if not product_pdp_one_up %}
 			<div class="js-swiper-product-pagination swiper-pagination d-inline-block w-auto position-relative pt-3 text-left {{ product_grid_detail_md_class }}"></div>
+			{% endif %}
 		{% endif %}
 		<div class="js-swiper-product pdp-gallery-swiper swiper-container{% if product_grid_detail %} product-detail-slider{% endif %}" data-product-images-amount="{{ product.media_count }}">
             {% include 'snipplets/labels.tpl' with {product_detail: true, label_custom_class: product_grid_detail_md_class} %}

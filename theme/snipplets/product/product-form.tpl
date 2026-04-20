@@ -58,10 +58,17 @@
                 }) }}
                 {% endif %}
 
+                {% if template == 'product' and not home_main_product %}
+                {{ component('price-without-taxes', {
+                        container_classes: "mt-1 mb-1 pdp-price-without-taxes-subtle js-price-without-taxes-wrap",
+                    })
+                }}
+                {% else %}
                 {{ component('price-without-taxes', {
                         container_classes: "mt-1 mb-2 font-small opacity-60",
                     })
                 }}
+                {% endif %}
 
                 {% if template == 'product' and not home_main_product %}
                 {% include 'snipplets/prices/theme-transfer-price-line.tpl' with {
@@ -109,13 +116,6 @@
                         {% if settings.product_detail_installments and product.show_installments and product.display_price %}
                             {{ component('installments', {'location' : 'product_detail', container_classes: { installment: "font-small"}}) }}
                         {% endif %}
-                        <a id="btn-installments" class="d-inline-block btn-link mt-1 font-small" href="#" {% if not (product.get_max_installments and product.get_max_installments(false)) %}style="display: none;"{% endif %}>
-                            {% if not hasDiscount and not settings.product_detail_installments %}
-                                {{ "Ver medios de pago" | translate }}
-                            {% else %}
-                                {{ "Ver más detalles" | translate }}
-                            {% endif %}
-                        </a>
                     </div>
                 {% endif %}
             {% else %}
