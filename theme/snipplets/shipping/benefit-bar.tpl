@@ -1,4 +1,10 @@
 {% if settings.benefit_bar_enabled %}
+
+{# Extraer el monto de envío gratis directamente desde la tienda para que sea automático #}
+{% set dynamic_fs_min = cart.free_shipping.min_price_free_shipping.min_price_raw | default(0) %}
+{% set manual_fs_min = settings.benefit_bar_fs_min | default('80000') | replace({'.': '', ',': '', '$': ''}) %}
+{% set final_fs_min = dynamic_fs_min > 0 ? dynamic_fs_min : manual_fs_min %}
+
 <style>
 .benefit-prog-wrap {
     padding: 10px 15px 30px;
@@ -70,7 +76,7 @@
 </style>
 
 <div class="benefit-prog-wrap js-benefit-bar" 
-     data-fs-min="{{ settings.benefit_bar_fs_min | default('80000') | escape }}" 
+     data-fs-min="{{ final_fs_min | escape }}" 
      data-inst-min="{{ settings.benefit_bar_inst_min | default('150000') | escape }}"
      data-inst-lbl="{{ settings.benefit_bar_inst_amount | default('6 CUOTAS') | escape }}">
      
@@ -83,12 +89,12 @@
         
         <div class="benefit-prog-node js-benefit-fs-marker">
             <span style="display:block;">ENVÍO<br>GRATIS</span>
-            <div class="benefit-prog-amount js-benefit-fs-val">$80.000</div>
+            <div class="benefit-prog-amount js-benefit-fs-val">$0</div>
         </div>
         
         <div class="benefit-prog-node js-benefit-inst-marker">
-            <span class="js-benefit-inst-text" style="display:block;">{{ settings.benefit_bar_inst_amount | default('6 CUOTAS') | replace({' ': '<br>'}) | raw }}</span>
-            <div class="benefit-prog-amount js-benefit-inst-val">$150.000</div>
+            <span class="js-benefit-inst-text" style="display:block; max-width: 50px; white-space: normal;">{{ settings.benefit_bar_inst_amount | default('6 CUOTAS') }}</span>
+            <div class="benefit-prog-amount js-benefit-inst-val">$0</div>
         </div>
     </div>
 </div>
