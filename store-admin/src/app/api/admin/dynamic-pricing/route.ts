@@ -4,6 +4,17 @@ import { requireAdmin } from "@/lib/require-admin";
 import { ensureDefaultStore } from "@/lib/default-store";
 import { z } from "zod";
 
+function parseExcludedCategoryIds(raw: string | null | undefined): number[] {
+  if (raw == null || raw.trim() === "") return [];
+  try {
+    const v = JSON.parse(raw) as unknown;
+    if (!Array.isArray(v)) return [];
+    return v.filter((x): x is number => typeof x === "number" && Number.isInteger(x) && x > 0);
+  } catch {
+    return [];
+  }
+}
+
 const bodySchema = z.object({
   enabled: z.boolean().optional(),
   algorithm: z.enum(["seeded_random", "demand_based", "progressive"]).optional(),
@@ -17,37 +28,67 @@ export async function GET(req: NextRequest) {
   const unauth = await requireAdmin(req);
   if (unauth) return unauth;
 
-  const store = await ensureDefaultStore();
-  const config = await prisma.dynamicPricingConfig.findUnique({
-    where: { storeId: store.id },
-  });
-
-  if (!config) {
-    return NextResponse.json({
-      enabled: false,
-      algorithm: "seeded_random",
-      minPct: 5,
-      maxPct: 20,
-      cacheTtlHours: 4,
-      excludedCategoryIds: [],
-    });
+  let store;
+  try {
+    store = await ensureDefaultStore();
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "Tienda no configurada";
+    return NextResponse.json({ error: msg }, { status: 503 });
   }
 
-  return NextResponse.json({
-    ...config,
-    excludedCategoryIds: JSON.parse(config.excludedCategoryIds),
-  });
+  try {
+    const config = await prisma.dynamicPricingConfig.findUnique({
+      where: { storeId: store.id },
+    });
+
+    if (!config) {
+      return NextResponse.json({
+        enabled: false,
+        algorithm: "seeded_random",
+        minPct: 5,
+        maxPct: 20,
+        cacheTtlHours: 4,
+        excludedCategoryIds: [],
+      });
+    }
+
+    return NextResponse.json({
+      enabled: config.enabled,
+      algorithm: config.algorithm,
+      minPct: config.minPct,
+      maxPct: config.maxPct,
+      cacheTtlHours: config.cacheTtlHours,
+      excludedCategoryIds: parseExcludedCategoryIds(config.excludedCategoryIds),
+    });
+  } catch (e) {
+    const isDev = process.env.NODE_ENV === "development";
+    const msg = e instanceof Error ? e.message : "Error al leer la configuración";
+    return NextResponse.json(
+      { error: isDev ? msg : "Error al leer la configuración." },
+      { status: 500 }
+    );
+  }
 }
 
 export async function PUT(req: NextRequest) {
   const unauth = await requireAdmin(req);
   if (unauth) return unauth;
 
-  const store = await ensureDefaultStore();
+  let store;
+  try {
+    store = await ensureDefaultStore();
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "Tienda no configurada";
+    return NextResponse.json({ error: msg }, { status: 503 });
+  }
+
   const body = await req.json().catch(() => ({}));
   const parsed = bodySchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.flatten() }, { status: 422 });
+    const msg = parsed.error.issues
+      .map((i) => `${i.path.length ? i.path.join(".") : "dato"}: ${i.message}`)
+      .join("; ");
+    return NextResponse.json({ error: msg || "Datos inválidos" }, { status: 422 });
   }
 
   const { excludedCategoryIds, ...rest } = parsed.data;
@@ -58,14 +99,27 @@ export async function PUT(req: NextRequest) {
       : {}),
   };
 
-  const config = await prisma.dynamicPricingConfig.upsert({
-    where: { storeId: store.id },
-    create: { storeId: store.id, ...data },
-    update: data,
-  });
+  try {
+    const config = await prisma.dynamicPricingConfig.upsert({
+      where: { storeId: store.id },
+      create: { storeId: store.id, ...data },
+      update: data,
+    });
 
-  return NextResponse.json({
-    ...config,
-    excludedCategoryIds: JSON.parse(config.excludedCategoryIds),
-  });
+    return NextResponse.json({
+      enabled: config.enabled,
+      algorithm: config.algorithm,
+      minPct: config.minPct,
+      maxPct: config.maxPct,
+      cacheTtlHours: config.cacheTtlHours,
+      excludedCategoryIds: parseExcludedCategoryIds(config.excludedCategoryIds),
+    });
+  } catch (e) {
+    const isDev = process.env.NODE_ENV === "development";
+    const msg = e instanceof Error ? e.message : "Error al guardar";
+    return NextResponse.json(
+      { error: isDev ? msg : "No se pudo guardar la configuración." },
+      { status: 500 }
+    );
+  }
 }

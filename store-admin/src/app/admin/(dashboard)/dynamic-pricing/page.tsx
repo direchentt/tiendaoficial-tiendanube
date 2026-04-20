@@ -1,6 +1,6 @@
 "use client";
 import { adminFetch } from "@/lib/admin-fetch";
-
+import { formatAdminApiError } from "@/lib/format-admin-api-error";
 
 import { useEffect, useState } from "react";
 
@@ -54,18 +54,10 @@ export default function DynamicPricingPage() {
     let cancelled = false;
     adminFetch("/api/admin/dynamic-pricing")
       .then(async (r) => {
-        const data = await r.json().catch(() => ({}));
+        const data = await r.json().catch(() => null);
         if (cancelled) return;
         if (!r.ok) {
-          setLoadError(
-            typeof data?.error === "string"
-              ? data.detail
-                ? `${data.error}: ${data.detail}`
-                : data.error
-              : data?.detail
-                ? String(data.detail)
-                : `Error ${r.status} al cargar la configuración.`
-          );
+          setLoadError(formatAdminApiError(data, r.status));
           return;
         }
         if (data && typeof data.enabled === "boolean") {
@@ -101,8 +93,8 @@ export default function DynamicPricingPage() {
         body: JSON.stringify({ ...config, excludedCategoryIds }),
       });
       if (!r.ok) {
-        const err = await r.json().catch(() => ({}));
-        setError(JSON.stringify(err));
+        const err = await r.json().catch(() => null);
+        setError(formatAdminApiError(err, r.status));
       } else {
         const saved = await r.json();
         setConfig(saved);
