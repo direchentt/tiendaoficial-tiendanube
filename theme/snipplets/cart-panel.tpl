@@ -5,6 +5,9 @@
       {% for item in cart.items %}
         {% include "snipplets/cart-item-ajax.tpl" %}
       {% endfor %}
+      
+      {# Módulo de sugerencias upsell (fase 3 - carrito) #}
+      {% include "snipplets/cart-upsell.tpl" %}
     {% endif %}
 </div>
 <div class="js-empty-ajax-cart" {% if cart.items_count > 0 %}style="display:none;"{% endif %}>
