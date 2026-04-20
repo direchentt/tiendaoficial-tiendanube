@@ -3,8 +3,6 @@
   {% set show_benefit_bar = true %}
 {% elseif context == 'pdp' and settings.benefit_bar_pdp_enabled %}
   {% set show_benefit_bar = true %}
-{% elseif settings.benefit_bar_enabled %}
-  {% set show_benefit_bar = true %}
 {% endif %}
 
 {% if show_benefit_bar %}
