@@ -327,6 +327,13 @@
                 </div>
             {% endif %}
         </div>
+     </form>
+
+        {% if template == 'product' and settings.brand_pdp_store_sections_enable %}
+            <div class="mt-4 mb-3">
+                {% include "snipplets/cart-upsell.tpl" %}
+            </div>
+        {% endif %}
 
         {% if settings.brand_pdp_promos_below_purchase %}
             {% include 'snipplets/product/product-promos-section.tpl' %}
@@ -343,7 +350,6 @@
 
             {% include 'snipplets/product/product-pdp-highlights.tpl' %}
         {% endif %}
-     </form>
     {% if not home_main_product %}
     </section>
     {% endif %}
