@@ -103,11 +103,19 @@
   }
 
   function getCartTotal() {
-    // Tiendanube expone LS.cart.total o en el DOM
-    if (window.LS?.cart?.total) return parseFloat(window.LS.cart.total);
-    const el = document.querySelector("[data-store-cart-total]");
-    if (el) return parseFloat(el.textContent.replace(/[^0-9.]/g, ""));
-    return 0;
+    let sub = 0;
+    if (window.LS && window.LS.cart && typeof window.LS.cart.subtotal !== 'undefined') {
+       sub = window.LS.cart.subtotal;
+    } 
+    if (!sub || sub <= 0) {
+      const el = document.querySelector(".js-cart-subtotal, [data-store-cart-total]");
+      if (el) {
+        let text = el.textContent;
+        let intPart = text.split(',')[0].replace(/\D/g, '');
+        if (intPart) sub = parseInt(intPart, 10);
+      }
+    }
+    return sub || 0;
   }
 
   function getCurrentPageType() {
@@ -197,16 +205,23 @@
         }
       }
 
+      // Check current cart items
+      let cartItems = window.LS?.cart?.items || [];
+      // Fallback: if LS.cart isn't updated instantly, we might need to rely on the DOM or recent additions
+      
       // Apply gifts not yet in cart
       for (const gift of gifts) {
         if (this.appliedGiftIds.has(gift.id)) continue;
-        const sessionKey = `gift_applied_${gift.id}`;
-        if (lsGet(sessionKey)) continue;
+        
+        let giftInCart = cartItems.find((i) => i.id === gift.giftVariantId || i.product_id === gift.giftProductId);
+        if (giftInCart) {
+          this.appliedGiftIds.add(gift.id);
+          continue;
+        }
 
         try {
           await addToCart(gift.giftProductId, gift.giftVariantId, gift.giftQty);
           this.appliedGiftIds.add(gift.id);
-          lsSet(sessionKey, true, 30 * 60 * 1000); // 30 min session
           this.showGiftToast(gift.name || "¡Tu regalo fue agregado al carrito! 🎁");
         } catch (err) {
           console.warn("[HacheSuite][CartGift] Error agregando regalo:", err);

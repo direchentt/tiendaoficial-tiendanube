@@ -13,6 +13,22 @@ type BundleProduct = {
   quantity: number;
 };
 
+type TNVariant = { id: number; price: string; values?: { es?: string; pt?: string; en?: string }[] };
+type TNProduct = {
+  id: number;
+  name: string;
+  price: string;
+  images: string[];
+  variants: TNVariant[];
+};
+
+function variantLabel(v: TNVariant): string {
+  const parts = (v.values ?? [])
+    .map((x) => x.es ?? x.pt ?? x.en ?? "")
+    .filter(Boolean);
+  return parts.join(" / ") || `Variante ${v.id}`;
+}
+
 type Bundle = {
   id: string;
   name: string;
@@ -60,6 +76,50 @@ export default function BundlesPage() {
   const [success, setSuccess] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
 
+  // Picker states
+  const [search, setSearch] = useState("");
+  const [tnProducts, setTnProducts] = useState<TNProduct[]>([]);
+  const [loadingProducts, setLoadingProducts] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
+  const [searchEmpty, setSearchEmpty] = useState(false);
+
+  async function searchProducts(q: string) {
+    const trimmed = q.trim();
+    if (trimmed.length < 2) {
+      setTnProducts([]);
+      setSearchError(null);
+      setSearchEmpty(false);
+      return;
+    }
+    setLoadingProducts(true);
+    setSearchError(null);
+    setSearchEmpty(false);
+    try {
+      const r = await adminFetch(`/api/admin/tn-products?q=${encodeURIComponent(trimmed)}`);
+      const data = await r.json().catch(() => ({}));
+      if (r.ok) {
+        const list = Array.isArray(data.products) ? data.products : [];
+        setTnProducts(list);
+        setSearchEmpty(list.length === 0);
+      } else {
+        setTnProducts([]);
+        setSearchEmpty(false);
+        const msg = typeof data.error === "string" ? data.error : `Error al buscar`;
+        setSearchError(msg);
+      }
+    } catch {
+      setTnProducts([]);
+      setSearchError("No se pudo conectar con el buscador.");
+    } finally {
+      setLoadingProducts(false);
+    }
+  }
+
+  useEffect(() => {
+    const t = setTimeout(() => searchProducts(search), 400);
+    return () => clearTimeout(t);
+  }, [search]);
+
   async function fetchBundles() {
     const r = await adminFetch("/api/admin/bundles");
     if (r.ok) setBundles(await r.json());
@@ -80,9 +140,12 @@ export default function BundlesPage() {
     setError(null);
     setSuccess(null);
     try {
+      const finalTotalPrice = products.reduce((acc, p) => acc + (parseFloat(p.unitPrice) || 0) * (parseInt(p.quantity) || 1), 0);
+      const parsedComboPrice = parseFloat(form.comboPrice);
+
       const body = {
         ...form,
-        comboPrice: parseFloat(form.comboPrice),
+        comboPrice: !isNaN(parsedComboPrice) ? parsedComboPrice : finalTotalPrice,
         products: products.map((p) => ({
           productId: Number(p.productId),
           variantId: Number(p.variantId),
@@ -176,84 +239,96 @@ export default function BundlesPage() {
               />
             </Field>
 
-            {/* Products */}
+            {/* Product Picker UI */}
+            <div style={pickerFieldWrap}>
+              <label>Agregar producto al combo (buscar)</label>
+              <input
+                placeholder="Escribí al menos 2 caracteres (nombre, SKU o tag)..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+              {loadingProducts && <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginTop: "0.35rem" }}>Buscando…</p>}
+              {searchError && <p style={{ fontSize: "0.8rem", color: "var(--danger)", marginTop: "0.35rem" }}>{searchError}</p>}
+              {!loadingProducts && searchEmpty && search.trim().length >= 2 && (
+                <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginTop: "0.35rem" }}>
+                  No hay productos.
+                </p>
+              )}
+              {tnProducts.length > 0 && (
+                <div style={pickerDropdown}>
+                  {tnProducts.map((p) => (
+                    <div key={p.id} style={{ padding: "0.5rem", borderBottom: "1px solid var(--border)" }}>
+                      <div style={{ display: "flex", gap: "0.65rem", alignItems: "center" }}>
+                        {p.images[0] ? (
+                          <img src={p.images[0]} alt="" style={{ width: 32, height: 32, objectFit: "cover", borderRadius: 6 }} />
+                        ) : (
+                          <div style={{ width: 32, height: 32, borderRadius: 6, background: "var(--surface2)" }} />
+                        )}
+                        <div style={{ fontWeight: 600, fontSize: "0.85rem", flex: 1 }}>{p.name}</div>
+                      </div>
+                      <div style={{ paddingLeft: "42px", marginTop: "0.25rem", display: "flex", flexDirection: "column", gap: "0.25rem" }}>
+                        {p.variants.map((v) => (
+                          <button
+                            key={v.id}
+                            type="button"
+                            style={btnSecondary}
+                            onClick={() => {
+                              const newRow: ProductRow = {
+                                id: Math.random().toString(36).slice(2),
+                                productId: p.id,
+                                variantId: v.id,
+                                productName: p.name + (p.variants.length > 1 ? ` (${variantLabel(v)})` : ""),
+                                unitPrice: v.price,
+                                quantity: "1",
+                              };
+                              setProducts([...products, newRow]);
+                              setSearch("");
+                              setTnProducts([]);
+                            }}
+                          >
+                            + Agregar {variantLabel(v)} (${v.price})
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Products Array */}
             <div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.75rem" }}>
-                <label style={{ marginBottom: 0 }}>Productos del combo</label>
-                <button
-                  type="button"
-                  onClick={() => setProducts([...products, mkProduct()])}
-                  style={btnSecondary}
-                >
-                  + Agregar producto
-                </button>
+                <label style={{ marginBottom: 0 }}>Productos en este Combo</label>
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                {products.map((p, idx) => (
-                  <div key={p.id} style={productRowStyle}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
-                      <span style={{ fontSize: "0.75rem", color: "var(--text-muted)", fontWeight: 600 }}>
-                        Producto #{idx + 1}
-                      </span>
-                      {products.length > 1 && (
+              {products.length === 0 ? (
+                <div style={{ padding: "1rem", background: "var(--surface2)", borderRadius: 6, fontSize: "0.85rem", color: "var(--text-muted)", textAlign: "center" }}>
+                  Agregá productos usando el buscador de arriba.
+                </div>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                  {products.map((p, idx) => (
+                    <div key={p.id} style={productRowStyle}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
+                        <span style={{ fontSize: "0.8rem", fontWeight: 600 }}>{p.productName}</span>
                         <button
                           type="button"
                           onClick={() => setProducts(products.filter((x) => x.id !== p.id))}
                           style={{ ...btnDanger, padding: "0.2rem 0.45rem", fontSize: "0.7rem" }}
-                        >
-                          ✕
-                        </button>
-                      )}
+                        >✕ Quitar</button>
+                      </div>
+                      <div style={{ display: "flex", gap: "1rem" }}>
+                        <Field label="Cantidad">
+                          <input type="number" min="1" value={p.quantity} onChange={(e) => updateProduct(p.id, "quantity", e.target.value)} style={{ width: "80px" }} />
+                        </Field>
+                        <Field label="Precio Info ($)">
+                          <input type="number" value={p.unitPrice} readOnly style={{ width: "100px", background: "var(--surface)" }} title="Autocompletado desde la tienda" />
+                        </Field>
+                      </div>
                     </div>
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem" }}>
-                      <Field label="Nombre visible">
-                        <input
-                          placeholder="Remera UV"
-                          value={p.productName}
-                          onChange={(e) => updateProduct(p.id, "productName", e.target.value)}
-                          required
-                        />
-                      </Field>
-                      <Field label="Precio unitario ($)">
-                        <input
-                          type="number"
-                          min="0"
-                          step="0.01"
-                          placeholder="12000"
-                          value={p.unitPrice}
-                          onChange={(e) => updateProduct(p.id, "unitPrice", e.target.value)}
-                        />
-                      </Field>
-                      <Field label="Product ID (TN)">
-                        <input
-                          type="number"
-                          placeholder="123456"
-                          value={p.productId || ""}
-                          onChange={(e) => updateProduct(p.id, "productId", e.target.value)}
-                          required
-                        />
-                      </Field>
-                      <Field label="Variant ID (TN)">
-                        <input
-                          type="number"
-                          placeholder="789012"
-                          value={p.variantId || ""}
-                          onChange={(e) => updateProduct(p.id, "variantId", e.target.value)}
-                          required
-                        />
-                      </Field>
-                    </div>
-                    <Field label="Cantidad">
-                      <input
-                        type="number"
-                        min="1"
-                        value={p.quantity}
-                        onChange={(e) => updateProduct(p.id, "quantity", e.target.value)}
-                      />
-                    </Field>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Combo price */}
@@ -265,15 +340,14 @@ export default function BundlesPage() {
                 <strong>${totalUnitPrice.toLocaleString()}</strong>
               </div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <Field label="Precio del combo ($)">
+                <Field label="Precio final del Combo ($) (Opcional)">
                   <input
                     type="number"
                     min="0"
                     step="0.01"
-                    placeholder="18000"
+                    placeholder={`Total sin desc: ${totalUnitPrice}`}
                     value={form.comboPrice}
                     onChange={(e) => setForm({ ...form, comboPrice: e.target.value })}
-                    required
                     style={{ background: "var(--surface)" }}
                   />
                 </Field>
@@ -499,4 +573,20 @@ function alertStyle(type: "success" | "danger"): React.CSSProperties {
 const emptyStyle: React.CSSProperties = {
   textAlign: "center",
   padding: "2.5rem 1rem",
+};
+
+const pickerFieldWrap: React.CSSProperties = { position: "relative", zIndex: 20 };
+const pickerDropdown: React.CSSProperties = {
+  position: "absolute",
+  left: 0,
+  right: 0,
+  top: "100%",
+  marginTop: 4,
+  zIndex: 60,
+  background: "var(--surface)",
+  border: "1px solid var(--border)",
+  borderRadius: "var(--radius-sm)",
+  maxHeight: "340px",
+  overflowY: "auto",
+  boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
 };
