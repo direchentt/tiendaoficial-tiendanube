@@ -10,3 +10,9 @@ sale
 featured
 	name = Principal
 	description = El producto principal aparece en la página de inicio (1 producto).
+comp_pdp
+	name = Complementarios (ficha de producto)
+	description = Productos para sugerir como bundle o complemento en la ficha. Asignalos en Productos > Secciones. Opcional: restringir por handle de categoría en los ajustes del tema.
+alt_pdp
+	name = Alternativos (ficha de producto)
+	description = Productos sugeridos como alternativa o mismo estilo en la ficha. Misma carga y filtros que complementarios.

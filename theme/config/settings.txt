@@ -320,6 +320,29 @@ Encabezado
 		original = logo-transparent.jpg
 		title = Logo alternativo (opcional)
 	collapse
+		title = Logo y barra (efectos marca)
+	description
+		description = Animaciones solo sobre la imagen del logo (ideal PNG). El estilo del encabezado transparente solo aplica si activaste transparencia arriba.
+	checkbox
+		name = brand_header_glass_bar
+		description = Barra del logo con vidrio (glass): fondo difuminado y translúcido
+	dropdown
+		name = brand_logo_fx
+		description = Animación solo del logo (PNG)
+		values
+			none = Sin animación
+			chroma = Color en movimiento (suave)
+			spectral = Color en movimiento (intenso)
+			frost = Halo cristal solo detrás del logo
+			pulse = Pulso de luz y leve flotación
+	dropdown
+		name = brand_header_transparent_style
+		description = Cuando el encabezado es transparente
+		values
+			off = Sin refuerzo extra
+			veil = Velo oscuro + textos e íconos claros
+			minimal = Sin velo: solo íconos, enlaces y líneas en contraste (el logo se ve limpio)
+	collapse
 		title = Encabezado en celulares
 	dropdown
 		name = logo_position_mobile
@@ -2143,6 +2166,43 @@ Detalle de producto
 	checkbox
 		name = brand_pdp_promos_below_purchase
 		description = Promociones debajo del bloque de compra (CTA)
+	subtitle
+		subtitle = Secciones de tienda en la ficha (bundles)
+	description
+		description = Creá las secciones "Complementarios (ficha)" y "Alternativos (ficha)" en Productos > Secciones del administrador y asigná productos. Podés apagar cada carril, editar títulos y limitar por categoría (handle de la URL de la categoría, ej. partes-de-arriba).
+	checkbox
+		name = brand_pdp_store_sections_enable
+		description = Activar carriles desde secciones de tienda en la página de producto
+	checkbox
+		name = brand_pdp_store_section_complementary_show
+		description = Mostrar carril de complementarios (sección comp_pdp)
+	checkbox
+		name = brand_pdp_store_section_alternatives_show
+		description = Mostrar carril de alternativos (sección alt_pdp)
+	i18n_input
+		name = brand_pdp_store_section_complementary_title
+		description = Título del carril complementarios
+	i18n_input
+		name = brand_pdp_store_section_alternatives_title
+		description = Título del carril alternativos
+	range_number
+		name = brand_pdp_store_section_complementary_max
+		description = Cantidad máxima de productos (complementarios)
+		min = 4
+		max = 20
+	range_number
+		name = brand_pdp_store_section_alternatives_max
+		description = Cantidad máxima de productos (alternativos)
+		min = 4
+		max = 20
+	text
+		name = brand_pdp_store_section_complementary_category_handle
+		description = Solo mostrar complementarios si el producto está en esta categoría (handle, vacío = todas)
+		placeholder = ej. partes-de-arriba
+	text
+		name = brand_pdp_store_section_alternatives_category_handle
+		description = Solo mostrar alternativos si el producto está en esta categoría (handle, vacío = todas)
+		placeholder = ej. vestidos
 
 Carrito de compras
 	meta
