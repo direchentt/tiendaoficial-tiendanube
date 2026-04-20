@@ -1,11 +1,11 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { isAdminRequest } from "./admin-api-auth";
 
 /**
  * Convenience wrapper for API route handlers.
  * Usage: const unauth = await requireAdmin(req); if (unauth) return unauth;
  */
-export async function requireAdmin(req: NextRequest): Promise<NextResponse | null> {
+export async function requireAdmin(req: Request): Promise<NextResponse | null> {
   const isDev = process.env.NODE_ENV === "development";
 
   if (!process.env.ADMIN_SECRET?.trim()) {

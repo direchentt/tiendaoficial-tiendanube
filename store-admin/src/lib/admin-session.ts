@@ -7,10 +7,11 @@ export { COOKIE_NAME };
  * HMAC-SHA256 en hex (Web Crypto, compatible con Node en Server Components y route handlers).
  */
 export async function getSessionToken(adminSecret: string): Promise<string> {
+  const secret = adminSecret.trim();
   const enc = new TextEncoder();
   const key = await crypto.subtle.importKey(
     "raw",
-    enc.encode(adminSecret),
+    enc.encode(secret),
     { name: "HMAC", hash: "SHA-256" },
     false,
     ["sign"]
@@ -39,9 +40,11 @@ export async function verifySession(
   adminSecret: string | undefined,
   cookieValue: string | undefined
 ): Promise<boolean> {
-  if (!adminSecret || !cookieValue) {
+  const s = adminSecret?.trim();
+  const c = cookieValue?.trim();
+  if (!s || !c) {
     return false;
   }
-  const expected = await getSessionToken(adminSecret);
-  return timingSafeEqualUtf8(cookieValue, expected);
+  const expected = await getSessionToken(s);
+  return timingSafeEqualUtf8(c, expected);
 }

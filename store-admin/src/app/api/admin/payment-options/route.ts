@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { isAdminRequest } from "@/lib/admin-api-auth";
+import { requireAdmin } from "@/lib/require-admin";
 import {
   getPaymentProviderOptions,
   type TiendanubeClientConfig,
@@ -12,9 +12,8 @@ export const runtime = "nodejs";
  * Scope: read_payments. Documentacion: Business Rules + payment_providers/options.
  */
 export async function GET(req: Request) {
-  if (!(await isAdminRequest(req))) {
-    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-  }
+  const unauth = await requireAdmin(req);
+  if (unauth) return unauth;
 
   const userId = process.env.TN_STORE_USER_ID;
   const token = process.env.TN_ACCESS_TOKEN;

@@ -6,7 +6,7 @@ import { AdminLoginForm } from "./login-form";
 export const dynamic = "force-dynamic";
 
 export default async function AdminLoginPage() {
-  if (await verifySession(process.env.ADMIN_SECRET, cookies().get(COOKIE_NAME)?.value)) {
+  if (await verifySession(process.env.ADMIN_SECRET?.trim(), cookies().get(COOKIE_NAME)?.value)) {
     redirect("/admin");
   }
   return <AdminLoginForm />;

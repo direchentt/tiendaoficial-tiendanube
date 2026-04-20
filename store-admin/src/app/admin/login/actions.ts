@@ -11,7 +11,7 @@ export async function loginAction(
   formData: FormData
 ): Promise<LoginState> {
   const secret = String(formData.get("secret") ?? "").trim();
-  const envSecret = process.env.ADMIN_SECRET;
+  const envSecret = process.env.ADMIN_SECRET?.trim();
   if (!envSecret) {
     return { error: "ADMIN_SECRET no configurado en el servidor." };
   }
@@ -19,11 +19,13 @@ export async function loginAction(
     return { error: "Clave incorrecta." };
   }
   const token = await getSessionToken(envSecret);
+  const secure =
+    process.env.NODE_ENV === "production" || Boolean(process.env.RAILWAY_ENVIRONMENT);
   cookies().set(COOKIE_NAME, token, {
     httpOnly: true,
     sameSite: "lax",
     path: "/",
-    secure: process.env.NODE_ENV === "production",
+    secure,
     maxAge: 60 * 60 * 24 * 7,
   });
   redirect("/admin");

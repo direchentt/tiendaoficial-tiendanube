@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { isAdminRequest } from "@/lib/admin-api-auth";
+import { requireAdmin } from "@/lib/require-admin";
 import {
   getProductsPage,
   patchProductsStockPrice,
@@ -35,9 +35,8 @@ function parsePrice(p: string | null | undefined): number {
  * Proteger con ADMIN_SECRET; en produccion usar cola (Inngest, Bull) por rate limits de TN.
  */
 export async function POST(req: Request) {
-  if (!(await isAdminRequest(req))) {
-    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-  }
+  const unauth = await requireAdmin(req);
+  if (unauth) return unauth;
 
   const userId = process.env.TN_STORE_USER_ID;
   const token = process.env.TN_ACCESS_TOKEN;

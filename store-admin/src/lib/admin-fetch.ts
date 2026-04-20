@@ -15,6 +15,8 @@ export function adminFetch(url: string, init: RequestInit = {}): Promise<Respons
 
   if (key) {
     headers["x-admin-secret"] = key;
+    /* Algunos proxies/CDN tratan mejor Authorization que headers custom */
+    headers["Authorization"] = `Bearer ${key}`;
   }
 
   if (init.body && typeof init.body === "string" && !headers["Content-Type"] && !headers["content-type"]) {

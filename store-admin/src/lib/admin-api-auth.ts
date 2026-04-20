@@ -1,20 +1,32 @@
 import { COOKIE_NAME, verifySession } from "./admin-session";
 
-/** Rutas API admin: header x-admin-secret o cookie de sesion del panel. */
+/** Extrae token de `Authorization: Bearer <token>` (Postman, integraciones). */
+function bearerToken(authHeader: string | null): string | undefined {
+  if (!authHeader) return undefined;
+  const m = authHeader.match(/^\s*Bearer\s+(.+)$/i);
+  return m?.[1]?.trim();
+}
+
+/**
+ * Rutas API admin: `x-admin-secret`, `Authorization: Bearer` (mismo valor que ADMIN_SECRET),
+ * o cookie httpOnly de sesión tras /admin/login.
+ */
 export async function isAdminRequest(req: Request): Promise<boolean> {
-  const secret = process.env.ADMIN_SECRET;
+  const secret = process.env.ADMIN_SECRET?.trim();
   if (!secret) {
     return false;
   }
 
-  // 1. Header directo (para scripts/cron/testing)
-  const hdr = req.headers.get("x-admin-secret");
+  const hdr = req.headers.get("x-admin-secret")?.trim();
   if (hdr === secret) {
     return true;
   }
 
-  // 2. Cookie del browser — leemos del header Cookie del request directamente
-  //    (más confiable que cookies() de next/headers en Route Handlers)
+  const bearer = bearerToken(req.headers.get("authorization"));
+  if (bearer === secret) {
+    return true;
+  }
+
   const cookieHeader = req.headers.get("cookie") ?? "";
   const cookieVal = parseCookie(cookieHeader, COOKIE_NAME);
   if (cookieVal) {

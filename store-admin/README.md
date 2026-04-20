@@ -47,9 +47,10 @@ Panel y API para reglas que van mas alla del admin estandar de Tiendanube, apoya
 
 ### Si ves `{"error":"Unauthorized"}` en el panel o en Postman
 
-- **Rutas `/api/admin/*`**: tenés que (1) abrir `/admin/login` en el mismo dominio del backend e ingresar el valor de `ADMIN_SECRET`, o (2) enviar `x-admin-secret: <mismo valor que ADMIN_SECRET>` en cada request.
-- **Rutas `/api/storefront/*`** (las que usa `hache-suite.js`): no llevan secreto; si fallan, revisá `storeId` (debe coincidir con `tiendanubeUserId` en la tabla `Store` de Postgres) y que la tienda exista en la base.
-- Diagnóstico: `GET /api/admin/debug-auth` y `debug-store` solo en **desarrollo** (`npm run dev`) o en producción si definís **`ALLOW_ADMIN_DEBUG=1`** (y estás logueado en el panel). Sin el flag, responden **404** para no exponer rutas de diagnóstico.
+- **Rutas `/api/admin/*`**: el servidor acepta cookie de sesión (tras `/admin/login`), header **`x-admin-secret`**, o **`Authorization: Bearer`** con el mismo valor que `ADMIN_SECRET`. El panel envía `x-admin-secret` + `Authorization` desde `sessionStorage` y la cookie httpOnly.
+- En **Railway**, que `ADMIN_SECRET` no incluya comillas ni espacios extra (el código hace `trim`). Si cambiaste el secreto, volvé a **login** para alinear cookie y `sessionStorage`. Usá siempre el **HTTPS** del dominio del servicio.
+- **Rutas `/api/storefront/*`** (`hache-suite.js`): no usan `ADMIN_SECRET`; revisá `storeId` y la fila `Store` en Postgres.
+- Diagnóstico: `GET /api/admin/debug-auth` con **`ALLOW_ADMIN_DEBUG=1`** en prod (y sesión válida), o en `npm run dev`.
 7. **Deploy**: el build en Docker solo hace `prisma generate` + `next build` (sin tocar la DB). Al **arrancar** el contenedor, `npm run start:railway` ejecuta `prisma migrate deploy` y luego Next. En Railway marcá `DATABASE_URL` como disponible en **build** si el generate lo requiere en tu versión de Prisma.
 
 Archivos relevantes: `railway.toml`, `package.json` (`start:railway`, `postinstall`).
