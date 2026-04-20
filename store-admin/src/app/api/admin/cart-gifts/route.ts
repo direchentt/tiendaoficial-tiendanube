@@ -29,15 +29,34 @@ export async function POST(req: NextRequest) {
   const unauth = await requireAdmin(req);
   if (unauth) return unauth;
 
-  const store = await ensureDefaultStore();
+  let store;
+  try {
+    store = await ensureDefaultStore();
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "No se pudo cargar la tienda";
+    return NextResponse.json({ error: msg }, { status: 503 });
+  }
+
   const body = await req.json().catch(() => ({}));
   const parsed = bodySchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.flatten() }, { status: 422 });
+    const msg = parsed.error.issues
+      .map((i) => `${i.path.length ? i.path.join(".") : "dato"}: ${i.message}`)
+      .join("; ");
+    return NextResponse.json({ error: msg || "Datos inválidos" }, { status: 422 });
   }
 
-  const rule = await prisma.cartGiftRule.create({
-    data: { storeId: store.id, ...parsed.data },
-  });
-  return NextResponse.json(rule, { status: 201 });
+  try {
+    const rule = await prisma.cartGiftRule.create({
+      data: { storeId: store.id, ...parsed.data },
+    });
+    return NextResponse.json(rule, { status: 201 });
+  } catch (e) {
+    const isDev = process.env.NODE_ENV === "development";
+    const msg = e instanceof Error ? e.message : "Error al guardar";
+    return NextResponse.json(
+      { error: isDev ? msg : "No se pudo guardar la regla. Revisá la base de datos o los logs." },
+      { status: 500 }
+    );
+  }
 }

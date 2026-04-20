@@ -1,5 +1,6 @@
 "use client";
 import { adminFetch } from "@/lib/admin-fetch";
+import { formatAdminApiError } from "@/lib/format-admin-api-error";
 
 import { useEffect, useState, useCallback } from "react";
 
@@ -124,8 +125,8 @@ export default function GiftsPage() {
         body: JSON.stringify(body),
       });
       if (!r.ok) {
-        const err = await r.json().catch(() => ({}));
-        setError(err.error ?? JSON.stringify(err));
+        const err = await r.json().catch(() => null);
+        setError(formatAdminApiError(err, r.status));
       } else {
         setSuccess("✓ Regla creada");
         setForm(EMPTY_FORM);
