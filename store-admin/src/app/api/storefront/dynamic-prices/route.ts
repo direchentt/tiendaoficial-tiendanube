@@ -99,12 +99,13 @@ export async function GET(req: NextRequest) {
     .map((s) => parseInt(s.trim(), 10))
     .filter((n) => !isNaN(n) && n > 0);
 
-  const excludedIds: number[] = JSON.parse(config.excludedCategoryIds || "[]");
+  /** Lista guardada en Prisma como `excludedCategoryIds`; hoy se interpreta como IDs de producto TN a omitir. */
+  const excludedProductIds: number[] = JSON.parse(config.excludedCategoryIds || "[]");
 
   const prices: Record<string, { pct: number; multiplier: number }> = {};
 
   for (const pid of productIds) {
-    if (excludedIds.includes(pid)) continue;
+    if (excludedProductIds.includes(pid)) continue;
 
     let pct: number;
     switch (config.algorithm) {

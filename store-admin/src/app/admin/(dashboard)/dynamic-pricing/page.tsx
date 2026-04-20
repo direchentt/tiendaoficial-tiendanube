@@ -147,6 +147,25 @@ export default function DynamicPricingPage() {
           Mostrá precios con descuento en el storefront según el algoritmo elegido. Los precios se cachean en{" "}
           <code>localStorage</code> para una experiencia fluida sin requests repetidas.
         </p>
+        <div
+          style={{
+            marginTop: "1rem",
+            padding: "0.9rem 1rem",
+            fontSize: "0.82rem",
+            lineHeight: 1.55,
+            color: "var(--text)",
+            background: "rgba(234,179,8,0.12)",
+            border: "1px solid rgba(234,179,8,0.35)",
+            borderRadius: "var(--radius-sm)",
+          }}
+        >
+          <strong>Importante — checkout:</strong> este motor solo cambia lo que se ve en el tema (listado y ficha).
+          Tiendanube cobra en el checkout el precio real del producto en el catálogo. Si necesitás que el cliente pague
+          menos, usá promos / cupones nativos, o el endpoint{" "}
+          <code style={{ fontSize: "0.78rem" }}>POST /api/admin/apply-price-percent</code> (API oficial{" "}
+          <code>PATCH /products/stock-price</code>) para escribir precios reales en la tienda, con cuidado por stock y
+          límites de la API.
+        </div>
       </div>
 
       <form onSubmit={handleSave}>
@@ -237,14 +256,15 @@ export default function DynamicPricingPage() {
                 </p>
               </div>
               <div style={{ marginTop: "0.75rem" }}>
-                <label>IDs de categorías excluidas (separadas por coma)</label>
+                <label>IDs de productos excluidos (Tiendanube, separados por coma)</label>
                 <input
                   value={excludeInput}
                   onChange={(e) => setExcludeInput(e.target.value)}
                   placeholder="1234, 5678, 9012"
                 />
                 <p style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginTop: "0.4rem" }}>
-                  Los productos de estas categorías mostrarán su precio original.
+                  Esos IDs de producto no reciben descuento dinámico en el listado (el resto del catálogo en Tiendanube no
+                  cambia).
                 </p>
               </div>
             </div>

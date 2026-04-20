@@ -98,9 +98,19 @@ function themeRefreshTransferLines($root) {
             return;
         }
         var base = NaN;
-        var contentNum = Number($price.attr('content'));
-        if (isFinite(contentNum) && contentNum > 0) {
-            base = contentNum;
+        {# Precio ya mostrado con descuento dinámico (HacheSuite): la transferencia debe partir de ese monto. #}
+        var hsEffRaw = $price.attr('data-hs-effective-price');
+        if (hsEffRaw != null && hsEffRaw !== '') {
+            var hsEff = Number(hsEffRaw);
+            if (isFinite(hsEff) && hsEff > 0) {
+                base = hsEff;
+            }
+        }
+        if (!isFinite(base) || base <= 0) {
+            var contentNum = Number($price.attr('content'));
+            if (isFinite(contentNum) && contentNum > 0) {
+                base = contentNum;
+            }
         }
         if (!isFinite(base) || base <= 0) {
             base = Number($price.attr('data-product-price'));
@@ -118,6 +128,7 @@ function themeRefreshTransferLines($root) {
         $row.find('.js-theme-transfer-amount').first().text(formatMoneyRoundedNumber(transfer));
     });
 }
+window.themeRefreshTransferLines = themeRefreshTransferLines;
 
 {#/*============================================================================
   #Lazy load
@@ -3079,7 +3090,7 @@ DOMContentLoaded.addEventOrExecute(() => {
 	        var priceLabel = (variant.price_number != null && variant.price_number !== '' && !isNaN(Number(variant.price_number)))
 	            ? formatMoneyRoundedNumber(variant.price_number)
 	            : variant.price_short;
-	        parent.find('.js-price-display').text(priceLabel).show();
+	        parent.find('.js-price-display').removeAttr('data-hs-effective-price').text(priceLabel).show();
 	        parent.find('.js-price-display').attr("content", variant.price_number).data('productPrice', variant.price_number_raw);
             
             parent.find('.js-price-without-taxes').text(variant.price_without_taxes);

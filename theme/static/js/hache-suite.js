@@ -395,15 +395,23 @@
       if (window.LS?.product?.id) {
         const pid = String(window.LS.product.id);
         const priceData = this.priceMap[pid];
-        if (!priceData) return;
+        if (priceData) {
+          document.querySelectorAll(".js-price-display, [itemprop='price'], .product-price").forEach((el) => {
+            const rawText = el.textContent.replace(/[^0-9.,]/g, "").replace(",", ".");
+            const original = parseFloat(rawText);
+            if (!isFinite(original) || original === 0) return;
+            const discounted = Math.round(original * priceData.multiplier);
+            this.injectDynamicPrice(el, original, discounted, priceData.pct);
+          });
+        }
+      }
 
-        document.querySelectorAll(".js-price-display, [itemprop='price'], .product-price").forEach((el) => {
-          const rawText = el.textContent.replace(/[^0-9.,]/g, "").replace(",", ".");
-          const original = parseFloat(rawText);
-          if (!isFinite(original) || original === 0) return;
-          const discounted = Math.round(original * priceData.multiplier);
-          this.injectDynamicPrice(el, original, discounted, priceData.pct);
-        });
+      if (typeof window.themeRefreshTransferLines === "function" && window.jQueryNuvem) {
+        try {
+          window.themeRefreshTransferLines(window.jQueryNuvem(document));
+        } catch (_) {
+          /* store.js puede no estar cargado aún */
+        }
       }
     },
 
@@ -422,7 +430,9 @@
         ? "es-AR"
         : undefined;
       const fmt = (n) =>
-        (loc ? n.toLocaleString(loc, { maximumFractionDigits: 0, minimumFractionDigits: 0 }) : n.toLocaleString(undefined, { maximumFractionDigits: 0, minimumFractionDigits: 0 }));
+        loc
+          ? n.toLocaleString(loc, { maximumFractionDigits: 0, minimumFractionDigits: 0 })
+          : n.toLocaleString(undefined, { maximumFractionDigits: 0, minimumFractionDigits: 0 });
       wrapper.innerHTML = `
         <span style="font-weight:700;color:#22c55e;">${currency}${fmt(discounted)}</span>
         <span style="text-decoration:line-through;color:#888;font-size:0.85em;">${currency}${fmt(original)}</span>
@@ -434,6 +444,22 @@
 
       el.textContent = "";
       el.appendChild(wrapper);
+      el.setAttribute("data-hs-effective-price", String(discounted));
+
+      const root = el.closest(".js-item-product, .js-product-container, #single-product, .js-price-container");
+      if (root) {
+        const row = root.querySelector(".js-theme-transfer-computed");
+        if (row) {
+          const tpct = Number(row.getAttribute("data-transfer-pct"));
+          if (isFinite(tpct) && tpct > 0 && tpct < 100) {
+            const tval = Math.round((discounted * (100 - tpct)) / 100);
+            const amt = row.querySelector(".js-theme-transfer-amount");
+            if (amt) {
+              amt.textContent = currency + fmt(tval);
+            }
+          }
+        }
+      }
     },
   };
 
