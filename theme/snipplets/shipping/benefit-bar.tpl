@@ -10,7 +10,8 @@
 {% if show_benefit_bar %}
 
 {# Extraer el monto de envío gratis directamente desde la tienda para que sea automático #}
-{% set dynamic_fs_min = cart.free_shipping.min_price_free_shipping.min_price_raw | default(0) %}
+{% set dynamic_fs_min_raw = cart.free_shipping.min_price_free_shipping.min_price_raw | default(0) %}
+{% set dynamic_fs_min = dynamic_fs_min_raw > 0 ? (dynamic_fs_min_raw / 100) : 0 %}
 {% set manual_fs_min = settings.benefit_bar_fs_min | default('80000') %}
 {% set final_fs_min = dynamic_fs_min > 0 ? dynamic_fs_min : manual_fs_min %}
 
@@ -117,35 +118,33 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        // Enforce script scoping for duplicate snippets running
         if (window.benefitBarInitialized) return;
         window.benefitBarInitialized = true;
 
         const formatMoney = function(amount) {
             let n = parseFloat(amount);
             if (isNaN(n)) return "$0";
-            // Check if amount has decimals logically. E.g. 40000.5 => format differently? 
-            // In most cases we just round off to format as $ XXX.XXX
             return "$" + Math.round(n).toLocaleString('es-AR');
         };
 
-        function updateBenefitBars() {
-            let subtotal = 0;
-            if (window.LS && LS.cart && LS.cart.subtotal) {
-                subtotal = LS.cart.subtotal;
-            } else if (document.querySelector('.js-cart-subtotal')) {
-                let txt = document.querySelector('.js-cart-subtotal').textContent.replace(/\D/g,'');
-                if (txt) subtotal = parseInt(txt);
+        function getLiveSubtotal() {
+            let $node = document.querySelector('.js-cart-subtotal');
+            if ($node) {
+                let text = $node.textContent;
+                // Si viene como $ 120.000,00 nos quedamos con la parte antes de la coma
+                let intPart = text.split(',')[0].replace(/\D/g, '');
+                if (intPart) return parseInt(intPart);
             }
+            // Fallback para página de producto (cuando el carrito recién se abrio o está vacío)
+            let $pdpPrice = document.querySelector('.js-price-display[content]');
+            if ($pdpPrice) {
+               return parseFloat($pdpPrice.getAttribute('content')) || 0;
+            }
+            return 0;
+        }
 
-            // Fallback for Product Details Page.
-            if (subtotal === 0) {
-               let $pdpPrice = document.querySelector('.js-price-display[content]');
-               if ($pdpPrice) {
-                   subtotal = parseFloat($pdpPrice.getAttribute('content'));
-               }
-            }
-            if (isNaN(subtotal)) subtotal = 0;
+        function updateBenefitBars() {
+            let subtotal = getLiveSubtotal();
             
             const barContainers = document.querySelectorAll('.js-benefit-bar');
             barContainers.forEach(container => {
@@ -207,8 +206,8 @@
         
         let lastSubtotal = -1;
         setInterval(function() {
-            let currentSub = (window.LS && LS.cart && typeof LS.cart.subtotal !== 'undefined') ? LS.cart.subtotal : -2;
-            if (currentSub !== lastSubtotal) {
+            let currentSub = getLiveSubtotal();
+            if (currentSub !== lastSubtotal && currentSub > 0) {
                 lastSubtotal = currentSub;
                 updateBenefitBars();
             }
