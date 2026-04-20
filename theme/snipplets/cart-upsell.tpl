@@ -22,23 +22,23 @@
 {% set price_size = is_pdp ? '0.90rem' : '0.85rem' %}
 {% set btn_pad = is_pdp ? '9px 18px' : '7px 14px' %}
 
-<div class="cart-upsell-module" style="background: rgba(98, 108, 126, 0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.4); color: #fff; padding: {{ pad }}; border-radius: 16px; margin: 0 15px 20px 15px; box-shadow: 0 8px 32px rgba(0,0,0,0.15);">
-    <h5 style="text-align: center; font-size: 0.95rem; margin-bottom: 15px; font-weight: 400; color: rgba(255, 255, 255, 0.9); letter-spacing: normal;">
+<div class="cart-upsell-module" style="background: rgba(60, 70, 85, 0.55); backdrop-filter: blur(25px) saturate(1.2); -webkit-backdrop-filter: blur(25px) saturate(1.2); border: 1px solid rgba(255, 255, 255, 0.15); color: #fff; padding: {{ pad }}; border-radius: 15px; margin: 0 15px 20px 15px; box-shadow: rgba(0, 0, 0, 0.2) 0px 20px 50px 0px, rgba(255, 255, 255, 0.4) 0px 1px 2px 0px inset, rgba(255, 255, 255, 0.05) 0px -1px 2px 0px inset;">
+    <h5 style="text-align: center; font-size: 0.95rem; margin-bottom: 15px; font-weight: 400; color: #d0d0d0; letter-spacing: normal;">
         {{ settings.brand_pdp_store_section_complementary_title | default('Completá tu rutina') }}
     </h5>
     
     <div class="cart-upsell-scroll" style="display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 12px; padding-bottom: 5px; scrollbar-width: none;">
         {% for p in cart_upsells|take(6) %}
-            <div class="cart-upsell-item" style="flex: 0 0 {% if is_pdp %}95%{% else %}90%{% endif %}; scroll-snap-align: start; display: flex; align-items: center; justify-content: space-between; background: transparent; padding: 12px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.4);">
+            <div class="cart-upsell-item" style="flex: 0 0 {% if is_pdp %}95%{% else %}90%{% endif %}; scroll-snap-align: start; display: flex; align-items: center; justify-content: space-between; background-color: transparent; padding: 12px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.3);">
                 <div style="display: flex; align-items: center; gap: 14px;">
                     <a href="{{ p.url }}" title="{{ p.name }}" style="flex-shrink: 0; display: block;">
-                        {{ p.featured_image | product_image_url('small') | img_tag(p.featured_image.alt, {class: 'img-fluid', style: 'width: '~img_size~'; height: '~img_size~'; object-fit: cover; border-radius: 12px; display: block;'}) }}
+                        {{ p.featured_image | product_image_url('small') | img_tag(p.featured_image.alt, {class: 'img-fluid', style: 'width: '~img_size~'; height: '~img_size~'; object-fit: cover; border-radius: 10px; display: block;'}) }}
                     </a>
                     <div style="display: flex; flex-direction: column; line-height: 1.4;">
-                        <a href="{{ p.url }}" title="{{ p.name }}" style="color: #fff; font-size: {{ title_size }}; font-weight: 400; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; text-transform: none;">
+                        <a href="{{ p.url }}" title="{{ p.name }}" style="color: #d0d0d0; font-size: {{ title_size }}; font-weight: 400; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; text-transform: none;">
                             {{ p.name }}
                         </a>
-                        <span style="font-size: {{ price_size }}; color: rgba(255,255,255,0.8); margin-top: 4px; font-weight: 400; display: inline-block;">
+                        <span style="font-size: {{ price_size }}; color: #d0d0d0; margin-top: 4px; font-weight: 400; display: inline-block;">
                             {% if p.display_price %}
                                 {{ p.price | money }}
                             {% endif %}
@@ -51,7 +51,7 @@
                     {% if p.variants %}
                         <input type="hidden" name="variant_id" value="{{ p.variants[0].id }}">
                     {% endif %}
-                    <button type="submit" class="js-addtocart js-cart-upsell-btn" aria-label="Agregar" style="background: #fff; color: #000; border: 1px solid rgba(0,0,0,0.1); padding: 9px 18px; font-size: 0.85rem; font-weight: 500; border-radius: 30px; cursor: pointer; transition: all 0.2s;">
+                    <button type="submit" class="js-addtocart js-cart-upsell-btn" aria-label="Agregar" style="background-color: #ffffff; color: #121212; border: 1px solid #ffffff; padding: 9px 18px; font-size: 0.85rem; font-weight: 500; border-radius: 50px; cursor: pointer; transition: all 0.2s;">
                         Agregar
                     </button>
                     <div class="js-addtocart-success" style="display: none; color: #22c55e; font-size: 0.7rem; font-weight: 700;">¡Listo!</div>
