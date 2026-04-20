@@ -331,7 +331,7 @@
 
         {% if template == 'product' and settings.brand_pdp_store_sections_enable %}
             <div class="mt-4 mb-3">
-                {% include "snipplets/cart-upsell.tpl" %}
+                {% include "snipplets/cart-upsell.tpl" with { is_pdp: true } %}
             </div>
         {% endif %}
 
