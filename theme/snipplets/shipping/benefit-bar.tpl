@@ -2,7 +2,7 @@
 
 {# Extraer el monto de envío gratis directamente desde la tienda para que sea automático #}
 {% set dynamic_fs_min = cart.free_shipping.min_price_free_shipping.min_price_raw | default(0) %}
-{% set manual_fs_min = settings.benefit_bar_fs_min | default('80000') | replace({'.': '', ',': '', '$': ''}) %}
+{% set manual_fs_min = settings.benefit_bar_fs_min | default('80000') %}
 {% set final_fs_min = dynamic_fs_min > 0 ? dynamic_fs_min : manual_fs_min %}
 
 <style>
