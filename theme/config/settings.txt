@@ -2318,3 +2318,28 @@ Página de Login y Cuenta
 	subtitle
 		subtitle = Si configurás un link a video MP4, reemplazará a la imagen en silencio y repetición infinita, creando un efecto premium dinámico.
 
+Categoría Privada VIP
+	meta
+		icon = lock
+		advanced = true
+	title
+		title = Proteger Colección Exclusiva
+	description
+		description = Elegí una categoría para blindar de cara al público. Cuando alguien intente entrar a esta colección, se le pedirá una clave secreta.
+	checkbox
+		name = vip_category_enabled
+		description = Activar protección con clave
+	i18n_input
+		name = vip_category_handle
+		description = Nombre exacto o URL de la categoría a bloquear.
+		placeholder = Ej: mayorista, nueva-coleccion, rebajas-privadas
+	text
+		name = vip_category_password
+		description = Contraseña secreta para entrar
+		placeholder = Ej: TENDENCIA2026
+	i18n_input
+		name = vip_category_message
+		description = Mensaje explicativo para el cliente
+		placeholder = Ej: Colección Prêt-à-porter exclusiva. Ingresá la clave.
+
+
