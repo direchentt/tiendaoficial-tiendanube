@@ -11,6 +11,22 @@ import fs from "node:fs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const storeAdminRoot = path.resolve(__dirname, "..");
+
+/** Misma lógica que `src/lib/sanitize-database-url.ts` (Prisma en Next no corre acá). */
+function sanitizeDatabaseUrlInPlace() {
+  const v = process.env.DATABASE_URL;
+  if (typeof v !== "string" || !v) return;
+  let u = v.trim();
+  if ((u.startsWith('"') && u.endsWith('"')) || (u.startsWith("'") && u.endsWith("'"))) {
+    u = u.slice(1, -1).trim();
+  }
+  if (u.startsWith("ppostgresql://")) {
+    u = `postgresql://${u.slice("ppostgresql://".length)}`;
+  }
+  process.env.DATABASE_URL = u;
+}
+sanitizeDatabaseUrlInPlace();
+
 const nextEntry = path.join(storeAdminRoot, "node_modules", "next", "dist", "bin", "next");
 const prismaEntry = path.join(storeAdminRoot, "node_modules", "prisma", "build", "index.js");
 const buildIdPath = path.join(storeAdminRoot, ".next", "BUILD_ID");

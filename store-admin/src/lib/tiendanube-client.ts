@@ -22,7 +22,7 @@ function baseUrl(config: TiendanubeClientConfig): string {
     config.host === "nuvemshop"
       ? "api.nuvemshop.com.br"
       : "api.tiendanube.com";
-  return `https://${domain}/${TN_API_VERSION}/${config.storeUserId}`;
+  return `https://${domain}/${TN_API_VERSION}/${config.storeUserId.trim()}`;
 }
 
 export async function tnFetch<T>(
@@ -30,13 +30,16 @@ export async function tnFetch<T>(
   path: string,
   init?: RequestInit
 ): Promise<T> {
+  const token = config.accessToken.trim();
+  const ua = config.userAgent.trim();
   const url = `${baseUrl(config)}${path.startsWith("/") ? path : `/${path}`}`;
   const res = await fetch(url, {
     ...init,
     headers: {
       "Content-Type": "application/json; charset=utf-8",
-      Authentication: `bearer ${config.accessToken}`,
-      "User-Agent": config.userAgent,
+      /* TN exige este header (no "Authorization"); bearer en minúsculas. */
+      Authentication: `bearer ${token}`,
+      "User-Agent": ua,
       ...init?.headers,
     },
   });

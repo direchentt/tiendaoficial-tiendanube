@@ -60,9 +60,38 @@ export default async function PaymentOptionsPage() {
         <code>providerId</code> + <code>optionId</code> en las reglas de exclusion.
       </p>
       {err ? (
-        <p role="alert" style={{ color: "#b00020" }}>
-          {err}
-        </p>
+        <div role="alert" style={{ color: "#b00020" }}>
+          <p style={{ marginBottom: "0.5rem" }}>{err}</p>
+          {(err.includes("401") || err.toLowerCase().includes("unauthorized")) && (
+            <ul
+              style={{
+                fontSize: "0.88rem",
+                color: "#333",
+                maxWidth: "40rem",
+                lineHeight: 1.45,
+                paddingLeft: "1.1rem",
+              }}
+            >
+              <li>
+                <code>TN_ACCESS_TOKEN</code> tiene que ser el <strong>access_token</strong> del flujo OAuth
+                de tu app (no el token del theme ni la API key del admin).
+              </li>
+              <li>
+                <code>TN_STORE_USER_ID</code> debe ser el <strong>user_id</strong> de esa misma respuesta (misma
+                tienda que el token).
+              </li>
+              <li>
+                En el portal de partners, la app necesita el scope <code>read_payments</code>; si lo agregaste
+                después, reinstalá / reautorizá la app en la tienda y volvé a pegar el token nuevo en Railway y
+                en <code>store-admin/.env</code>.
+              </li>
+              <li>
+                Tienda en Brasil: definí <code>TN_API_HOST=nuvemshop</code> (host <code>api.nuvemshop.com.br</code>
+                ).
+              </li>
+            </ul>
+          )}
+        </div>
       ) : null}
       <div style={{ overflowX: "auto" }}>
         <table style={{ borderCollapse: "collapse", fontSize: "0.85rem", width: "100%" }}>

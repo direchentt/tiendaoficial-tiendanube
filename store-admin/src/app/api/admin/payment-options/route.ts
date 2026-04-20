@@ -15,9 +15,9 @@ export async function GET(req: Request) {
   const unauth = await requireAdmin(req);
   if (unauth) return unauth;
 
-  const userId = process.env.TN_STORE_USER_ID;
-  const token = process.env.TN_ACCESS_TOKEN;
-  const ua = process.env.TN_USER_AGENT;
+  const userId = process.env.TN_STORE_USER_ID?.trim();
+  const token = process.env.TN_ACCESS_TOKEN?.trim();
+  const ua = process.env.TN_USER_AGENT?.trim();
   if (!userId || !token || !ua) {
     return NextResponse.json(
       { error: "missing_env", need: ["TN_STORE_USER_ID", "TN_ACCESS_TOKEN", "TN_USER_AGENT"] },
