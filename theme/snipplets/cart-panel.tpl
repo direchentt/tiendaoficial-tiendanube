@@ -1,5 +1,5 @@
 <div class="js-ajax-cart-list">
-    {% include "snipplets/shipping/benefit-bar.tpl" %}
+    {% include "snipplets/shipping/benefit-bar.tpl" with { context: 'cart' } %}
     {# Cart panel items #}
     {% if cart.items %}
       {% for item in cart.items %}

@@ -1,4 +1,13 @@
-{% if settings.benefit_bar_enabled %}
+{% set show_benefit_bar = false %}
+{% if context == 'cart' and settings.benefit_bar_cart_enabled %}
+  {% set show_benefit_bar = true %}
+{% elseif context == 'pdp' and settings.benefit_bar_pdp_enabled %}
+  {% set show_benefit_bar = true %}
+{% elseif settings.benefit_bar_enabled %}
+  {% set show_benefit_bar = true %}
+{% endif %}
+
+{% if show_benefit_bar %}
 
 {# Extraer el monto de envío gratis directamente desde la tienda para que sea automático #}
 {% set dynamic_fs_min = cart.free_shipping.min_price_free_shipping.min_price_raw | default(0) %}
@@ -7,10 +16,10 @@
 
 <style>
 .benefit-prog-wrap {
-    padding: 10px 15px 30px;
-    background: transparent;
-    margin-bottom: 10px;
+    padding: 15px 5px 40px 5px; /* Más espacio abajo para los montos y costados para alinear */
+    margin-bottom: 20px;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    width: 100%;
 }
 .benefit-prog-title {
     text-align: center;
@@ -19,6 +28,10 @@
     margin-bottom: 25px;
     color: #000;
     letter-spacing: -0.01em;
+}
+.benefit-prog-inner {
+    position: relative;
+    padding: 0 35px; /* Margen horizontal para que los globos no toquen el borde de la pantalla */
 }
 .benefit-prog-track {
     position: relative;
@@ -42,21 +55,21 @@
     top: 50%;
     transform: translate(-50%, -50%);
     background: #fff;
-    border: 2.5px solid #888;
-    border-radius: 10px;
+    border: 1.5px solid #888;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
-    font-size: 0.65rem;
+    font-size: 11px;
     font-weight: 600;
     letter-spacing: 0.02em;
-    padding: 4px;
+    padding: 2px 5px;
     line-height: 1.15;
     transition: border-color 0.4s ease, color 0.4s ease;
     z-index: 2;
-    min-width: 60px;
-    height: 56px;
+    min-width: 55px;
+    height: 48px;
     color: #000;
 }
 .benefit-prog-node.reached {
@@ -67,8 +80,8 @@
     top: 100%;
     left: 50%;
     transform: translateX(-50%);
-    margin-top: 10px;
-    font-size: 0.85rem;
+    margin-top: 12px;
+    font-size: 13px;
     color: #000;
     font-weight: 600;
     white-space: nowrap;
@@ -78,35 +91,43 @@
 <div class="benefit-prog-wrap js-benefit-bar" 
      data-fs-min="{{ final_fs_min | escape }}" 
      data-inst-min="{{ settings.benefit_bar_inst_min | default('150000') | escape }}"
-     data-inst-lbl="{{ settings.benefit_bar_inst_amount | default('6 CUOTAS') | escape }}">
+     data-inst-lbl="{{ settings.benefit_bar_inst_amount | default('3 cuotas sin interés') | escape }}">
      
     <div class="benefit-prog-title js-benefit-bar-text">
         <!-- JS fills this -->
     </div>
     
-    <div class="benefit-prog-track">
-        <div class="benefit-prog-fill js-benefit-bar-fill" style="width: 0%; max-width: calc(100% - 3px);"></div>
-        
-        <div class="benefit-prog-node js-benefit-fs-marker">
-            <span style="display:block;">ENVÍO<br>GRATIS</span>
-            <div class="benefit-prog-amount js-benefit-fs-val">$0</div>
-        </div>
-        
-        <div class="benefit-prog-node js-benefit-inst-marker">
-            <span class="js-benefit-inst-text" style="display:block; max-width: 50px; white-space: normal;">{{ settings.benefit_bar_inst_amount | default('6 CUOTAS') }}</span>
-            <div class="benefit-prog-amount js-benefit-inst-val">$0</div>
+    <div class="benefit-prog-inner">
+        <div class="benefit-prog-track">
+            <div class="benefit-prog-fill js-benefit-bar-fill" style="width: 0%; max-width: calc(100% - 3px);"></div>
+            
+            <div class="benefit-prog-node js-benefit-inst-marker">
+                <span class="js-benefit-inst-text" style="display:block; max-width: 50px; white-space: normal;">{{ settings.benefit_bar_inst_amount | default('3 cuotas sin interés') }}</span>
+                <div class="benefit-prog-amount js-benefit-inst-val">$0</div>
+            </div>
+
+            <div class="benefit-prog-node js-benefit-fs-marker">
+                <span style="display:block;">ENVÍO<br>GRATIS</span>
+                <div class="benefit-prog-amount js-benefit-fs-val">$0</div>
+            </div>
+            
         </div>
     </div>
 </div>
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        const barContainers = document.querySelectorAll('.js-benefit-bar');
-        if (!barContainers.length) return;
-        
-        function formatMoney(amount) {
-            return "$" + Math.round(amount).toLocaleString('es-AR');
-        }
+        // Enforce script scoping for duplicate snippets running
+        if (window.benefitBarInitialized) return;
+        window.benefitBarInitialized = true;
+
+        const formatMoney = function(amount) {
+            let n = parseFloat(amount);
+            if (isNaN(n)) return "$0";
+            // Check if amount has decimals logically. E.g. 40000.5 => format differently? 
+            // In most cases we just round off to format as $ XXX.XXX
+            return "$" + Math.round(n).toLocaleString('es-AR');
+        };
 
         function updateBenefitBars() {
             let subtotal = 0;
@@ -117,6 +138,7 @@
                 if (txt) subtotal = parseInt(txt);
             }
 
+            // Fallback for Product Details Page.
             if (subtotal === 0) {
                let $pdpPrice = document.querySelector('.js-price-display[content]');
                if ($pdpPrice) {
@@ -125,13 +147,14 @@
             }
             if (isNaN(subtotal)) subtotal = 0;
             
+            const barContainers = document.querySelectorAll('.js-benefit-bar');
             barContainers.forEach(container => {
                 const fsMinStr = container.getAttribute('data-fs-min').replace(/\D/g,'');
                 const instMinStr = container.getAttribute('data-inst-min').replace(/\D/g,'');
                 
                 let fsMin = fsMinStr ? parseInt(fsMinStr) : 80000;
                 let instMin = instMinStr ? parseInt(instMinStr) : 150000;
-                let instLbl = container.getAttribute('data-inst-lbl') || '6 CUOTAS';
+                let instLbl = container.getAttribute('data-inst-lbl') || '3 cuotas sin interés';
                 
                 let milestones = [
                     { name: 'fs', val: fsMin, lbl: 'Envío Gratis', short: 'envío gratuito' },

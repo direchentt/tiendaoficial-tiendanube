@@ -2349,8 +2349,11 @@ Barra de Progreso de Beneficios
 	title
 		title = Barra de Envíos y Cuotas
 	checkbox
-		name = benefit_bar_enabled
-		description = Mostrar barra interactiva para llegar a los beneficios (faltan $X para envío/cuotas).
+		name = benefit_bar_pdp_enabled
+		description = Mostrar barra interactiva en la Página de Producto (PDP).
+	checkbox
+		name = benefit_bar_cart_enabled
+		description = Mostrar barra interactiva en el Carrito (panel lateral y página).
 	text
 		name = benefit_bar_fs_min
 		description = Monto mínimo Envío Gratis (sólo números, ej: 80000). Si configuraste envío gratuito en tu tienda, poné ese mismo valor.
