@@ -13,30 +13,31 @@
 {% set manual_fs_min = settings.benefit_bar_fs_min | default('80000') %}
 {% set final_fs_min = dynamic_fs_min > 0 ? dynamic_fs_min : manual_fs_min %}
 
+{# Color base del administrador #}
+{% set bb_color = settings.benefit_bar_color | default('#000000') %}
+
 <style>
 .benefit-prog-wrap {
-    padding: 15px 5px 40px 5px; /* Más espacio abajo para los montos y costados para alinear */
+    padding: 10px 5px 35px 5px; 
     margin-bottom: 20px;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     width: 100%;
 }
 .benefit-prog-title {
     text-align: center;
-    font-size: 1rem;
-    font-weight: 400;
-    margin-bottom: 25px;
-    color: #000;
-    letter-spacing: -0.01em;
+    font-size: 0.8em;
+    font-weight: 500;
+    margin-bottom: 20px;
+    color: {{ bb_color }};
 }
 .benefit-prog-inner {
     position: relative;
-    padding: 0 35px; /* Margen horizontal para que los globos no toquen el borde de la pantalla */
+    padding: 0 40px; 
 }
 .benefit-prog-track {
     position: relative;
     width: 100%;
-    height: 18px;
-    border: 1.5px solid #000;
+    height: 16px;
+    border: 1.5px solid {{ bb_color }};
     border-radius: 10px;
     background: transparent;
 }
@@ -44,8 +45,8 @@
     position: absolute;
     top: 1.5px;
     left: 1.5px;
-    height: 12px;
-    background: #000;
+    height: 10px;
+    background: {{ bb_color }};
     border-radius: 20px;
     transition: width 0.4s ease-out;
 }
@@ -54,34 +55,35 @@
     top: 50%;
     transform: translate(-50%, -50%);
     background: #fff;
-    border: 1.5px solid #888;
+    border: 1.5px solid {{ bb_color }};
     border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 600;
     letter-spacing: 0.02em;
-    padding: 2px 5px;
-    line-height: 1.15;
+    padding: 2px 4px;
+    line-height: 1.1;
     transition: border-color 0.4s ease, color 0.4s ease;
     z-index: 2;
-    min-width: 55px;
-    height: 48px;
-    color: #000;
+    min-width: 50px;
+    height: 44px;
+    color: {{ bb_color }};
+    opacity: 0.6; /* Slight transparency for unreached */
 }
 .benefit-prog-node.reached {
-    border-color: #000;
+    opacity: 1; /* Fully opaque on reach */
 }
 .benefit-prog-amount {
     position: absolute;
     top: 100%;
     left: 50%;
     transform: translateX(-50%);
-    margin-top: 12px;
-    font-size: 13px;
-    color: #000;
+    margin-top: 10px;
+    font-size: 12px;
+    color: {{ bb_color }};
     font-weight: 600;
     white-space: nowrap;
 }
@@ -92,7 +94,7 @@
      data-inst-min="{{ settings.benefit_bar_inst_min | default('150000') | escape }}"
      data-inst-lbl="{{ settings.benefit_bar_inst_amount | default('3 cuotas sin interés') | escape }}">
      
-    <div class="benefit-prog-title js-benefit-bar-text">
+    <div class="benefit-prog-title js-benefit-bar-text h6">
         <!-- JS fills this -->
     </div>
     
@@ -101,7 +103,7 @@
             <div class="benefit-prog-fill js-benefit-bar-fill" style="width: 0%; max-width: calc(100% - 3px);"></div>
             
             <div class="benefit-prog-node js-benefit-inst-marker">
-                <span class="js-benefit-inst-text" style="display:block; max-width: 50px; white-space: normal;">{{ settings.benefit_bar_inst_amount | default('3 cuotas sin interés') }}</span>
+                <span class="js-benefit-inst-text" style="display:block; max-width: 45px; white-space: normal;">{{ settings.benefit_bar_inst_amount | default('3 cuotas sin interés') }}</span>
                 <div class="benefit-prog-amount js-benefit-inst-val">$0</div>
             </div>
 
@@ -129,11 +131,9 @@
             let $node = document.querySelector('.js-cart-subtotal');
             if ($node) {
                 let text = $node.textContent;
-                // Si viene como $ 120.000,00 nos quedamos con la parte antes de la coma
                 let intPart = text.split(',')[0].replace(/\D/g, '');
                 if (intPart) return parseInt(intPart);
             }
-            // Fallback para página de producto (cuando el carrito recién se abrio o está vacío)
             let $pdpPrice = document.querySelector('.js-price-display[content]');
             if ($pdpPrice) {
                return parseFloat($pdpPrice.getAttribute('content')) || 0;
@@ -154,7 +154,7 @@
                 let instLbl = container.getAttribute('data-inst-lbl') || '3 cuotas sin interés';
                 
                 let milestones = [
-                    { name: 'fs', val: fsMin, lbl: 'Envío Gratis', short: 'envío gratuito' },
+                    { name: 'fs', val: fsMin, lbl: 'Envío Gratis', short: 'envío gratis' },
                     { name: 'inst', val: instMin, lbl: instLbl, short: instLbl.toLowerCase() }
                 ].sort((a,b) => a.val - b.val);
                 
@@ -183,7 +183,7 @@
                 $fill.style.width = 'calc(' + fillPct + '% - 3px)';
                 
                 if (subtotal >= m2.val) {
-                    $text.innerHTML = '¡Ya obtuviste envío gratuito y ' + m2.short + '!';
+                    $text.innerHTML = '¡Ya alcanzaste cuotas sin interés y envío gratis!';
                     if ($m1) $m1.classList.add('reached');
                     if ($m2) $m2.classList.add('reached');
                 } else if (subtotal >= m1.val) {

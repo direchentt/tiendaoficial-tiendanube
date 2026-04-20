@@ -2354,6 +2354,9 @@ Barra de Progreso de Beneficios
 	checkbox
 		name = benefit_bar_cart_enabled
 		description = Mostrar barra interactiva en el Carrito (panel lateral y página).
+	color
+		name = benefit_bar_color
+		description = Color de las líneas, barra de progreso y globos (por defecto #000000).
 	text
 		name = benefit_bar_fs_min
 		description = Monto mínimo Envío Gratis (sólo números, ej: 80000). Si configuraste envío gratuito en tu tienda, poné ese mismo valor.
