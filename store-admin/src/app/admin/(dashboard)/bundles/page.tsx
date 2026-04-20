@@ -69,7 +69,7 @@ const EMPTY_FORM = {
 export default function BundlesPage() {
   const [bundles, setBundles] = useState<Bundle[]>([]);
   const [form, setForm] = useState(EMPTY_FORM);
-  const [products, setProducts] = useState<ProductRow[]>([mkProduct()]);
+  const [products, setProducts] = useState<ProductRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -140,13 +140,20 @@ export default function BundlesPage() {
     setError(null);
     setSuccess(null);
     try {
-      const finalTotalPrice = products.reduce((acc, p) => acc + (parseFloat(p.unitPrice) || 0) * (parseInt(p.quantity) || 1), 0);
+      const validProducts = products.filter(p => p.productId > 0);
+      if (validProducts.length === 0) {
+        setError("Debés agregar al menos 1 producto al combo.");
+        setSaving(false);
+        return;
+      }
+
+      const finalTotalPrice = validProducts.reduce((acc, p) => acc + (parseFloat(p.unitPrice) || 0) * (parseInt(p.quantity) || 1), 0);
       const parsedComboPrice = parseFloat(form.comboPrice);
 
       const body = {
         ...form,
         comboPrice: !isNaN(parsedComboPrice) ? parsedComboPrice : finalTotalPrice,
-        products: products.map((p) => ({
+        products: validProducts.map((p) => ({
           productId: Number(p.productId),
           variantId: Number(p.variantId),
           productName: p.productName,
@@ -164,7 +171,7 @@ export default function BundlesPage() {
       } else {
         setSuccess("Bundle creado exitosamente");
         setForm(EMPTY_FORM);
-        setProducts([mkProduct()]);
+        setProducts([]);
         fetchBundles();
       }
     } finally {
