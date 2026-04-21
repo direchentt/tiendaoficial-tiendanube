@@ -1210,6 +1210,41 @@ pt "Não foi possível carregar seus favoritos. Tente novamente mais tarde."
 en "We couldn't load your favorites. Please try again later."
 es_mx "No pudimos cargar tus favoritos. Intenta de nuevo más tarde."
 
+es "Los productos que marcaste con el corazón al navegar la tienda aparecen acá, igual que en el catálogo."
+pt "Os produtos que você marcou com o coração ao navegar na loja aparecem aqui, como no catálogo."
+en "Products you saved with the heart while browsing show up here, like in the catalog."
+es_mx "Los productos que marcaste con el corazón al navegar la tienda aparecen acá, igual que en el catálogo."
+
+es "Así podemos mostrarte tu lista personal y mantenerla sincronizada."
+pt "Assim podemos mostrar sua lista pessoal e mantê-la sincronizada."
+en "That way we can show your personal list and keep it in sync."
+es_mx "Así podemos mostrar tu lista personal y mantenerla sincronizada."
+
+es "Ver producto"
+pt "Ver produto"
+en "View product"
+es_mx "Ver producto"
+
+es "Novedades"
+pt "Novidades"
+en "New in"
+es_mx "Novedades"
+
+es "Novedades de la tienda"
+pt "Novidades da loja"
+en "Store news"
+es_mx "Novedades de la tienda"
+
+es "Sin lanzamientos recientes en este periodo."
+pt "Sem lançamentos recentes neste período."
+en "No recent launches in this period."
+es_mx "Sin lanzamientos recientes en este periodo."
+
+es "Últimos ingresos"
+pt "Últimos lançamentos"
+en "Latest arrivals"
+es_mx "Últimos ingresos"
+
 --- --- Labels
 
 es "Sin stock"

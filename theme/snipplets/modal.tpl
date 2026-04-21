@@ -23,6 +23,9 @@
 #}
 
 {% set modal_header_title = modal_header_title ?? true %}
+{% set modal_hide_close = modal_hide_close ?? false %}
+{% set modal_head_col_class = modal_head_col_class ?? 'text-center' %}
+{% set modal_header_autoclose = modal_header_autoclose ?? true %}
 
 <div id="{{ modal_id }}" class="js-modal {% if modal_mobile_full_screen %}js-fullscreen-modal{% endif %} {% if desktop_overlay_only %}js-modal-overlay-md{% endif %} modal modal-{{ modal_class }} modal-{{modal_position}} modal-{{modal_position_desktop}}-md transition-{{modal_transition}} modal-{{modal_width}} transition-soft {% if modal_zindex_top %}modal-zindex-top{% endif %}" style="display: none;" {% if data_component %}data-component="{{ data_component }}"{% endif %} {% if custom_data_attribute %}data-{{ custom_data_attribute }}="{{ custom_data_attribute_value }}"{% endif %} {% if modal_mobile_full_screen %}data-modal-url="{{ modal_url}}"{% endif %}>
     {% if modal_form_action %}
@@ -32,17 +35,19 @@
         <div class="modal-with-fixed-footer">
             <div class="modal-scrollable-area">
     {% endif %}
-                <div class="{% if not search_modal %}js-modal-close{% endif %} {% if modal_mobile_full_screen %}js-fullscreen-modal-close{% endif %} {% if modal_zindex_top %}js-close-over-modal{% endif %} modal-header {% if not modal_header_title %}modal-header-no-title{% endif %} {{ modal_header_class }}">
+                <div class="{% if not search_modal and modal_header_autoclose %}js-modal-close{% endif %} {% if modal_mobile_full_screen %}js-fullscreen-modal-close{% endif %} {% if modal_zindex_top %}js-close-over-modal{% endif %} modal-header {% if not modal_header_title %}modal-header-no-title{% endif %} {{ modal_header_class }}">
                     {% if modal_header_title %}
                         <div class="row no-gutters align-items-center">
-                            <div class="col p-3 text-center">
+                            <div class="col p-3 {{ modal_head_col_class }}">
                                 {% block modal_head %}{% endblock %}
                             </div>
+                            {% if not modal_hide_close %}
                             <div class="col-auto">
                                 <a class="js-modal-close modal-close">
                                     <svg class="icon-inline icon-lg svg-icon-text"><use xlink:href="#times"/></svg>
                                 </a>
                             </div>
+                            {% endif %}
                         </div>
                     {% else %}
                         <svg class="icon-inline icon-lg svg-icon-text"><use xlink:href="#times"/></svg>

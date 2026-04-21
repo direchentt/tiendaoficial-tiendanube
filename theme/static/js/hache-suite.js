@@ -1059,7 +1059,10 @@
       const storeId = getStoreId();
       if (!storeId) {
         const err = root.getAttribute("data-msg-error") || "Error";
-        root.innerHTML = '<p class="text-muted text-center py-4">' + escapeHtmlWishlist(err) + "</p>";
+        root.innerHTML =
+          '<div class="hs-wishlist-empty text-center py-5"><p class="font-small text-muted mb-0">' +
+          escapeHtmlWishlist(err) +
+          "</p></div>";
         return;
       }
 
@@ -1078,67 +1081,422 @@
         const code = e && typeof e.message === "string" ? e.message : "";
         const st = e && typeof e.httpStatus === "number" ? e.httpStatus : 0;
         const line = wishlistUserFacingMessage(code, st, e, { failVerb: "cargar favoritos" });
-        const load = root.querySelector(".hs-wishlist-loading");
+        const load = root.querySelector(".hs-wishlist-loading-state");
         if (load) load.remove();
-        root.innerHTML = '<p class="text-muted text-center py-4">' + escapeHtmlWishlist(line) + "</p>";
+        root.innerHTML =
+          '<div class="hs-wishlist-empty text-center py-5"><p class="font-small text-muted mb-0">' +
+          escapeHtmlWishlist(line) +
+          "</p></div>";
         return;
       }
 
       const items = Array.isArray(data.items) ? data.items : [];
-      const loadEl = root.querySelector(".hs-wishlist-loading");
+      const loadEl = root.querySelector(".hs-wishlist-loading-state");
       if (loadEl) loadEl.remove();
 
       if (!items.length) {
         const empty = root.getAttribute("data-msg-empty") || "";
         root.innerHTML =
-          '<p class="text-muted text-center py-4 mb-0">' + escapeHtmlWishlist(empty) + "</p>";
+          '<div class="hs-wishlist-empty card border-0 shadow-sm text-center py-5 px-3">' +
+          '<p class="font-body text-muted mb-0">' +
+          escapeHtmlWishlist(empty) +
+          "</p></div>";
         return;
       }
 
+      const labelView = root.getAttribute("data-label-view") || "Ver producto";
+      const labelRemove = root.getAttribute("data-label-remove") || "Quitar";
+      const labelRemoved = root.getAttribute("data-label-removed") || "Quitado";
+
       const grid = document.createElement("div");
-      grid.className = "row hs-wishlist-grid";
+      grid.className = "js-product-table row-grid row hs-wishlist-native-grid";
 
       items.forEach((it) => {
-        const col = document.createElement("div");
-        col.className = "col-6 col-md-4 col-lg-3 mb-4";
+        const pid = Number(it.productId);
+        if (!Number.isFinite(pid) || pid <= 0) return;
         const href =
           typeof it.url === "string" && it.url && it.url !== "#" ? it.url : "#";
         const name = typeof it.name === "string" ? it.name : "Producto";
         const imgSrc = typeof it.image === "string" && it.image ? it.image : "";
 
-        const card = document.createElement("article");
-        card.className = "hs-wishlist-card h-100 border bg-white";
+        const col = document.createElement("div");
+        col.className = "item-product col-grid col-6 col-md-4 col-lg-3 hs-wishlist-native-item mb-4";
+        if (Number.isFinite(pid) && pid > 0) col.setAttribute("data-product-id", String(pid));
 
-        const link = document.createElement("a");
-        link.className = "d-block text-reset text-decoration-none h-100 p-2 p-md-3";
-        link.href = href;
-        if (href === "#") link.setAttribute("aria-disabled", "true");
+        const inner = document.createElement("div");
+        inner.className = "item";
+
+        const itemImage = document.createElement("div");
+        itemImage.className = "item-image";
+
+        const imgOuter = document.createElement("a");
+        imgOuter.href = href;
+        imgOuter.className = "d-block text-decoration-none";
+        imgOuter.setAttribute("title", name);
+        if (href === "#") imgOuter.setAttribute("aria-disabled", "true");
+
+        const pad = document.createElement("div");
+        pad.className =
+          "js-item-image-padding position-relative d-block hs-wishlist-native-img-pad" +
+          (imgSrc ? "" : " hs-wishlist-native-img-pad--empty");
 
         if (imgSrc) {
-          const wrap = document.createElement("div");
-          wrap.className = "hs-wishlist-card__img-wrap mb-2";
           const img = document.createElement("img");
           img.src = imgSrc;
-          img.alt = "";
-          img.className = "img-fluid w-100 hs-wishlist-card__img";
+          img.alt = name;
+          img.className = "hs-wishlist-native-img img-fluid w-100";
           img.loading = "lazy";
-          wrap.appendChild(img);
-          link.appendChild(wrap);
+          img.decoding = "async";
+          pad.appendChild(img);
         }
 
-        const title = document.createElement("h3");
-        title.className = "font-small font-weight-semibold mb-0 text-uppercase";
-        title.style.letterSpacing = "0.04em";
-        title.style.lineHeight = "1.35";
-        title.textContent = name;
+        imgOuter.appendChild(pad);
+        itemImage.appendChild(imgOuter);
 
-        link.appendChild(title);
-        card.appendChild(link);
-        col.appendChild(card);
+        const desc = document.createElement("div");
+        desc.className = "item-description pt-3";
+
+        const nameLink = document.createElement("a");
+        nameLink.href = href;
+        nameLink.className = "item-link text-decoration-none d-block";
+        const nameEl = document.createElement("div");
+        nameEl.className = "item-name mb-2 font-weight-bold";
+        nameEl.textContent = name;
+        nameLink.appendChild(nameEl);
+        desc.appendChild(nameLink);
+
+        const foot = document.createElement("div");
+        foot.className =
+          "hs-wishlist-native-actions d-flex align-items-center justify-content-between mt-2 pt-2";
+
+        const viewA = document.createElement("a");
+        viewA.href = href;
+        viewA.className = "font-small font-weight-bold text-uppercase text-decoration-none";
+        viewA.style.letterSpacing = "0.05em";
+        viewA.textContent = labelView;
+
+        const rm = document.createElement("button");
+        rm.type = "button";
+        rm.className = "js-wishlist-page-remove btn btn-link font-small p-0 text-muted text-decoration-none";
+        rm.setAttribute("data-product-id", String(pid));
+        rm.textContent = labelRemove;
+
+        foot.appendChild(viewA);
+        foot.appendChild(rm);
+        desc.appendChild(foot);
+
+        inner.appendChild(itemImage);
+        inner.appendChild(desc);
+        col.appendChild(inner);
         grid.appendChild(col);
       });
 
+      grid.addEventListener("click", (ev) => {
+        const btn = ev.target.closest(".js-wishlist-page-remove");
+        if (!btn) return;
+        ev.preventDefault();
+        ev.stopPropagation();
+        const id = parseInt(btn.getAttribute("data-product-id") || "", 10);
+        if (!id) return;
+        const cust = WishlistModule.getCustomer();
+        if (!cust) return;
+        btn.disabled = true;
+        WishlistModule.postToggle(cust, id)
+          .then((d) => {
+            if (d && d.inWishlist) return;
+            const card = btn.closest(".hs-wishlist-native-item");
+            if (card && card.parentNode) card.parentNode.removeChild(card);
+            WishlistModule.wishlistToast(labelRemoved, false);
+            if (!grid.querySelector(".hs-wishlist-native-item")) {
+              const empty = root.getAttribute("data-msg-empty") || "";
+              root.removeChild(grid);
+              root.innerHTML =
+                '<div class="hs-wishlist-empty card border-0 shadow-sm text-center py-5 px-3">' +
+                '<p class="font-body text-muted mb-0">' +
+                escapeHtmlWishlist(empty) +
+                "</p></div>";
+            }
+          })
+          .catch((err) => {
+            btn.disabled = false;
+            const code = err && typeof err.message === "string" ? err.message : "";
+            const st = err && typeof err.httpStatus === "number" ? err.httpStatus : 0;
+            WishlistModule.wishlistToast(wishlistUserFacingMessage(code, st, err), true);
+          });
+      });
+
       root.appendChild(grid);
+    },
+  };
+
+  // ─── Header: campana novedades + favoritos (Twig) ───────────────────────────
+  // Panel dentro de #nav-hamburger queda bajo transform del modal: fixed no cubre la pantalla.
+  const notifyPanelToWrap = new WeakMap();
+  const notifyPanelToBackdrop = new WeakMap();
+
+  const HeaderHacheModule = {
+    _items: [],
+    _loaded: false,
+    _open: false,
+    _openBtn: null,
+    _openPanel: null,
+
+    escape(s) {
+      return String(s ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    },
+
+    setBadge(badge, n, badgeAlways) {
+      if (!badge) return;
+      if (badgeAlways) {
+        const v = n > 0 ? Math.min(99, n) : 1;
+        badge.textContent = String(v);
+        badge.classList.remove("d-none");
+        return;
+      }
+      if (n > 0) {
+        badge.textContent = String(Math.min(99, n));
+        badge.classList.remove("d-none");
+      } else {
+        badge.textContent = "";
+        badge.classList.add("d-none");
+      }
+    },
+
+    renderList(listEl, items, emptyMsg, labelNew) {
+      if (!listEl) return;
+      listEl.innerHTML = "";
+      if (!items.length) {
+        listEl.innerHTML =
+          '<p class="font-small text-muted mb-0 px-2 py-3 text-center">' + this.escape(emptyMsg) + "</p>";
+        return;
+      }
+      items.forEach((it) => {
+        const href = typeof it.url === "string" && it.url ? it.url : "#";
+        const name = typeof it.name === "string" ? it.name : "Producto";
+        const img = typeof it.image === "string" && it.image ? it.image : "";
+        const row = document.createElement("a");
+        row.href = href;
+        row.className =
+          "hache-notify-row d-flex align-items-center text-decoration-none text-reset py-2 px-2 rounded";
+        if (href === "#") row.setAttribute("aria-disabled", "true");
+        const thumb = document.createElement("div");
+        thumb.className = "hache-notify-row__thumb flex-shrink-0 mr-2";
+        if (img) {
+          const im = document.createElement("img");
+          im.src = img;
+          im.alt = "";
+          im.className = "rounded";
+          im.loading = "lazy";
+          thumb.appendChild(im);
+        }
+        const text = document.createElement("div");
+        text.className = "min-w-0 flex-grow-1";
+        const title = document.createElement("div");
+        title.className = "font-weight-semibold font-small text-truncate";
+        title.textContent = name;
+        const sub = document.createElement("div");
+        sub.className = "text-muted text-uppercase";
+        sub.style.fontSize = "0.65rem";
+        sub.style.letterSpacing = "0.06em";
+        sub.textContent = labelNew;
+        text.appendChild(title);
+        text.appendChild(sub);
+        row.appendChild(thumb);
+        row.appendChild(text);
+        listEl.appendChild(row);
+      });
+    },
+
+    _backdropFor(panel) {
+      if (!panel) return null;
+      const fromMap = notifyPanelToBackdrop.get(panel);
+      if (fromMap) return fromMap;
+      const wrap = panel.closest(".hache-notify-wrap");
+      return wrap ? wrap.querySelector(".js-hache-notify-backdrop") : null;
+    },
+
+    closePanel(btn, panel) {
+      if (!panel) return;
+      const bd = this._backdropFor(panel);
+      panel.hidden = true;
+      if (bd) {
+        bd.hidden = true;
+        bd.setAttribute("aria-hidden", "true");
+      }
+      if (panel.dataset.hachePortaled === "1" && btn) {
+        if (bd) btn.after(bd, panel);
+        else btn.after(panel);
+        delete panel.dataset.hachePortaled;
+      }
+      this._open = false;
+      if (this._openPanel === panel) {
+        this._openBtn = null;
+        this._openPanel = null;
+      }
+      if (btn) {
+        btn.setAttribute("aria-expanded", "false");
+      }
+    },
+
+    openPanel(btn, panel) {
+      if (!panel) return;
+      const bd = this._backdropFor(panel);
+      if (panel.closest("#nav-hamburger") && panel.dataset.hachePortaled !== "1") {
+        panel.dataset.hachePortaled = "1";
+        if (bd) document.body.appendChild(bd);
+        document.body.appendChild(panel);
+      }
+      if (bd) {
+        bd.hidden = false;
+        bd.setAttribute("aria-hidden", "false");
+      }
+      panel.hidden = false;
+      this._open = true;
+      this._openBtn = btn;
+      this._openPanel = panel;
+      if (btn) btn.setAttribute("aria-expanded", "true");
+      const listEl = panel.querySelector(".js-hache-notify-list");
+      this.renderList(
+        listEl,
+        this._items,
+        (btn && btn.getAttribute("data-empty")) || "",
+        (btn && btn.getAttribute("data-label-new")) || "Nuevo"
+      );
+    },
+
+    closeAllPanels() {
+      document.querySelectorAll(".js-hache-notify-panel").forEach((panel) => {
+        const wrap = notifyPanelToWrap.get(panel);
+        const btn = wrap ? wrap.querySelector(".js-hache-notify-toggle") : null;
+        this.closePanel(btn, panel);
+      });
+    },
+
+    init() {
+      const wraps = document.querySelectorAll(".hache-notify-wrap");
+      if (!wraps.length) return;
+
+      wraps.forEach((wrap) => {
+        const p = wrap.querySelector(".js-hache-notify-panel");
+        const bdrop = wrap.querySelector(".js-hache-notify-backdrop");
+        if (p) notifyPanelToWrap.set(p, wrap);
+        if (p && bdrop) notifyPanelToBackdrop.set(p, bdrop);
+      });
+
+      const firstBtn = wraps[0].querySelector(".js-hache-notify-toggle");
+      const firstPanel = wraps[0].querySelector(".js-hache-notify-panel");
+      if (!firstBtn || !firstPanel) return;
+
+      const days = parseInt(firstBtn.getAttribute("data-notify-days") || "30", 10) || 30;
+      const limit = parseInt(firstBtn.getAttribute("data-notify-limit") || "10", 10) || 10;
+      const badgeAlways = firstBtn.getAttribute("data-badge-always") === "1";
+
+      const allBadges = () => Array.from(wraps).map((w) => w.querySelector(".js-hache-notify-badge"));
+
+      allBadges().forEach((badge) => {
+        if (badge) this.setBadge(badge, 0, badgeAlways);
+      });
+
+      const refresh = () => {
+        const sid = getStoreId();
+        if (!sid) {
+          allBadges().forEach((badge) => this.setBadge(badge, 0, badgeAlways));
+          return Promise.resolve();
+        }
+        const url =
+          BACKEND_URL +
+          "/api/storefront/recent-products?storeId=" +
+          encodeURIComponent(sid) +
+          "&days=" +
+          encodeURIComponent(String(days)) +
+          "&limit=" +
+          encodeURIComponent(String(limit));
+        return fetch(url, { mode: "cors" })
+          .then((r) => r.json())
+          .then((data) => {
+            const items = Array.isArray(data.items) ? data.items : [];
+            this._items = items;
+            this._loaded = true;
+            allBadges().forEach((badge) => this.setBadge(badge, items.length, badgeAlways));
+            const activePanel = this._openPanel;
+            if (this._open && activePanel) {
+              const listEl = activePanel.querySelector(".js-hache-notify-list");
+              const b = this._openBtn;
+              this.renderList(
+                listEl,
+                items,
+                (b && b.getAttribute("data-empty")) || "",
+                (b && b.getAttribute("data-label-new")) || "Nuevo"
+              );
+            }
+          })
+          .catch(() => {
+            this._items = [];
+            this._loaded = true;
+            if (badgeAlways) {
+              allBadges().forEach((badge) => {
+                if (!badge) return;
+                badge.textContent = "!";
+                badge.classList.remove("d-none");
+              });
+            }
+          });
+      };
+
+      wraps.forEach((wrap) => {
+        const btn = wrap.querySelector(".js-hache-notify-toggle");
+        const panel = wrap.querySelector(".js-hache-notify-panel");
+        const badge = wrap.querySelector(".js-hache-notify-badge");
+        if (!btn || !panel || !badge) return;
+
+        btn.addEventListener("click", (ev) => {
+          ev.preventDefault();
+          ev.stopPropagation();
+          if (!panel.hidden) {
+            this.closePanel(btn, panel);
+            return;
+          }
+          wraps.forEach((w) => {
+            if (w === wrap) return;
+            const ob = w.querySelector(".js-hache-notify-toggle");
+            const op = w.querySelector(".js-hache-notify-panel");
+            this.closePanel(ob, op);
+          });
+          const open = () => this.openPanel(btn, panel);
+          if (!this._loaded) {
+            refresh().then(open);
+          } else {
+            open();
+          }
+        });
+      });
+
+      document.addEventListener(
+        "click",
+        (ev) => {
+          if (!this._open || !this._openPanel || this._openPanel.hidden) return;
+          const t = ev.target;
+          if (t && t.closest && t.closest(".js-hache-notify-backdrop")) {
+            this.closeAllPanels();
+            return;
+          }
+          if (this._openBtn && this._openBtn.contains(t)) return;
+          if (this._openPanel && this._openPanel.contains(t)) return;
+          this.closeAllPanels();
+        },
+        true
+      );
+
+      document.addEventListener("keydown", (ev) => {
+        if (ev.key === "Escape") this.closeAllPanels();
+      });
+
+      setTimeout(refresh, 600);
+      setTimeout(refresh, 3500);
     },
   };
 
@@ -1174,6 +1532,13 @@
 
       // Wishlist — pagina institucional (handle configurado en el tema)
       WishlistPageModule.init().catch(console.warn);
+
+      // Header: campana novedades (Twig)
+      try {
+        HeaderHacheModule.init();
+      } catch (e) {
+        console.warn("[HacheSuite][Header]", e);
+      }
     };
 
     if (window.LS && window.LS.ready && typeof window.LS.ready.then === "function") {

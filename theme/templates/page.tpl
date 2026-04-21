@@ -9,27 +9,27 @@
 {% if is_wishlist_page %}
 {% embed "snipplets/page-header.tpl" with {'breadcrumbs': true} %}
 	{% block page_header_text %}
-		<span class="hs-wishlist-page-heading d-inline-flex align-items-center flex-wrap" style="gap:0.65rem;">
-			<span class="pdp-wishlist-btn pdp-wishlist-btn--static" aria-hidden="true">
-				{% include 'snipplets/icons/icon-wishlist-bookmark.tpl' with { wl_size: 22 } %}
-			</span>
-			<span>{{ page.name }}</span>
-		</span>
+		{{ page.name }}
 	{% endblock page_header_text %}
 {% endembed %}
 
-<section class="hs-wishlist-page theme-brand-phase1 pb-5 pt-md-1">
+<section class="user-content brand-page-user-content hs-wishlist-page theme-brand-phase1 pb-5 pt-md-1">
 	<div class="container-fluid">
 		<div class="row justify-content-center">
-			<div class="col-12 col-lg-10 col-xl-9">
+			<div class="col-12 col-lg-10 col-xl-8 brand-page-rail">
+				{% if customer %}
+				<p class="font-small text-muted mb-4">{{ 'Los productos que marcaste con el corazón al navegar la tienda aparecen acá, igual que en el catálogo.' | translate }}</p>
+				{% endif %}
+
 				{% if page.content %}
 				<div class="user-content-body mb-4">{{ page.content }}</div>
 				{% endif %}
 
 				{% if not customer %}
-				<div class="hs-wishlist-login-gate card border p-4 mb-4 text-center">
-					<p class="mb-3">{{ 'Iniciá sesión para ver tus favoritos' | translate }}</p>
-					<a href="{{ store.customer_login_url }}" class="btn btn-primary">{{ 'Iniciar sesión' | translate }}</a>
+				<div class="hs-wishlist-login-gate card border-0 shadow-sm p-4 p-md-5 mb-4 text-center">
+					<p class="font-body mb-1 font-weight-bold">{{ 'Iniciá sesión para ver tus favoritos' | translate }}</p>
+					<p class="font-small text-muted mb-4">{{ 'Así podemos mostrarte tu lista personal y mantenerla sincronizada.' | translate }}</p>
+					<a href="{{ store.customer_login_url }}" class="btn btn-primary px-4">{{ 'Iniciar sesión' | translate }}</a>
 				</div>
 				{% endif %}
 
@@ -40,11 +40,16 @@
 					data-wishlist-path="{{ wl_url }}"
 					data-msg-empty="{{ 'Tu lista de favoritos está vacía.' | translate | e('html_attr') }}"
 					data-msg-error="{{ 'No pudimos cargar tus favoritos. Intentá de nuevo más tarde.' | translate | e('html_attr') }}"
+					data-label-view="{{ 'Ver producto' | translate | e('html_attr') }}"
+					data-label-remove="{{ 'Quitar de favoritos' | translate | e('html_attr') }}"
+					data-label-removed="{{ 'Quitado de favoritos' | translate | e('html_attr') }}"
 				>
 					{% if customer %}
-					<p class="hs-wishlist-loading text-muted text-center mb-0 py-4">{{ 'Cargando favoritos' | translate }}</p>
+					<div class="hs-wishlist-loading-state text-center py-5" aria-busy="true">
+						<p class="font-small text-muted mb-0">{{ 'Cargando favoritos' | translate }}</p>
+					</div>
 					{% else %}
-					<p class="text-muted text-center mb-0 py-3">{{ 'Iniciá sesión para ver tus favoritos' | translate }}</p>
+					<p class="font-small text-muted text-center mb-0 py-3">{{ 'Iniciá sesión para ver tus favoritos' | translate }}</p>
 					{% endif %}
 				</div>
 			</div>

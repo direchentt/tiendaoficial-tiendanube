@@ -137,3 +137,30 @@ export function getProductsPage(
   const q = new URLSearchParams({ page: String(page) });
   return tnFetch<ProductListItem[]>(config, `/products?${q.toString()}`);
 }
+
+/** Listado reciente para campana "novedades" (read_products). */
+export type ProductRecentListItem = {
+  id: number;
+  name?: string | Record<string, string>;
+  handle?: string | Record<string, string>;
+  images?: { src?: string }[];
+  created_at?: string;
+};
+
+export function getRecentPublishedProducts(
+  config: TiendanubeClientConfig,
+  opts: { days?: number; perPage?: number }
+): Promise<ProductRecentListItem[]> {
+  const days = Math.min(Math.max(opts.days ?? 30, 1), 365);
+  const perPage = Math.min(Math.max(opts.perPage ?? 15, 1), 30);
+  const since = new Date(Date.now() - days * 86400000).toISOString();
+  const q = new URLSearchParams({
+    page: "1",
+    per_page: String(perPage),
+    created_at_min: since,
+    published: "true",
+    sort_by: "created-at-descending",
+    fields: "id,name,handle,images,created_at",
+  });
+  return tnFetch<ProductRecentListItem[]>(config, `/products?${q.toString()}`);
+}

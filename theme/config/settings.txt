@@ -1534,6 +1534,9 @@ Página de inicio
 	link
 		text = Pop-up promocional
 		linkto = home_promotional_popup
+	link
+		text = Ruleta de Descuentos (Spin to Win)
+		linkto = roulette_enable
 
 Marca editorial (layout)
 	meta

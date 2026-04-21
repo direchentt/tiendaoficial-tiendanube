@@ -29,13 +29,12 @@
 
 {# Modal Hamburger #}
 
-{% embed "snipplets/modal.tpl" with{modal_id: 'nav-hamburger',modal_class: brand_hamburger_modal_class, modal_position: modal_position_mobile_val, modal_position_desktop: modal_position_desktop_val, modal_transition: 'slide', modal_width: 'full', modal_mobile_full_screen: false, modal_hide_close: 'true',modal_header_class: 'js-toggle-menu-close p-3', modal_body_class: brand_hamburger_modal_body_class, modal_footer_class: 'hamburger-footer mb-0 p-0',modal_header_title: false, modal_fixed_footer: true, modal_footer: true, desktop_overlay_only: modal_with_desktop_only_overlay_val} %}
+{% set brand_hamburger_modal_class_toolbar = brand_hamburger_modal_class ~ ' hache-hamburger-has-toolbar' %}
+{% embed "snipplets/modal.tpl" with{modal_id: 'nav-hamburger', modal_class: brand_hamburger_modal_class_toolbar, modal_position: modal_position_mobile_val, modal_position_desktop: modal_position_desktop_val, modal_transition: 'slide', modal_width: 'full', modal_mobile_full_screen: false, modal_hide_close: true, modal_header_autoclose: false, modal_header_class: 'border-bottom p-0 hache-hamburger-modal-head', modal_body_class: brand_hamburger_modal_body_class, modal_footer_class: 'hamburger-footer mb-0 p-0', modal_header_title: true, modal_head_col_class: 'text-left p-0', modal_fixed_footer: true, modal_footer: true, desktop_overlay_only: modal_with_desktop_only_overlay_val} %}
+	{% block modal_head %}
+		{% include 'snipplets/header/header-hamburger-modal-toolbar.tpl' %}
+	{% endblock %}
 	{% block modal_body %}
-		{% if not settings.search_big_mobile %}
-			<div class="d-block d-md-none position-relative">
-				{% include "snipplets/header/header-search.tpl" %}
-			</div>
-		{% endif %}
 		{% if brand_hamburger_drawer_use %}
 			{% include 'snipplets/navigation/navigation-brand-hamburger-drawer.tpl' %}
 		{% else %}

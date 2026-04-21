@@ -53,19 +53,19 @@
         {### Brand header utilities (stroke, currentColor) #}
 
         <symbol id="brand-utility-menu" viewBox="0 0 24 24">
-                <path fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" d="M5 7h14M5 12h14M5 17h14"/>
+                <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" d="M5 8h14M5 16h14"/>
         </symbol>
         <symbol id="brand-utility-search" viewBox="0 0 24 24">
-                <circle cx="10.5" cy="10.5" r="6.25" fill="none" stroke="currentColor" stroke-width="1.75"/>
-                <path fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" d="M15.2 15.2L20 20"/>
+                <circle cx="10.5" cy="10.5" r="6.25" fill="none" stroke="currentColor" stroke-width="1.5"/>
+                <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" d="M15.2 15.2L20 20"/>
         </symbol>
         <symbol id="brand-utility-user" viewBox="0 0 24 24">
-                <path fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" d="M12 12.5a4 4 0 1 0-4-4 4 4 0 0 0 4 4Z"/>
-                <path fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" d="M5.5 20.5a7 7 0 0 1 13 0"/>
+                <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" d="M12 12.5a4 4 0 1 0-4-4 4 4 0 0 0 4 4Z"/>
+                <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" d="M5.5 20.5a7 7 0 0 1 13 0"/>
         </symbol>
         <symbol id="brand-utility-cart" viewBox="0 0 24 24">
-                <path fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" d="M5 7h2l1.2 9.2h9.6L19 9H8"/>
-                <path fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" d="M10.5 20.5h.01M17.5 20.5h.01"/>
+                <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M5 7h2l1.2 9.2h9.6L19 9H8"/>
+                <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" d="M10.5 20.5h.01M17.5 20.5h.01"/>
         </symbol>
         <symbol id="brand-theme-moon" viewBox="0 0 24 24">
                 <path fill="currentColor" d="M21 14.5A7.5 7.5 0 0 1 9.5 3a7.45 7.45 0 0 0 1.74 7.7A7.5 7.5 0 0 0 21 14.5Z"/>

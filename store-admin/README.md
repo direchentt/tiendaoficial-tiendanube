@@ -27,6 +27,7 @@ Panel y API para reglas que van mas alla del admin estandar de Tiendanube, apoya
 
 - **Storefront**: `GET|POST /api/storefront/wishlist` (CORS abierto; mismo `storeId` que el resto de `hache-suite.js`). Si el `storeId` coincide con **`TN_STORE_USER_ID`**, cada request hace **upsert** de `Store` y **renueva `accessToken`** desde env (así no queda un token viejo solo en Postgres). Si el id no coincide con env ni hay fila, **404** `{ "error": "store_not_found", ... }`. `GET ...&details=1` devuelve `items` con `name`, `url` e `image` por producto (API TN `read_products`).
 - **Diagnóstico**: `GET /api/storefront/wishlist-ping?storeId=<LS.store.id>` — siempre **HTTP 200** y JSON (`endpoint: "wishlist-ping"`). Si ves la página HTML “This page could not be found”, esa URL no está llegando a este Next (deploy viejo, otro servicio o dominio distinto). Compará con `GET /api/health` en el mismo host.
+- **Novedades (header)**: `GET /api/storefront/recent-products?storeId=&days=30&limit=12` — productos publicados creados en ese rango (`read_products`). El tema muestra la campana si `header_notify_enabled` esta activo.
 - **Admin**: `GET /api/admin/wishlist-stats` — ranking por `productId` (conteo de filas actuales en favoritos), cantidad de clientes con al menos un item y total de filas.
 - Migracion: `WishlistItem` en Postgres (`prisma migrate deploy` en arranque Railway).
 

@@ -37,14 +37,7 @@
 {% set pill_show = pills_pool_shuffled | length > 0 ? (pills_pool_shuffled | take(pills_count)) : [] %}
 
 <div class="brand-hamburger-drawer js-brand-hamburger-drawer">
-	<div class="brand-hamburger-drawer__head row no-gutters align-items-center">
-		<div class="col">
-			<button type="button" class="brand-hamburger-drawer__close btn btn-link p-0 text-left d-inline-flex align-items-center js-toggle-menu-close" aria-label="{{ 'Cerrar' | translate }}">
-				<svg class="icon-inline icon-md svg-icon-text mr-2" aria-hidden="true"><use xlink:href="#times"/></svg>
-				<span class="font-body">{{ 'Cerrar' | translate }}</span>
-			</button>
-		</div>
-	</div>
+	{# Cierre unificado en header-hamburger-modal-toolbar (X superior). #}
 
 	{% if brand_root_leaf is not empty %}
 		<nav class="brand-hamburger-drawer__featured" aria-label="{{ 'Enlaces destacados' | translate }}">
@@ -80,7 +73,7 @@
 		</div>
 	{% endif %}
 
-	{% if pill_show is not empty %}
+	{% if pill_show is not empty and settings.brand_hamburger_hide_category_pills != 1 %}
 		<section class="brand-hamburger-drawer__pills-section" aria-label="{% if settings.brand_hamburger_pills_title %}{{ settings.brand_hamburger_pills_title }}{% else %}{{ 'Los más deseados' | translate }}{% endif %}">
 			<h2 class="brand-hamburger-drawer__pills-heading font-family-body text-uppercase">
 				{% if settings.brand_hamburger_pills_title %}

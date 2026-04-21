@@ -140,6 +140,9 @@
                     {% endif %}
                 </div>
 
+                {# Hache: campana novedades + icono favoritos (requiere hache-suite.js) #}
+                {% include 'snipplets/header/header-hache-icons.tpl' %}
+
                 {# Languages #}
 
                 {% if has_languages %}
@@ -148,9 +151,9 @@
                     </div>
                 {% endif %}
 
-                {# Account icon #}
+                {# Account icon (visible también en móvil: login / mi cuenta) #}
                 
-                <div class="js-utility-col col-utility desktop-utility-col text-right {{ show_inline_desktop_hide_mobile_class }} {{ account_col_md_classes }}">
+                <div class="js-utility-col col-auto col-utility desktop-utility-col text-right {{ account_col_md_classes }}">
                     {% include "snipplets/header/header-utilities.tpl" with {use_account: true, login_only: true} %}
                 </div>
 
