@@ -68,12 +68,26 @@
         </div>
 
         <div id="js-roulette-success-view" style="display: none;">
-            <h3 style="font-size: 1.6rem; color: #22c55e; font-weight: 800; margin-bottom: 10px;">¡Ganaste!</h3>
-            <p style="font-size: 0.95rem; color: #333; margin-bottom: 15px;">Acá tenés tu código de descuento. Aplicalo en el carrito de compras.</p>
-            <div style="background: #f8fafc; border: 2px dashed #94a3b8; padding: 15px; border-radius: 10px; font-weight: 800; font-size: 1.4rem; letter-spacing: 2px; color: #0f172a; margin-bottom: 20px;">
-                {{ settings.roulette_winning_code | default('PROMO10') }}
-            </div>
-            <a href="#" class="js-modal-close" style="display: block; width: 100%; background: #000; color: #fff; padding: 14px; border-radius: 10px; font-weight: 800; text-decoration: none; text-transform: uppercase;">Comprar ahora</a>
+            <h3 style="font-size: 1.6rem; color: #22c55e; font-weight: 800; margin-bottom: 10px;">¡Felicidades!</h3>
+            
+            {% if settings.roulette_prize_type == 'product' %}
+                <p style="font-size: 0.95rem; color: #333; margin-bottom: 15px;">Tu premio exclusivo se está añadiendo a tu carrito automáticamente.</p>
+                <div style="background: #f8fafc; border: 2px dashed #94a3b8; padding: 15px; border-radius: 10px; font-weight: 800; font-size: 1.2rem; color: #0f172a; margin-bottom: 20px;">
+                    🎁 Producto Gratis en Carrito
+                </div>
+            {% elseif settings.roulette_prize_type == 'vip' %}
+                <p style="font-size: 0.95rem; color: #333; margin-bottom: 15px;">Acá tenés la clave secreta para acceder a nuestra Colección VIP exclusiva.</p>
+                <div style="background: #f8fafc; border: 2px dashed #94a3b8; padding: 15px; border-radius: 10px; font-weight: 800; font-size: 1.4rem; letter-spacing: 2px; color: #0f172a; margin-bottom: 20px;">
+                    {{ settings.vip_category_password | default('CLAVEVIP') }}
+                </div>
+            {% else %}
+                <p style="font-size: 0.95rem; color: #333; margin-bottom: 15px;">Acá tenés tu código de descuento. Aplicalo en el carrito de compras.</p>
+                <div style="background: #f8fafc; border: 2px dashed #94a3b8; padding: 15px; border-radius: 10px; font-weight: 800; font-size: 1.4rem; letter-spacing: 2px; color: #0f172a; margin-bottom: 20px;">
+                    {{ settings.roulette_winning_code | default('PROMO10') }}
+                </div>
+            {% endif %}
+            
+            <a href="#" class="js-modal-close" style="display: block; width: 100%; background: #000; color: #fff; padding: 14px; border-radius: 10px; font-weight: 800; text-decoration: none; text-transform: uppercase;">Aceptar Premio</a>
         </div>
     </div>
 </div>
@@ -105,6 +119,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 setTimeout(function() {
                     document.getElementById('js-roulette-form-view').style.display = 'none';
                     document.getElementById('js-roulette-success-view').style.display = 'block';
+                    
+                    {% if settings.roulette_prize_type == 'product' and settings.roulette_winning_url %}
+                    // Magic: Fetch product page, extract variant_id, and silently add to cart
+                    fetch('{{ settings.roulette_winning_url }}')
+                        .then(function(res) { return res.text(); })
+                        .then(function(html) {
+                            var match = html.match(/name="variant_id" value="(\d+)"/);
+                            if (match && match[1] && window.LS && window.LS.Cart) {
+                                window.LS.Cart.addItem({ variant_id: match[1], quantity: 1 });
+                            }
+                        })
+                        .catch(function(e) { console.warn('Roulette auto-add error', e); });
+                    {% endif %}
                 }, 4200);
             }).catch(function() {
                 btn.style.display = 'block';

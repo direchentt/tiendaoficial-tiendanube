@@ -1483,7 +1483,7 @@ Página de inicio
 		name = roulette_slice_6
 		description = Opción 6
 	subtitle
-		subtitle = <span class='legend'>Inteligencia: Control del premio garantizado</span>
+		subtitle = <span class='legend'>Inteligencia: Control del Premio Garantizado</span>
 	dropdown
 		name = roulette_winning_slice
 		description = ¿En qué opción querés que caiga SIEMPRE la ruleta?
@@ -1494,9 +1494,21 @@ Página de inicio
 			4 = Opción 4
 			5 = Opción 5
 			6 = Opción 6
+	dropdown
+		name = roulette_prize_type
+		description = Tipo de Premio a entregar (Magia automatizada)
+		values
+			discount = Cupón de Descuento Clásico
+			product = Producto Gratis (¡Se agrega solo al carrito!)
+			vip = Pase VIP (Muestra la contraseña de tu Categoría VIP)
 	i18n_input
 		name = roulette_winning_code
-		description = Código de descuento a entregar (Ej. GANE10)
+		description = [Si es Cupón] Código a mostrar (Ej. GANE10)
+	i18n_input
+		name = roulette_winning_url
+		description = [Si es Producto] Link de tu tienda al producto de regalo (Ej. /productos/gorra/)
+	subtitle
+		subtitle = <span class='legend'>[Si es VIP] Automáticamente mostrará la clave que ya tenés configurada en la sección "Navegación y Categorías > Categoría VIP".</span>
 
 	collapse
 		title = Página de inicio
