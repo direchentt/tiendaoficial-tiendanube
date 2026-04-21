@@ -1240,6 +1240,7 @@
     _open: false,
     _openBtn: null,
     _openPanel: null,
+    _inited: false,
 
     escape(s) {
       return String(s ?? "")
@@ -1345,7 +1346,8 @@
     openPanel(btn, panel) {
       if (!panel) return;
       const bd = this._backdropFor(panel);
-      if (panel.closest("#nav-hamburger") && panel.dataset.hachePortaled !== "1") {
+      const openFromHamburger = btn && btn.closest("#nav-hamburger");
+      if (openFromHamburger && panel.dataset.hachePortaled !== "1") {
         panel.dataset.hachePortaled = "1";
         if (bd) document.body.appendChild(bd);
         document.body.appendChild(panel);
@@ -1377,18 +1379,22 @@
     },
 
     init() {
+      if (this._inited) return;
       const wraps = document.querySelectorAll(".hache-notify-wrap");
       if (!wraps.length) return;
 
       wraps.forEach((wrap) => {
         const p = wrap.querySelector(".js-hache-notify-panel");
         const bdrop = wrap.querySelector(".js-hache-notify-backdrop");
-        if (p) notifyPanelToWrap.set(p, wrap);
+        if (p) {
+          notifyPanelToWrap.set(p, wrap);
+          wrap._hacheNotifyPanelEl = p;
+        }
         if (p && bdrop) notifyPanelToBackdrop.set(p, bdrop);
       });
 
       const firstBtn = wraps[0].querySelector(".js-hache-notify-toggle");
-      const firstPanel = wraps[0].querySelector(".js-hache-notify-panel");
+      const firstPanel = wraps[0]._hacheNotifyPanelEl || wraps[0].querySelector(".js-hache-notify-panel");
       if (!firstBtn || !firstPanel) return;
 
       const days = parseInt(firstBtn.getAttribute("data-notify-days") || "30", 10) || 30;
@@ -1449,9 +1455,8 @@
 
       wraps.forEach((wrap) => {
         const btn = wrap.querySelector(".js-hache-notify-toggle");
-        const panel = wrap.querySelector(".js-hache-notify-panel");
-        const badge = wrap.querySelector(".js-hache-notify-badge");
-        if (!btn || !panel || !badge) return;
+        const panel = wrap._hacheNotifyPanelEl || wrap.querySelector(".js-hache-notify-panel");
+        if (!btn || !panel) return;
 
         btn.addEventListener("click", (ev) => {
           ev.preventDefault();
@@ -1463,12 +1468,14 @@
           wraps.forEach((w) => {
             if (w === wrap) return;
             const ob = w.querySelector(".js-hache-notify-toggle");
-            const op = w.querySelector(".js-hache-notify-panel");
+            const op = w._hacheNotifyPanelEl || w.querySelector(".js-hache-notify-panel");
             this.closePanel(ob, op);
           });
-          const open = () => this.openPanel(btn, panel);
+          const open = () => {
+            window.requestAnimationFrame(() => this.openPanel(btn, panel));
+          };
           if (!this._loaded) {
-            refresh().then(open);
+            refresh().catch(() => {}).finally(open);
           } else {
             open();
           }
@@ -1497,6 +1504,8 @@
 
       setTimeout(refresh, 600);
       setTimeout(refresh, 3500);
+
+      this._inited = true;
     },
   };
 
@@ -1539,6 +1548,13 @@
       } catch (e) {
         console.warn("[HacheSuite][Header]", e);
       }
+      window.setTimeout(() => {
+        try {
+          HeaderHacheModule.init();
+        } catch (e) {
+          console.warn("[HacheSuite][Header reintento]", e);
+        }
+      }, 1200);
     };
 
     if (window.LS && window.LS.ready && typeof window.LS.ready.then === "function") {
