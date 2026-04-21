@@ -104,6 +104,90 @@
 
   const NS = "hs2_"; // localStorage namespace
 
+  var HS_STYLE_ID = "hache-suite-ui-styles";
+
+  function injectHacheSuiteStyles() {
+    if (document.getElementById(HS_STYLE_ID)) return;
+    var st = document.createElement("style");
+    st.id = HS_STYLE_ID;
+    st.textContent =
+      "@keyframes hs-toast-in{from{opacity:0;transform:translateX(-50%) translateY(12px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}" +
+      ".hs-toast{position:fixed;left:50%;bottom:1.35rem;transform:translateX(-50%);max-width:min(28rem,calc(100vw - 2rem));padding:.8rem 1.2rem;border-radius:.75rem;font:600 .8125rem/1.45 system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;z-index:2147483000;box-shadow:0 12px 40px rgba(0,0,0,.2);pointer-events:none;opacity:0;transition:opacity .38s ease,transform .38s ease;text-align:center;letter-spacing:.01em}" +
+      ".hs-toast.hs-toast--visible{opacity:1;animation:hs-toast-in .42s ease both}" +
+      ".hs-toast--success{background:linear-gradient(145deg,#059669,#10b981);color:#fff}" +
+      ".hs-toast--error{background:linear-gradient(145deg,#1f2937,#3f3f46);color:#fafafa}" +
+      ".hs-toast--neutral{background:#fff;color:#111;border:1px solid rgba(0,0,0,.08)}" +
+      ":root[data-color-scheme='dark'] .hs-toast--neutral{background:rgba(26,26,30,.96);color:#f4f4f5;border-color:rgba(255,255,255,.1)}" +
+      ".hs-gate-overlay{position:fixed;inset:0;z-index:2147482000;display:flex;align-items:center;justify-content:center;background:rgba(8,8,12,.88);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);padding:1rem}" +
+      ".hs-gate-card{background:linear-gradient(165deg,#16161c,#12121a);border:1px solid rgba(255,255,255,.1);border-radius:1rem;padding:2rem 1.75rem;width:100%;max-width:22rem;text-align:center;box-shadow:0 24px 80px rgba(0,0,0,.55)}" +
+      ".hs-gate-icon{font-size:2.75rem;line-height:1;margin-bottom:.75rem}" +
+      ".hs-gate-title{color:#f4f4f5;font-size:1.15rem;font-weight:700;margin:0 0 .4rem;letter-spacing:.02em}" +
+      ".hs-gate-text{color:#a1a1b5;font-size:.875rem;margin:0 0 1.25rem;line-height:1.55}" +
+      ".hs-gate-input{width:100%;padding:.75rem 1rem;background:rgba(0,0,0,.35);color:#f4f4f5;border:1px solid rgba(255,255,255,.12);border-radius:.5rem;font-size:.875rem;outline:none;box-sizing:border-box;margin-bottom:.5rem;font:inherit}" +
+      ".hs-gate-input:focus{border-color:rgba(124,92,252,.55);box-shadow:0 0 0 2px rgba(124,92,252,.2)}" +
+      ".hs-gate-err{color:#f87171;font-size:.78rem;margin-bottom:.65rem;display:none}" +
+      ".hs-gate-btn{width:100%;padding:.8rem 1rem;background:linear-gradient(135deg,#6d28d9,#7c5cfc);color:#fff;border:none;border-radius:.5rem;font-size:.875rem;font-weight:600;cursor:pointer;font:inherit;transition:opacity .2s,transform .15s}" +
+      ".hs-gate-btn:hover{opacity:.95;transform:translateY(-1px)}" +
+      ".hs-gate-btn:disabled{opacity:.65;cursor:not-allowed;transform:none}" +
+      ".hs-bundle-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(17.5rem,1fr));gap:1.35rem;padding:.5rem 0}" +
+      ".hs-bundle-card{background:var(--hs-bundle-bg,#fff);border:1px solid var(--hs-bundle-border,rgba(0,0,0,.08));border-radius:1rem;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 4px 20px rgba(0,0,0,.06);transition:transform .2s,box-shadow .2s}" +
+      ":root[data-color-scheme='dark'] .hs-bundle-card{--hs-bundle-bg:#161618;--hs-bundle-border:rgba(255,255,255,.1);box-shadow:0 8px 32px rgba(0,0,0,.35)}" +
+      ".hs-bundle-card:hover{transform:translateY(-4px);box-shadow:0 14px 36px rgba(0,0,0,.12)}" +
+      ":root[data-color-scheme='dark'] .hs-bundle-card:hover{box-shadow:0 16px 40px rgba(0,0,0,.45)}" +
+      ".hs-bundle-body{padding:1.2rem 1.25rem 1.35rem;flex:1;display:flex;flex-direction:column}" +
+      ".hs-bundle-title{font-size:1.02rem;font-weight:700;color:var(--hs-bundle-title,#111);line-height:1.3;margin:0}" +
+      ":root[data-color-scheme='dark'] .hs-bundle-title{--hs-bundle-title:#f4f4f5}" +
+      ".hs-bundle-desc{font-size:.84rem;color:var(--hs-bundle-muted,#666);line-height:1.5;margin:.4rem 0 .75rem}" +
+      ":root[data-color-scheme='dark'] .hs-bundle-desc{--hs-bundle-muted:#a3a3b2}" +
+      ".hs-bundle-list{list-style:none;padding:.65rem 0 0;margin:0 0 1rem;border-top:1px solid var(--hs-bundle-divider,rgba(0,0,0,.06))}" +
+      ":root[data-color-scheme='dark'] .hs-bundle-list{--hs-bundle-divider:rgba(255,255,255,.08)}" +
+      ".hs-bundle-row{display:flex;justify-content:space-between;gap:.5rem;font-size:.82rem;padding:.28rem 0;color:var(--hs-bundle-row,#444)}" +
+      ":root[data-color-scheme='dark'] .hs-bundle-row{--hs-bundle-row:#d4d4e0}" +
+      ".hs-bundle-row span:last-child{color:var(--hs-bundle-dim,#999);font-variant-numeric:tabular-nums}" +
+      ".hs-bundle-price-old{font-size:.84rem;color:var(--hs-bundle-dim,#999);text-decoration:line-through}" +
+      ".hs-bundle-price-new{font-size:1.45rem;font-weight:800;color:var(--hs-bundle-title,#111);margin-bottom:.75rem;letter-spacing:-.02em}" +
+      ".hs-bundle-btn{width:100%;padding:.75rem 1rem;background:linear-gradient(135deg,#111,#2a2a2a);color:#fff;border:none;border-radius:.5rem;font-size:.88rem;font-weight:600;cursor:pointer;font:inherit;transition:background .2s,transform .15s}" +
+      ".hs-bundle-btn:hover{transform:translateY(-1px)}" +
+      ".hs-bundle-btn--ok{background:linear-gradient(145deg,#059669,#10b981)}" +
+      ".hs-bundle-btn--err{background:linear-gradient(145deg,#b91c1c,#ef4444)}" +
+      ".hs-bundle-media{width:100%;height:12.5rem;object-fit:cover;display:block;background:linear-gradient(135deg,#f0f0fa,#e8e8f4)}" +
+      ":root[data-color-scheme='dark'] .hs-bundle-media{background:linear-gradient(135deg,#252528,#1a1a1e)}" +
+      ".hs-bundle-placeholder{width:100%;height:11rem;display:flex;align-items:center;justify-content:center;font-size:2.75rem;background:linear-gradient(135deg,#f0f0fa,#e4e4f0)}" +
+      ":root[data-color-scheme='dark'] .hs-bundle-placeholder{background:linear-gradient(135deg,#2a2a30,#1f1f24)}" +
+      ".hs-bundle-badge{align-self:flex-start;background:rgba(16,185,129,.15);color:#059669;padding:.2rem .55rem;border-radius:999px;font-size:.68rem;font-weight:700}" +
+      ":root[data-color-scheme='dark'] .hs-bundle-badge{color:#4ade80;background:rgba(74,222,128,.12)}" +
+      ".hs-bundle-state{text-align:center;padding:2rem 1rem;font:.9rem/1.5 system-ui,sans-serif;color:var(--hs-state,#888)}" +
+      ".hs-bundle-state--err{color:#dc2626}" +
+      ":root[data-color-scheme='dark'] .hs-bundle-state{--hs-state:#a1a1aa}" +
+      ".hs-dyn-wrap{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap;vertical-align:middle}" +
+      ".hs-dyn-new{font-weight:700;color:#059669}" +
+      ":root[data-color-scheme='dark'] .hs-dyn-new{color:#4ade80}" +
+      ".hs-dyn-old{text-decoration:line-through;color:#888;font-size:.85em}" +
+      ":root[data-color-scheme='dark'] .hs-dyn-old{color:#737373}" +
+      ".hs-dyn-badge{background:rgba(16,185,129,.14);color:#059669;padding:2px 7px;border-radius:999px;font-size:.68rem;font-weight:700}" +
+      ":root[data-color-scheme='dark'] .hs-dyn-badge{color:#4ade80;background:rgba(74,222,128,.14)}";
+    document.head.appendChild(st);
+  }
+
+  function hsToast(message, variant) {
+    injectHacheSuiteStyles();
+    var v = variant === "error" ? "error" : variant === "success" ? "success" : "neutral";
+    var el = document.createElement("div");
+    el.className = "hs-toast hs-toast--" + v;
+    el.setAttribute("role", "status");
+    el.textContent = message;
+    document.body.appendChild(el);
+    requestAnimationFrame(function () {
+      el.classList.add("hs-toast--visible");
+    });
+    setTimeout(function () {
+      el.classList.remove("hs-toast--visible");
+      setTimeout(function () {
+        if (el.parentNode) el.parentNode.removeChild(el);
+      }, 420);
+    }, 3600);
+  }
+
   // ─── UTILS ─────────────────────────────────────────────────────────────────
 
   function lsGet(key) {
@@ -293,28 +377,13 @@
         try {
           await addToCart(gift.giftProductId, gift.giftVariantId, gift.giftQty);
           this.appliedGiftIds.add(gift.id);
-          this.showGiftToast(gift.name || "¡Tu regalo fue agregado al carrito! 🎁");
+          hsToast(gift.name || "¡Tu regalo fue agregado al carrito! 🎁", "success");
         } catch (err) {
           console.warn("[HacheSuite][CartGift] Error agregando regalo:", err);
         }
       }
     },
 
-    showGiftToast(message) {
-      const toast = document.createElement("div");
-      toast.style.cssText = `
-        position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
-        background:#22c55e;color:#fff;padding:12px 24px;border-radius:99px;
-        font-family:inherit;font-size:14px;font-weight:600;z-index:99999;
-        box-shadow:0 4px 24px rgba(0,0,0,0.2);transition:opacity 0.5s;
-      `;
-      toast.textContent = message;
-      document.body.appendChild(toast);
-      setTimeout(() => {
-        toast.style.opacity = "0";
-        setTimeout(() => toast.remove(), 500);
-      }, 3500);
-    },
   };
 
   // ─── MODULE 2: CATEGORY GATE ───────────────────────────────────────────────
@@ -361,54 +430,20 @@
       document.body.style.filter = "blur(8px)";
       document.body.style.pointerEvents = "none";
 
+      injectHacheSuiteStyles();
       const overlay = document.createElement("div");
       overlay.id = "hs-gate-overlay";
-      overlay.style.cssText = `
-        position:fixed;inset:0;z-index:999999;
-        display:flex;align-items:center;justify-content:center;
-        background:rgba(10,10,15,0.85);backdrop-filter:blur(4px);
-      `;
+      overlay.className = "hs-gate-overlay";
 
-      overlay.innerHTML = `
-        <div style="
-          background:#12121a;border:1px solid #2a2a3d;border-radius:16px;
-          padding:2.5rem;width:100%;max-width:380px;text-align:center;
-          box-shadow:0 24px 80px rgba(0,0,0,0.6);
-          font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
-        ">
-          <div style="font-size:3rem;margin-bottom:1rem;">🔒</div>
-          <h2 style="color:#e8e8f0;font-size:1.2rem;font-weight:700;margin-bottom:0.5rem;">
-            Contenido exclusivo
-          </h2>
-          <p style="color:#8888aa;font-size:0.875rem;margin-bottom:1.5rem;line-height:1.5;">
-            Esta categoría es de acceso restringido. Ingresá la contraseña para continuar.
-          </p>
-          <input
-            id="hs-gate-input"
-            type="password"
-            placeholder="Contraseña de acceso"
-            style="
-              width:100%;padding:12px 16px;background:#1a1a26;color:#e8e8f0;
-              border:1px solid #2a2a3d;border-radius:8px;font-size:0.875rem;
-              outline:none;box-sizing:border-box;margin-bottom:0.75rem;
-              font-family:inherit;
-            "
-          />
-          <div id="hs-gate-error" style="color:#ef4444;font-size:0.8rem;margin-bottom:0.75rem;display:none;">
-            Contraseña incorrecta
-          </div>
-          <button
-            id="hs-gate-btn"
-            style="
-              width:100%;padding:12px;background:linear-gradient(135deg,#7c5cfc,#a78bfa);
-              color:#fff;border:none;border-radius:8px;font-size:0.875rem;font-weight:600;
-              cursor:pointer;font-family:inherit;
-            "
-          >
-            Acceder
-          </button>
-        </div>
-      `;
+      overlay.innerHTML =
+        '<div class="hs-gate-card">' +
+        '<div class="hs-gate-icon" aria-hidden="true">🔒</div>' +
+        '<h2 class="hs-gate-title">Contenido exclusivo</h2>' +
+        '<p class="hs-gate-text">Esta categoría es de acceso restringido. Ingresá la contraseña para continuar.</p>' +
+        '<input id="hs-gate-input" class="hs-gate-input" type="password" placeholder="Contraseña de acceso" autocomplete="current-password" />' +
+        '<div id="hs-gate-error" class="hs-gate-err">Contraseña incorrecta</div>' +
+        '<button type="button" id="hs-gate-btn" class="hs-gate-btn">Acceder</button>' +
+        "</div>";
 
       document.body.appendChild(overlay);
       document.body.style.pointerEvents = "";
@@ -626,21 +661,19 @@
         });
       };
 
+      injectHacheSuiteStyles();
       var wrapper = document.createElement("span");
-      wrapper.style.display = "inline-flex";
-      wrapper.style.alignItems = "center";
-      wrapper.style.gap = "6px";
-      wrapper.style.flexWrap = "wrap";
+      wrapper.className = "hs-dyn-wrap";
       wrapper.innerHTML =
-        '<span style="font-weight:700;color:#22c55e;">' +
+        '<span class="hs-dyn-new">' +
         sym +
         fmtNum(discounted) +
         "</span>" +
-        '<span style="text-decoration:line-through;color:#888;font-size:0.85em;">' +
+        '<span class="hs-dyn-old">' +
         sym +
         fmtNum(original) +
         "</span>" +
-        '<span style="background:rgba(34,197,94,0.15);color:#22c55e;padding:2px 7px;border-radius:99px;font-size:0.7em;font-weight:700;">-' +
+        '<span class="hs-dyn-badge">-' +
         pct +
         "%</span>";
 
@@ -673,7 +706,8 @@
       if (!container) return;
       if (!getStoreId()) return;
 
-      container.innerHTML = `<p style="color:#888;text-align:center;padding:2rem;">Cargando combos...</p>`;
+      injectHacheSuiteStyles();
+      container.innerHTML = '<p class="hs-bundle-state">Cargando combos…</p>';
 
       let data;
       const cached = lsGet("bundles_temp");
@@ -684,25 +718,22 @@
           data = await apiGet(`/api/storefront/bundles?storeId=${getStoreId()}`);
           lsSet("bundles_temp", data, 10 * 1000); // 10 seg cache para desarrollo (forzado a nuevo key)
         } catch (e) {
-          container.innerHTML = `<p style="color:#ef4444;text-align:center;">No se pudieron cargar los combos.</p>`;
+          container.innerHTML =
+            '<p class="hs-bundle-state hs-bundle-state--err">No se pudieron cargar los combos.</p>';
           return;
         }
       }
 
       const bundles = data.bundles || [];
       if (bundles.length === 0) {
-        container.innerHTML = `<p style="color:#888;text-align:center;padding:2rem;">No hay combos disponibles por el momento.</p>`;
+        container.innerHTML =
+          '<p class="hs-bundle-state">No hay combos disponibles por el momento.</p>';
         return;
       }
 
       container.innerHTML = "";
       const grid = document.createElement("div");
-      grid.style.cssText = `
-        display:grid;
-        grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
-        gap:1.5rem;
-        padding:1rem 0;
-      `;
+      grid.className = "hs-bundle-grid";
 
       for (const bundle of bundles) {
         const card = this.renderCard(bundle);
@@ -721,62 +752,53 @@
         : 0;
 
       const card = document.createElement("div");
-      card.style.cssText = `
-        background:#fff;border:1px solid #e5e5e5;border-radius:12px;
-        overflow:hidden;display:flex;flex-direction:column;
-        box-shadow:0 2px 8px rgba(0,0,0,0.06);
-        transition:transform 0.18s,box-shadow 0.18s;
-      `;
-      card.onmouseenter = () => {
-        card.style.transform = "translateY(-3px)";
-        card.style.boxShadow = "0 8px 24px rgba(0,0,0,0.12)";
-      };
-      card.onmouseleave = () => {
-        card.style.transform = "";
-        card.style.boxShadow = "0 2px 8px rgba(0,0,0,0.06)";
-      };
+      card.className = "hs-bundle-card";
 
       const imgHtml = bundle.imageUrl
-        ? `<img src="${bundle.imageUrl}" alt="${bundle.name}" style="width:100%;height:200px;object-fit:cover;" />`
-        : `<div style="width:100%;height:160px;background:linear-gradient(135deg,#f0f0fa,#e0e0f5);display:flex;align-items:center;justify-content:center;font-size:3rem;">📦</div>`;
+        ? `<img class="hs-bundle-media" src="${bundle.imageUrl}" alt="${bundle.name.replace(/"/g, "&quot;")}" loading="lazy" />`
+        : '<div class="hs-bundle-placeholder" aria-hidden="true">📦</div>';
 
       const productsHtml = bundle.products
         .map(
           (p) =>
-            `<li style="font-size:0.85rem;color:#555;padding:4px 0;display:flex;justify-content:space-between;">
-               <span>× ${p.quantity} ${p.productName}</span>
-               <span style="color:#999;">$${p.unitPrice.toLocaleString()}</span>
-             </li>`
+            '<li class="hs-bundle-row"><span>× ' +
+            p.quantity +
+            " " +
+            String(p.productName).replace(/</g, "&lt;") +
+            '</span><span>$' +
+            p.unitPrice.toLocaleString() +
+            "</span></li>"
         )
         .join("");
 
-      card.innerHTML = `
-        ${imgHtml}
-        <div style="padding:1.25rem;flex:1;display:flex;flex-direction:column;">
-          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.5rem;margin-bottom:0.5rem;">
-            <h3 style="font-size:1rem;font-weight:700;color:#111;line-height:1.3;">${bundle.name}</h3>
-            ${saving > 0 ? `<span style="background:#dcfce7;color:#16a34a;padding:3px 10px;border-radius:99px;font-size:0.7rem;font-weight:700;flex-shrink:0;">-${saving}%</span>` : ""}
-          </div>
-          ${bundle.description ? `<p style="font-size:0.85rem;color:#666;margin-bottom:0.75rem;line-height:1.5;">${bundle.description}</p>` : ""}
-          <ul style="list-style:none;padding:0;margin:0 0 1rem;border-top:1px solid #f0f0f0;padding-top:0.75rem;">
-            ${productsHtml}
-          </ul>
-          <div style="margin-top:auto;">
-            ${totalOriginal > 0 ? `<div style="font-size:0.85rem;color:#999;text-decoration:line-through;margin-bottom:2px;">$${totalOriginal.toLocaleString()}</div>` : ""}
-            <div style="font-size:1.4rem;font-weight:800;color:#111;margin-bottom:0.75rem;">$${bundle.comboPrice.toLocaleString()}</div>
-            <button
-              data-bundle-id="${bundle.id}"
-              style="
-                width:100%;padding:12px;background:#111;color:#fff;
-                border:none;border-radius:8px;font-size:0.9rem;font-weight:600;
-                cursor:pointer;transition:background 0.18s;font-family:inherit;
-              "
-            >
-              Agregar combo al carrito
-            </button>
-          </div>
-        </div>
-      `;
+      const descHtml = bundle.description
+        ? '<p class="hs-bundle-desc">' + String(bundle.description).replace(/</g, "&lt;") + "</p>"
+        : "";
+
+      card.innerHTML =
+        imgHtml +
+        '<div class="hs-bundle-body">' +
+        '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;margin-bottom:.35rem">' +
+        "<h3 class=\"hs-bundle-title\">" +
+        String(bundle.name).replace(/</g, "&lt;") +
+        "</h3>" +
+        (saving > 0 ? '<span class="hs-bundle-badge">-' + saving + "%</span>" : "") +
+        "</div>" +
+        descHtml +
+        '<ul class="hs-bundle-list">' +
+        productsHtml +
+        "</ul>" +
+        '<div style="margin-top:auto">' +
+        (totalOriginal > 0
+          ? '<div class="hs-bundle-price-old">$' + totalOriginal.toLocaleString() + "</div>"
+          : "") +
+        '<div class="hs-bundle-price-new">$' +
+        bundle.comboPrice.toLocaleString() +
+        "</div>" +
+        '<button type="button" class="hs-bundle-btn" data-bundle-id="' +
+        bundle.id +
+        '">Agregar combo al carrito</button>' +
+        "</div></div>";
 
       const btn = card.querySelector(`[data-bundle-id="${bundle.id}"]`);
       btn.addEventListener("click", () => this.addBundleToCart(bundle, btn));
@@ -787,6 +809,7 @@
     async addBundleToCart(bundle, btn) {
       btn.textContent = "Agregando...";
       btn.disabled = true;
+      btn.classList.remove("hs-bundle-btn--ok", "hs-bundle-btn--err");
 
       let allOk = true;
       for (const p of bundle.products) {
@@ -800,17 +823,16 @@
 
       if (allOk) {
         btn.textContent = "✓ Agregado al carrito";
-        btn.style.background = "#22c55e";
+        btn.classList.add("hs-bundle-btn--ok");
         setTimeout(() => {
           btn.textContent = "Agregar combo al carrito";
-          btn.style.background = "#111";
+          btn.classList.remove("hs-bundle-btn--ok");
           btn.disabled = false;
         }, 2500);
-        // Fire cart update event for other modules
         document.dispatchEvent(new CustomEvent("cart:update"));
       } else {
         btn.textContent = "Error — intentá de nuevo";
-        btn.style.background = "#ef4444";
+        btn.classList.add("hs-bundle-btn--err");
         btn.disabled = false;
       }
     },
@@ -882,20 +904,7 @@
     },
 
     wishlistToast(msg, isError) {
-      const el = document.createElement("div");
-      el.setAttribute("role", "status");
-      el.style.cssText =
-        "position:fixed;bottom:88px;left:50%;transform:translateX(-50%);max-width:min(420px,92vw);" +
-        "padding:12px 16px;border-radius:12px;font:600 13px/1.35 system-ui,sans-serif;z-index:99999;" +
-        "box-shadow:0 8px 28px rgba(0,0,0,.12);" +
-        (isError ? "background:#111;color:#fff;" : "background:#fff;color:#111;border:1px solid rgba(0,0,0,.08);");
-      el.textContent = msg;
-      document.body.appendChild(el);
-      setTimeout(() => {
-        el.style.opacity = "0";
-        el.style.transition = "opacity .35s ease";
-        setTimeout(() => el.remove(), 400);
-      }, 3200);
+      hsToast(msg, isError ? "error" : "neutral");
     },
 
     handleWishlistButtonClick(btn) {
@@ -919,10 +928,7 @@
       this.postToggle(customer, productId)
         .then((data) => {
           this.setButtonState(btn, Boolean(data.inWishlist));
-          this.wishlistToast(
-            data.inWishlist ? "Guardado en favoritos" : "Quitado de favoritos",
-            false
-          );
+          hsToast(data.inWishlist ? "Guardado en favoritos" : "Quitado de favoritos", "success");
         })
         .catch((err) => {
           this.setButtonState(btn, prev);
@@ -1513,8 +1519,11 @@
 
   function boot() {
     const run = () => {
+      injectHacheSuiteStyles();
       const pageType = getCurrentPageType();
-      console.log("[HacheSuite] Iniciando — página:", pageType, "| tienda:", getStoreId() || "(sin id aún)");
+      if (typeof window !== "undefined" && window.HACHE_DEBUG) {
+        console.log("[HacheSuite] Iniciando — página:", pageType, "| tienda:", getStoreId() || "(sin id aún)");
+      }
 
       // Cart Gifts — run on all pages except bundle page
       if (pageType !== "bundle") {

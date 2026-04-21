@@ -1245,6 +1245,11 @@ pt "Últimos lançamentos"
 en "Latest arrivals"
 es_mx "Últimos ingresos"
 
+es "Creá tu cuenta para guardar favoritos, ver pedidos y recibir novedades."
+pt "Crie sua conta para salvar favoritos, ver pedidos e novidades."
+en "Create an account to save wishlists, track orders, and hear from us."
+es_mx "Creá tu cuenta para guardar favoritos, ver pedidos y recibir novedades."
+
 --- --- Labels
 
 es "Sin stock"

@@ -15,12 +15,27 @@ function parseExcludedCategoryIds(raw: string | null | undefined): number[] {
   }
 }
 
+/** JSON a veces manda `null` (p. ej. NaN serializado) — normalizamos antes de validar. */
+const optPct = z.preprocess((v) => {
+  if (v === undefined || v === null || v === "") return undefined;
+  const n = typeof v === "number" ? v : parseFloat(String(v));
+  return Number.isFinite(n) ? n : undefined;
+}, z.number().min(0).max(99).optional());
+
+const optCacheTtl = z.preprocess((v) => {
+  if (v === undefined) return undefined;
+  if (v === null || v === "") return 4;
+  const n = typeof v === "number" ? v : parseInt(String(v), 10);
+  if (!Number.isFinite(n)) return 4;
+  return Math.min(168, Math.max(1, n));
+}, z.number().int().min(1).max(168).optional());
+
 const bodySchema = z.object({
   enabled: z.boolean().optional(),
   algorithm: z.enum(["seeded_random", "demand_based", "progressive"]).optional(),
-  minPct: z.number().min(0).max(99).optional(),
-  maxPct: z.number().min(0).max(99).optional(),
-  cacheTtlHours: z.number().int().min(1).max(168).optional(),
+  minPct: optPct,
+  maxPct: optPct,
+  cacheTtlHours: optCacheTtl,
   excludedCategoryIds: z.array(z.number().int()).optional(),
   commitOnAddToCart: z.boolean().optional(),
 });
@@ -57,9 +72,9 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({
       enabled: config.enabled,
       algorithm: config.algorithm,
-      minPct: config.minPct,
-      maxPct: config.maxPct,
-      cacheTtlHours: config.cacheTtlHours,
+      minPct: config.minPct ?? 5,
+      maxPct: config.maxPct ?? 20,
+      cacheTtlHours: config.cacheTtlHours ?? 4,
       excludedCategoryIds: parseExcludedCategoryIds(config.excludedCategoryIds),
       commitOnAddToCart: config.commitOnAddToCart,
     });
@@ -112,9 +127,9 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({
       enabled: config.enabled,
       algorithm: config.algorithm,
-      minPct: config.minPct,
-      maxPct: config.maxPct,
-      cacheTtlHours: config.cacheTtlHours,
+      minPct: config.minPct ?? 5,
+      maxPct: config.maxPct ?? 20,
+      cacheTtlHours: config.cacheTtlHours ?? 4,
       excludedCategoryIds: parseExcludedCategoryIds(config.excludedCategoryIds),
       commitOnAddToCart: config.commitOnAddToCart,
     });

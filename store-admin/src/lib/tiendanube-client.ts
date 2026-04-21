@@ -82,7 +82,14 @@ export function getPaymentProviderOptions(
 
 export type StockPricePatchRow = {
   id: number;
-  variants: { id: number; price?: string | number }[];
+  variants: { id: number; price?: string | number; promotional_price?: string | number | null }[];
+};
+
+/** Parche parcial de variantes (p. ej. solo `promotional_price`). Ver PATCH /products/{id}/variants. */
+export type ProductVariantPatchPartial = {
+  id: number;
+  price?: string | null;
+  promotional_price?: string | null;
 };
 
 /**
@@ -113,8 +120,23 @@ export type ProductDetail = {
   canonical_url?: string;
   permalink?: string;
   images?: { src?: string }[];
-  variants?: { id: number; price?: string | null }[];
+  variants?: { id: number; price?: string | null; promotional_price?: string | null }[];
 };
+
+/**
+ * Actualiza variantes existentes sin reemplazar el catálogo completo.
+ * Usado p. ej. para fijar `promotional_price` manteniendo `price` como lista.
+ */
+export function patchProductVariants(
+  config: TiendanubeClientConfig,
+  productId: number,
+  variants: ProductVariantPatchPartial[]
+): Promise<unknown> {
+  return tnFetch(config, `/products/${productId}/variants`, {
+    method: "PATCH",
+    body: JSON.stringify(variants),
+  });
+}
 
 export function getProduct(config: TiendanubeClientConfig, productId: number): Promise<ProductDetail> {
   return tnFetch<ProductDetail>(config, `/products/${productId}`);

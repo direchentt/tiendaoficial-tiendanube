@@ -13,6 +13,7 @@
         <meta name="description" content="{{ page_description }}" />
         <link rel="preload" as="style" href="{{ [settings.font_headings, settings.font_rest] | google_fonts_url('400,500,600,700') }}" />
         <link rel="preload" href="{{ 'css/style-critical.scss' | static_url }}" as="style" />
+        <link rel="preload" href="{{ 'css/style-async.scss' | static_url }}" as="style" />
         <link rel="preload" href="{{ 'js/external-no-dependencies.js.tpl' | static_url }}" as="script" />
         
         {{ component('social-meta') }}
@@ -42,9 +43,9 @@
 
         {{ 'css/style-critical.scss' | static_url | static_inline }}
 
-        {# Load async styling not mandatory for first meaningfull paint #}
+        {# Estilos principales: bloqueante para evitar saltos de layout al cargar. #}
 
-        <link rel="stylesheet" href="{{ 'css/style-async.scss' | static_url }}" media="print" onload="this.media='all'">
+        <link rel="stylesheet" href="{{ 'css/style-async.scss' | static_url }}" />
 
         {# Loads custom CSS added from Advanced Settings on the admin´s theme customization screen #}
 

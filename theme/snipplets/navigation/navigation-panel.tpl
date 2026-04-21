@@ -5,9 +5,7 @@
         </ul>
     </div>
 {% else %}
-    <div class="nav-secondary text-left" data-store="account-links">
-        <div class="p-3">
-            {% include "snipplets/header/header-utilities.tpl" with {use_account: true} %}
-        </div>
-    </div>
+	<div class="nav-secondary text-left brand-mobile-account-wrap" data-store="account-links">
+		{% include 'snipplets/navigation/navigation-mobile-account-cta.tpl' %}
+	</div>
 {% endif %}

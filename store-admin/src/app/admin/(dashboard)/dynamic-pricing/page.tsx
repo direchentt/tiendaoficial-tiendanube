@@ -35,6 +35,36 @@ const ALGORITHMS = [
   },
 ];
 
+function clampPct(n: unknown, fallback: number): number {
+  const x = typeof n === "number" ? n : parseFloat(String(n));
+  if (!Number.isFinite(x)) return fallback;
+  return Math.min(99, Math.max(0, x));
+}
+
+function clampCacheHours(n: unknown): number {
+  const x = typeof n === "number" ? n : parseInt(String(n), 10);
+  if (!Number.isFinite(x)) return 4;
+  return Math.min(168, Math.max(1, x));
+}
+
+function normalizeDpPayload(data: Record<string, unknown>): DPConfig {
+  const alg = data.algorithm;
+  const algorithm: DPConfig["algorithm"] =
+    alg === "demand_based" || alg === "progressive" ? alg : "seeded_random";
+  const ex = data.excludedCategoryIds;
+  return {
+    enabled: Boolean(data.enabled),
+    algorithm,
+    minPct: clampPct(data.minPct, 5),
+    maxPct: clampPct(data.maxPct, 20),
+    cacheTtlHours: clampCacheHours(data.cacheTtlHours ?? 4),
+    excludedCategoryIds: Array.isArray(ex)
+      ? ex.filter((x): x is number => typeof x === "number" && Number.isInteger(x) && x > 0)
+      : [],
+    commitOnAddToCart: Boolean(data.commitOnAddToCart),
+  };
+}
+
 export default function DynamicPricingPage() {
   const [config, setConfig] = useState<DPConfig>({
     enabled: false,
@@ -64,11 +94,10 @@ export default function DynamicPricingPage() {
         }
         if (data && typeof data.enabled === "boolean") {
           setLoadError(null);
-          setConfig({
-            ...data,
-            commitOnAddToCart: Boolean(data.commitOnAddToCart),
-          });
-          setExcludeInput((data.excludedCategoryIds ?? []).join(", "));
+          setConfig(normalizeDpPayload(data as Record<string, unknown>));
+          setExcludeInput(
+            (Array.isArray(data.excludedCategoryIds) ? data.excludedCategoryIds : []).join(", ")
+          );
         }
       })
       .catch(() => {
@@ -93,16 +122,20 @@ export default function DynamicPricingPage() {
         .map((s) => parseInt(s.trim()))
         .filter((n) => !Number.isNaN(n) && n > 0);
 
+      const payload = normalizeDpPayload({
+        ...config,
+        excludedCategoryIds,
+      } as unknown as Record<string, unknown>);
       const r = await adminFetch("/api/admin/dynamic-pricing", {
         method: "PUT",
-        body: JSON.stringify({ ...config, excludedCategoryIds }),
+        body: JSON.stringify({ ...payload, excludedCategoryIds }),
       });
       if (!r.ok) {
         const err = await r.json().catch(() => null);
         setError(formatAdminApiError(err, r.status));
       } else {
         const saved = await r.json();
-        setConfig(saved);
+        setConfig(normalizeDpPayload(saved as Record<string, unknown>));
         setSavedOk(true);
         setTimeout(() => setSavedOk(false), 3000);
       }
@@ -164,12 +197,13 @@ export default function DynamicPricingPage() {
             borderRadius: "var(--radius-sm)",
           }}
         >
-          <strong>Importante — checkout:</strong> este motor solo cambia lo que se ve en el tema (listado y ficha).
-          Tiendanube cobra en el checkout el precio real del producto en el catálogo. Si necesitás que el cliente pague
-          menos, usá promos / cupones nativos, o el endpoint{" "}
-          <code style={{ fontSize: "0.78rem" }}>POST /api/admin/apply-price-percent</code> (API oficial{" "}
-          <code>PATCH /products/stock-price</code>) para escribir precios reales en la tienda, con cuidado por stock y
-          límites de la API.
+          <strong>Importante — checkout:</strong> sin “Sincronizar con Tiendanube”, el motor solo ajusta lo que se ve
+          en el tema. Con la opción de sincronizar activada, antes del carrito se escribe{" "}
+          <code style={{ fontSize: "0.78rem" }}>promotional_price</code> en TN y el checkout cobra ese valor (como una
+          oferta). También podés usar cupones nativos o{" "}
+          <code style={{ fontSize: "0.78rem" }}>POST /api/admin/apply-price-percent</code> (
+          <code style={{ fontSize: "0.78rem" }}>PATCH /products/stock-price</code>) para cambios masivos de precio de
+          lista.
         </div>
       </div>
 
@@ -229,15 +263,18 @@ export default function DynamicPricingPage() {
                   onChange={(e) => setConfig({ ...config, commitOnAddToCart: e.target.checked })}
                 />
                 <span>
-                  Antes de <strong>Agregar al carrito</strong>, escribir en Tiendanube el precio con el descuento
-                  dinámico (API <code style={{ fontSize: "0.78rem" }}>PATCH /products/stock-price</code>). Así el
-                  checkout coincide con lo que vio el cliente.{" "}
+                  Antes de <strong>Agregar al carrito</strong>, escribir en Tiendanube el{" "}
+                  <strong>precio promocional</strong> (<code style={{ fontSize: "0.78rem" }}>promotional_price</code>)
+                  con el descuento dinámico vía{" "}
+                  <code style={{ fontSize: "0.78rem" }}>{`PATCH /products/{id}/variants`}</code>. El{" "}
+                  <strong>precio de lista</strong> (<code style={{ fontSize: "0.78rem" }}>price</code>) no se toca;
+                  el checkout cobra el promocional como en cualquier oferta TN.{" "}
                   <strong style={{ color: "var(--danger)" }}>
-                    Cambia el precio del catálogo para todos los visitantes
-                  </strong>
-                  ; conviene con algoritmo estable (p. ej. seeded por día) y token OAuth con{" "}
-                  <code>write_products</code>. Listados con solo “compra rápida” y varias variantes pueden no disparar
-                  bien el hook: probá en PDP o productos sin variantes.
+                    La oferta dinámica se ve para todos los visitantes
+                  </strong>{" "}
+                  hasta que quites la promo en el admin TN o la sobrescriba otra acción. Conviene algoritmo estable (p.
+                  ej. seeded por día) y token OAuth con <code>write_products</code>. Listados con solo “compra rápida”
+                  y varias variantes pueden no disparar bien el hook: probá en PDP.
                 </span>
               </label>
             </div>
@@ -254,7 +291,13 @@ export default function DynamicPricingPage() {
                     max={99}
                     step={0.5}
                     value={config.minPct}
-                    onChange={(e) => setConfig({ ...config, minPct: parseFloat(e.target.value) })}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      if (v === "") return;
+                      const n = parseFloat(v);
+                      if (!Number.isFinite(n)) return;
+                      setConfig({ ...config, minPct: clampPct(n, config.minPct) });
+                    }}
                   />
                 </div>
                 <div>
@@ -265,7 +308,13 @@ export default function DynamicPricingPage() {
                     max={99}
                     step={0.5}
                     value={config.maxPct}
-                    onChange={(e) => setConfig({ ...config, maxPct: parseFloat(e.target.value) })}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      if (v === "") return;
+                      const n = parseFloat(v);
+                      if (!Number.isFinite(n)) return;
+                      setConfig({ ...config, maxPct: clampPct(n, config.maxPct) });
+                    }}
                   />
                 </div>
               </div>
@@ -285,7 +334,16 @@ export default function DynamicPricingPage() {
                   min={1}
                   max={168}
                   value={config.cacheTtlHours}
-                  onChange={(e) => setConfig({ ...config, cacheTtlHours: parseInt(e.target.value) })}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    if (v === "") {
+                      setConfig({ ...config, cacheTtlHours: 4 });
+                      return;
+                    }
+                    const n = parseInt(v, 10);
+                    if (!Number.isFinite(n)) return;
+                    setConfig({ ...config, cacheTtlHours: clampCacheHours(n) });
+                  }}
                 />
                 <p style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginTop: "0.4rem" }}>
                   Los precios calculados se guardan {config.cacheTtlHours}h en localStorage antes de recalcular.

@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { calcDiscountPctForProduct } from "@/lib/dynamic-pricing-calc";
 import {
   getProduct,
-  patchProductsStockPrice,
+  patchProductVariants,
   type TiendanubeClientConfig,
 } from "@/lib/tiendanube-client";
 
@@ -50,8 +50,9 @@ export async function OPTIONS() {
 
 /**
  * POST /api/storefront/dynamic-price-commit
- * Escribe en Tiendanube el precio con el % dinámico actual (misma fórmula que GET /dynamic-prices).
- * Solo si `commitOnAddToCart` está activo en la config. Afecta el catálogo para todos los usuarios.
+ * Escribe en Tiendanube el precio promocional (`promotional_price`) con el % dinámico actual
+ * (misma fórmula que GET /dynamic-prices). El precio de lista (`price`) no se modifica.
+ * Solo si `commitOnAddToCart` está activo en la config. El precio de venta con promo aplica a todos los visitantes.
  */
 export async function POST(req: NextRequest) {
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
@@ -140,25 +141,52 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "variant_not_found" }, { status: 400, headers: CORS });
   }
 
-  const base = parsePrice(v.price ?? null);
-  if (base <= 0) {
+  /** Precio de lista TN (`price`); el tachado cuando hay promo. */
+  const listPrice = parsePrice(v.price ?? null);
+  if (listPrice <= 0) {
     return NextResponse.json({ error: "invalid_variant_price" }, { status: 400, headers: CORS });
   }
 
-  const next = base * (1 - pct / 100);
-  const nextStr = roundPrice(next);
-  if (parseFloat(nextStr) <= 0 || parseFloat(nextStr) >= base) {
+  const nextPromo = listPrice * (1 - pct / 100);
+  const nextStr = roundPrice(nextPromo);
+  const nextNum = parseFloat(nextStr);
+  if (nextNum <= 0 || nextNum >= listPrice) {
     return NextResponse.json({ error: "noop_price" }, { status: 400, headers: CORS });
   }
 
+  const currentPromo = parsePrice(v.promotional_price ?? null);
+  if (currentPromo > 0 && Math.abs(currentPromo - nextNum) < 0.005) {
+    return NextResponse.json(
+      {
+        ok: true,
+        unchanged: true,
+        productId,
+        variantId: v.id,
+        pct,
+        listPrice,
+        promotionalPrice: nextNum,
+        commitMode: "promotional_price",
+      },
+      { headers: CORS }
+    );
+  }
+
   try {
-    await patchProductsStockPrice(tn, [{ id: productId, variants: [{ id: v.id, price: nextStr }] }]);
+    await patchProductVariants(tn, productId, [{ id: v.id, promotional_price: nextStr }]);
   } catch (e) {
     return NextResponse.json({ error: "tn_patch_failed", message: String(e) }, { status: 502, headers: CORS });
   }
 
   return NextResponse.json(
-    { ok: true, productId, variantId: v.id, pct, previousPrice: base, newPrice: parseFloat(nextStr) },
+    {
+      ok: true,
+      productId,
+      variantId: v.id,
+      pct,
+      listPrice,
+      promotionalPrice: nextNum,
+      commitMode: "promotional_price",
+    },
     { headers: CORS }
   );
 }
