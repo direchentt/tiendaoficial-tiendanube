@@ -1433,6 +1433,15 @@ Página de inicio
 	i18n_input
 		name = home_popup_url
 		description = Link del botón
+	dropdown
+		name = home_popup_timeout
+		description = ¿Cuándo querés que aparezca el pop-up?
+		values
+			0 = Apenas carga la página
+			5 = A los 5 segundos
+			10 = A los 10 segundos
+			15 = A los 15 segundos
+			30 = A los 30 segundos
 	checkbox
 		name = home_news_box
 		description = Permitir que tus clientes se suscriban al newsletter
@@ -2177,6 +2186,20 @@ Detalle de producto
 		name = hache_backend_url
 		description = URL base del panel Hache (store-admin), sin barra final. Ej. https://tu-app.up.railway.app. Si queda vacio, se usa la URL por defecto del script (favoritos, bundles, precios, etc.).
 		placeholder =
+	checkbox
+		name = header_wishlist_icon
+		description = Icono de favoritos en el header (enlace a la pagina de wishlist; requiere wishlist activa)
+	checkbox
+		name = header_notify_enabled
+		description = Campana en el header con productos nuevos recientes (API del panel; requiere read_products en el token)
+	checkbox
+		name = header_notify_badge_always
+		description = Siempre mostrar numero en la campana (minimo 1 aunque no haya productos en el rango de dias)
+	range_number
+		name = header_notify_days
+		description = Dias hacia atras para buscar productos creados como novedad
+		min = 7
+		max = 90
 	subtitle
 		subtitle = Secciones de tienda en la ficha (bundles)
 	description

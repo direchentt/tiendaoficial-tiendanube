@@ -736,7 +736,7 @@ DOMContentLoaded.addEventOrExecute(() => {
         LS.homePopup({
             selector: "#home-modal",
             mobile_max_pixels: 0,
-            timeout: 10000
+            timeout: {{ (settings.home_popup_timeout | default(5)) * 1000 }}
         }, callback_hide, callback_show);
 
     {% endif %}
