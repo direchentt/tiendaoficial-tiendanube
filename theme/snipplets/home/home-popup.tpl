@@ -1,3 +1,121 @@
+{% if settings.roulette_enable %}
+<style>
+    .roulette-wrapper {
+        display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 99999;
+        align-items: center; justify-content: center; background: rgba(0,0,0,0.7);
+        opacity: 0; transition: opacity 0.3s ease; backdrop-filter: blur(5px);
+    }
+    .roulette-wrapper.modal-show { display: flex !important; opacity: 1; }
+    .roulette-content {
+        position: relative; background: #fff; border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.2); 
+        display: flex; flex-direction: column; max-width: 420px; width: 92%; overflow: hidden; padding: 35px 25px; text-align: center;
+    }
+    .roulette-wheel-container {
+        position: relative; width: 280px; height: 280px; margin: 0 auto 20px;
+    }
+    .roulette-wheel {
+        position: absolute; width: 100%; height: 100%; border-radius: 50%;
+        background: conic-gradient(from -30deg, #f8fafc 0deg 60deg, #f1f5f9 60deg 120deg, #e2e8f0 120deg 180deg, #cbd5e1 180deg 240deg, #e2e8f0 240deg 300deg, #f1f5f9 300deg 360deg);
+        overflow: hidden; border: 4px solid #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+        transition: transform 4s cubic-bezier(0.1, 0.9, 0.2, 1);
+    }
+    .roulette-slice-text {
+        position: absolute; width: 130px; height: 30px; left: 140px; top: 140px; transform-origin: 0 15px; 
+        display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; color: #1e293b;
+    }
+    .roulette-pointer {
+        position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
+        width: 0; height: 0; border-left: 18px solid transparent; border-right: 18px solid transparent;
+        border-top: 35px solid #ef4444; z-index: 10; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.3));
+    }
+</style>
+
+<div id="home-modal" class="js-modal roulette-wrapper">
+    <div class="roulette-content">
+        <a href="#" class="js-modal-close" style="position: absolute; top: 15px; right: 15px; color: #aaa; text-decoration: none; font-size: 28px; z-index: 10;">&times;</a>
+        
+        <h2 style="font-size: 1.6rem; font-weight: 800; margin-bottom: 10px; color: #111; letter-spacing: -0.5px;">{{ settings.roulette_title | default('¡Girada de la Suerte!') }}</h2>
+        <p style="font-size: 0.9rem; color: #666; margin-bottom: 25px; line-height: 1.4;">{{ settings.roulette_txt | default('Ingresá tu email para jugar y ganar premios exclusivos.') }}</p>
+
+        <div class="roulette-wheel-container">
+            <div class="roulette-pointer"></div>
+            <div class="roulette-wheel" id="js-roulette-wheel">
+                {% for i in 1..6 %}
+                    {% set slice_val = attribute(settings, 'roulette_slice_' ~ i) | default(i * 5 ~ '% OFF') %}
+                    <div class="roulette-slice-text" style="transform: rotate({{ (i - 1) * 60 - 90 }}deg) translateX(30px);">
+                        {{ slice_val }}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div id="js-roulette-form-view">
+            <form id="js-roulette-form" method="post" action="/winnie-pooh">
+                <input type="email" name="email" required placeholder="{{ 'Tu mejor email' | translate }}" style="width: 100%; border: 2px solid #e2e8f0; padding: 14px; border-radius: 10px; margin-bottom: 15px; outline: none; font-size: 1rem;">
+                
+                <div class="winnie-pooh" style="display: none;"><input id="winnie-pooh-newsletter" type="text" name="winnie-pooh"/></div>
+                <input type="hidden" name="name" value="Jugador Ruleta" />
+                <input type="hidden" name="message" value="Participación en Ruleta" />
+                <input type="hidden" name="type" value="newsletter" />
+                
+                <button type="submit" class="js-roulette-btn" style="width: 100%; background: #000; color: #fff; border: none; padding: 14px; border-radius: 10px; font-weight: 800; font-size: 1rem; cursor: pointer; text-transform: uppercase; letter-spacing: 1px;">
+                    Girar Ruleta
+                </button>
+                <div class="js-roulette-spinner" style="display: none; padding: 10px 0;">
+                    <svg class="icon-inline icon-spin" style="width:24px;height:24px;"><use xlink:href="#spinner-third"/></svg>
+                </div>
+            </form>
+        </div>
+
+        <div id="js-roulette-success-view" style="display: none;">
+            <h3 style="font-size: 1.6rem; color: #22c55e; font-weight: 800; margin-bottom: 10px;">¡Ganaste!</h3>
+            <p style="font-size: 0.95rem; color: #333; margin-bottom: 15px;">Acá tenés tu código de descuento. Aplicalo en el carrito de compras.</p>
+            <div style="background: #f8fafc; border: 2px dashed #94a3b8; padding: 15px; border-radius: 10px; font-weight: 800; font-size: 1.4rem; letter-spacing: 2px; color: #0f172a; margin-bottom: 20px;">
+                {{ settings.roulette_winning_code | default('PROMO10') }}
+            </div>
+            <a href="#" class="js-modal-close" style="display: block; width: 100%; background: #000; color: #fff; padding: 14px; border-radius: 10px; font-weight: 800; text-decoration: none; text-transform: uppercase;">Comprar ahora</a>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var form = document.getElementById('js-roulette-form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            var btn = form.querySelector('.js-roulette-btn');
+            var spinner = form.querySelector('.js-roulette-spinner');
+            btn.style.display = 'none';
+            spinner.style.display = 'block';
+
+            var formData = new FormData(form);
+            fetch('/winnie-pooh', {
+                method: 'POST',
+                body: formData
+            }).then(function() {
+                var winningSlice = {{ settings.roulette_winning_slice | default(1) }};
+                var baseRotation = 360 * 5; 
+                var sliceOffset = 360 - ((winningSlice - 1) * 60);
+                var randomOffset = Math.floor(Math.random() * 30) - 15;
+                var totalRotation = baseRotation + sliceOffset + randomOffset;
+
+                document.getElementById('js-roulette-wheel').style.transform = 'rotate(' + totalRotation + 'deg)';
+                
+                setTimeout(function() {
+                    document.getElementById('js-roulette-form-view').style.display = 'none';
+                    document.getElementById('js-roulette-success-view').style.display = 'block';
+                }, 4200);
+            }).catch(function() {
+                btn.style.display = 'block';
+                spinner.style.display = 'none';
+                alert('Hubo un error. Intentá nuevamente.');
+            });
+        });
+    }
+});
+</script>
+{% else %}
 <style>
     .home-popup-wrapper {
         display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 99999;
@@ -69,3 +187,4 @@
         {% endif %}
     </div>
 </div>
+{% endif %}

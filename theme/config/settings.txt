@@ -379,6 +379,9 @@ Encabezado
 		name = brand_hamburger_drawer_enable
 		description = Activar este layout en el modal del menú
 	checkbox
+		name = brand_hamburger_hide_category_pills
+		description = Ocultar el bloque de pastillas (categorías con imagen debajo del menú). La campana del menú muestra los últimos productos como avisos internos.
+	checkbox
 		name = brand_hamburger_pills_shuffle
 		description = Orden aleatorio de las pastillas en cada carga
 	dropdown
@@ -1447,6 +1450,54 @@ Página de inicio
 		description = Permitir que tus clientes se suscriban al newsletter
 	subtitle
 		subtitle = <span class='legend'>El texto y link del botón no se van a mostrar si está habilitada la suscripción al newsletter</span>
+	collapse
+		title = Ruleta de Descuentos (Spin to Win)
+		backto = home_order_position
+	checkbox
+		name = roulette_enable
+		description = Activar Ruleta Interactiva (Si se activa, reemplaza al pop-up estándar)
+	i18n_input
+		name = roulette_title
+		description = Título principal
+	i18n_input
+		name = roulette_txt
+		description = Texto explicativo
+	subtitle
+		subtitle = <span class='legend'>Opciones visibles en la Ruleta (Textos de los 6 gajos)</span>
+	i18n_input
+		name = roulette_slice_1
+		description = Opción 1
+	i18n_input
+		name = roulette_slice_2
+		description = Opción 2
+	i18n_input
+		name = roulette_slice_3
+		description = Opción 3
+	i18n_input
+		name = roulette_slice_4
+		description = Opción 4
+	i18n_input
+		name = roulette_slice_5
+		description = Opción 5
+	i18n_input
+		name = roulette_slice_6
+		description = Opción 6
+	subtitle
+		subtitle = <span class='legend'>Inteligencia: Control del premio garantizado</span>
+	dropdown
+		name = roulette_winning_slice
+		description = ¿En qué opción querés que caiga SIEMPRE la ruleta?
+		values
+			1 = Opción 1
+			2 = Opción 2
+			3 = Opción 3
+			4 = Opción 4
+			5 = Opción 5
+			6 = Opción 6
+	i18n_input
+		name = roulette_winning_code
+		description = Código de descuento a entregar (Ej. GANE10)
+
 	collapse
 		title = Página de inicio
 		backto = _top
