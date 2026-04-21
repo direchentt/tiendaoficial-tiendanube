@@ -5237,29 +5237,30 @@ DOMContentLoaded.addEventOrExecute(() => {
 
             function railFetchCategoryHtml(urlNorm, withXhrHeader) {
                 var headers = {
-                    Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
                 };
                 if (withXhrHeader) {
                     headers['X-Requested-With'] = 'XMLHttpRequest';
                 }
-                return jQueryNuvem
-                    .ajax({
-                        url: urlNorm,
-                        type: 'GET',
-                        dataType: 'text',
-                        cache: false,
-                        global: false,
-                        headers: headers,
-                    })
-                    .then(
-                        function (text) {
-                            return typeof text === 'string' ? text : '';
-                        },
-                        function (jqXHR) {
-                            throw new Error('rail_http_' + String(jqXHR && jqXHR.status ? jqXHR.status : 0));
-                        }
-                    );
+                // Siempre usar path relativo para evitar problemas CORS/AJAX con URLs absolutas del mismo dominio
+                var fetchUrl = urlNorm;
+                try {
+                    var u = new URL(urlNorm, window.location.href);
+                    fetchUrl = u.pathname + u.search;
+                } catch(eU) { /* ignore, use urlNorm */ }
+                return window.fetch(fetchUrl, {
+                    method: 'GET',
+                    credentials: 'same-origin',
+                    headers: headers,
+                    cache: 'default',
+                }).then(function(r) {
+                    if (!r.ok) { throw new Error('rail_http_' + r.status); }
+                    return r.text();
+                }).then(function(text) {
+                    return typeof text === 'string' ? text : '';
+                });
             }
+
 
             function railPerspectiveSwiperGo($item, toSecond) {
                 var target = toSecond ? 1 : 0;
