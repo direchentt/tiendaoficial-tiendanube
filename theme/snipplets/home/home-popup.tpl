@@ -121,13 +121,20 @@ document.addEventListener('DOMContentLoaded', function() {
                     document.getElementById('js-roulette-success-view').style.display = 'block';
                     
                     {% if settings.roulette_prize_type == 'product' and settings.roulette_winning_url %}
-                    // Magic: Fetch product page, extract variant_id, and silently add to cart
+                    // Magic: Fetch product page, extract product_id using DOMParser, and silently add to cart
                     fetch('{{ settings.roulette_winning_url }}')
                         .then(function(res) { return res.text(); })
                         .then(function(html) {
-                            var match = html.match(/name="variant_id" value="(\d+)"/);
-                            if (match && match[1] && window.LS && window.LS.Cart) {
-                                window.LS.Cart.addItem({ variant_id: match[1], quantity: 1 });
+                            var doc = new DOMParser().parseFromString(html, 'text/html');
+                            var input = doc.querySelector('input[name="add_to_cart"]');
+                            if (input && input.value && window.LS && window.LS.Cart) {
+                                var item = { product_id: input.value, quantity: 1 };
+                                
+                                // Opcional: buscar la primera variante si existe
+                                var vMatch = html.match(/\[\{"id":(\d+),/);
+                                if (vMatch && vMatch[1]) { item.variant_id = vMatch[1]; }
+                                
+                                window.LS.Cart.addItem(item);
                             }
                         })
                         .catch(function(e) { console.warn('Roulette auto-add error', e); });
