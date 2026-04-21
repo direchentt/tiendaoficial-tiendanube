@@ -5356,6 +5356,8 @@ DOMContentLoaded.addEventOrExecute(() => {
                         return;
                     }
                     $track.html(inner);
+                    $track.addClass('brand-category-rail__track--entering');
+                    window.setTimeout(function () { $track.removeClass('brand-category-rail__track--entering'); }, 350);
                     $root.removeAttr('data-rail-ssr-preload');
                     var useSlider =
                         String($root.attr('data-product-item-slider')) === '1' &&
@@ -5463,8 +5465,15 @@ DOMContentLoaded.addEventOrExecute(() => {
                     return;
                 }
                 e.preventDefault();
+                // Marcar pestaña activa visualmente
                 $root.find('.js-brand-category-rail-tab').removeClass('brand-category-rail__tab--active');
                 $btn.addClass('brand-category-rail__tab--active');
+                // Sincronizar URL del navegador sin recargar la página
+                try {
+                    if (href && window.history && window.history.pushState) {
+                        window.history.pushState({ railTab: href }, '', href);
+                    }
+                } catch (ePush) { /* ignore */ }
                 if (mode === 'panels') {
                     var tabKey = railUrlKey(href);
                     var $activePanel = jQueryNuvem();
@@ -5524,6 +5533,27 @@ DOMContentLoaded.addEventOrExecute(() => {
                     return;
                 }
                 loadUrlIntoRail($root, href, { fromUserTab: true });
+            });
+
+            // Al presionar «atrás/adelante» del navegador, reflejar la pestaña correcta sin recargar
+            window.addEventListener('popstate', function (ev) {
+                var targetUrl = (ev.state && ev.state.railTab) ? ev.state.railTab : window.location.pathname;
+                jQueryNuvem('.js-brand-category-rail').each(function () {
+                    var $r = jQueryNuvem(this);
+                    if (brandRailLoadMode($r) !== 'ajax') { return; }
+                    var $tabs = $r.find('.js-brand-category-rail-tab');
+                    var matched = false;
+                    $tabs.each(function () {
+                        var tabUrl = jQueryNuvem(this).attr('data-url');
+                        if (tabUrl && railUrlKey(tabUrl) === railUrlKey(targetUrl)) {
+                            $tabs.removeClass('brand-category-rail__tab--active');
+                            jQueryNuvem(this).addClass('brand-category-rail__tab--active');
+                            loadUrlIntoRail($r, tabUrl, { fromUserTab: false });
+                            matched = true;
+                            return false;
+                        }
+                    });
+                });
             });
 
             jQueryNuvem(document).on('click', '.js-brand-category-rail-dots .brand-category-rail__dot', function (e) {
@@ -5600,13 +5630,41 @@ DOMContentLoaded.addEventOrExecute(() => {
             });
             jQueryNuvem('.js-brand-category-rail').each(function () {
                 var $r = jQueryNuvem(this);
-                if ($r.hasClass('brand-category-rail--empty')) {
-                    return;
+                if ($r.hasClass('brand-category-rail--empty')) { return; }
+                if (brandRailLoadMode($r) !== 'ajax') { return; }
+
+                var currentPath = window.location.pathname;
+                var $tabs = $r.find('.js-brand-category-rail-tab');
+                var $matchedTab = jQueryNuvem();
+
+                // Si la URL actual coincide con alguna pestaña, activarla automáticamente
+                $tabs.each(function () {
+                    var tabUrl = jQueryNuvem(this).attr('data-url');
+                    if (tabUrl && railUrlKey(tabUrl) === railUrlKey(currentPath)) {
+                        $matchedTab = jQueryNuvem(this);
+                        return false;
+                    }
+                });
+
+                var $first = $matchedTab.length
+                    ? $matchedTab
+                    : $r.find('.js-brand-category-rail-tab.brand-category-rail__tab--active').first();
+
+                if ($matchedTab.length) {
+                    $tabs.removeClass('brand-category-rail__tab--active');
+                    $matchedTab.addClass('brand-category-rail__tab--active');
+                    // Scroll automático para que la pestaña activa sea visible
+                    try {
+                        var navEl = $r.find('.brand-category-rail__nav')[0];
+                        var btnEl = $matchedTab[0];
+                        if (navEl && btnEl) {
+                            var navLeft = navEl.getBoundingClientRect().left;
+                            var btnLeft = btnEl.getBoundingClientRect().left;
+                            navEl.scrollLeft += (btnLeft - navLeft) - 16;
+                        }
+                    } catch(eScroll) { /* ignore */ }
                 }
-                if (brandRailLoadMode($r) !== 'ajax') {
-                    return;
-                }
-                var $first = $r.find('.js-brand-category-rail-tab.brand-category-rail__tab--active').first();
+
                 if ($first.length) {
                     var firstUrl = $first.attr('data-url');
                     window.setTimeout(function () {
@@ -5614,6 +5672,7 @@ DOMContentLoaded.addEventOrExecute(() => {
                     }, 150);
                 }
             });
+
         })();
     {% endif %}
 
