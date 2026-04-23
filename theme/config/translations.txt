@@ -577,6 +577,11 @@ pt "Ative a vitrina em Design > Marca editorial (layout) e adicione esta secao n
 en "Enable the showcase under Design > Brand editorial (layout) and add this section to the home order. You need products with at least two photos in featured, new or sale lists."
 es_mx "Activa la vitrina en Diseno > Marca editorial (layout) y agrega esta seccion al inicio. Necesitas productos con al menos dos fotos en destacados, novedades u ofertas."
 
+es "Para ver la landing Spoti-Fy, configurá en el personalizador del tema la URL HTTPS donde está publicado el proyecto (por ejemplo Vercel), sin barra al final."
+pt "Para ver a landing Spoti-Fy, configure no personalizador do tema a URL HTTPS onde o projeto esta publicado (por exemplo Vercel), sem barra no final."
+en "To show the Spoti-Fy landing, set the HTTPS URL where the Astro project is deployed (e.g. Vercel) in the theme customizer, with no trailing slash."
+es_mx "Para ver la landing Spoti-Fy, configurá en el personalizador del tema la URL HTTPS donde está publicado el proyecto (por ejemplo Vercel), sin barra al final."
+
 es "Arma tu rutina"
 pt "Arme sua rotina"
 en "Build your routine"
@@ -1224,6 +1229,51 @@ es "Ver producto"
 pt "Ver produto"
 en "View product"
 es_mx "Ver producto"
+
+es "Tu vitrina de deseos"
+pt "Sua vitrine de desejos"
+en "Your wishlist spotlight"
+es_mx "Tu vitrina de deseos"
+
+es "Acá converge todo lo que te hizo frenar el dedo en el corazón: repetí la compra al toque, mirá precios y volvé a la ficha cuando quieras más detalle."
+pt "Aqui se reúne tudo o que te fez pausar no coração: repita a compra num clique, veja preços e volte à página do produto quando quiser mais detalhes."
+en "Everything that made you tap the heart lives here—repeat purchase in one tap, check prices, or open the product page for more detail."
+es_mx "Acá converge todo lo que te hizo frenar el dedo en el corazón: repetí la compra al toque, mirá precios y volvé a la ficha cuando quieras más detalle."
+
+es "favoritos curados"
+pt "favoritos curados"
+en "curated picks"
+es_mx "favoritos curados"
+
+es "Repetir compra"
+pt "Repetir compra"
+en "Buy again"
+es_mx "Repetir compra"
+
+es "Elegí opciones en la ficha"
+pt "Escolha opções na página do produto"
+en "Choose options on the product page"
+es_mx "Elegí opciones en la ficha"
+
+es "¡Listo! Ya está en tu carrito"
+pt "Pronto! Já está no carrinho"
+en "Done—added to your cart"
+es_mx "¡Listo! Ya está en tu carrito"
+
+es "No pudimos agregarlo al carrito. Probá desde la ficha del producto."
+pt "Não foi possível adicionar ao carrinho. Tente na página do produto."
+en "We couldn't add it to the cart. Try from the product page."
+es_mx "No pudimos agregarlo al carrito. Probá desde la ficha del producto."
+
+es "Seguí explorando la tienda"
+pt "Continue explorando a loja"
+en "Keep exploring the store"
+es_mx "Seguí explorando la tienda"
+
+es "Tu lista está lista para llenarse: navegá, enamorate de algo y tocá el corazón."
+pt "Sua lista está pronta para encher: navegue, apaixone-se e toque o coração."
+en "Your list is ready to fill—browse, fall in love, tap the heart."
+es_mx "Tu lista está lista para llenarse: navegá, enamorate de algo y tocá el corazón."
 
 es "Novedades"
 pt "Novidades"

@@ -2248,6 +2248,16 @@ Detalle de producto
 		name = wishlist_page_handle
 		description = Handle/slug de la pagina de favoritos (Mi Tiendanube > Paginas). La URL publica sera /HANDLE (ej. my-wishlist → /my-wishlist). Debe coincidir con el handle de esa pagina.
 		placeholder = my-wishlist
+	subtitle
+		subtitle = <span class='legend'>Landing Spoti-Fy (Astro): publicá el proyecto en Vercel (u otro), pegá la URL HTTPS abajo y creá una página cuyo slug coincida con el handle (por defecto <code>spoti-fy</code> → URL <code>/spoti-fy</code>).</span>
+	text
+		name = brand_spotify_landing_handle
+		description = Slug de la pagina de la tienda que mostrara el embed (debe ser igual al handle en Mi Tiendanube > Paginas).
+		placeholder = spoti-fy
+	text
+		name = brand_spotify_landing_url
+		description = URL publica del sitio Astro, con https:// y sin barra final (ej. https://tu-clone.vercel.app).
+		placeholder = https://
 	text
 		name = hache_backend_url
 		description = URL base del panel Hache (store-admin), sin barra final. Ej. https://tu-app.up.railway.app. Si queda vacio, se usa la URL por defecto del script (favoritos, bundles, precios, etc.).

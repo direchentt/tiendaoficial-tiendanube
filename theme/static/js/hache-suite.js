@@ -130,7 +130,7 @@
       ".hs-gate-btn:hover{opacity:.95;transform:translateY(-1px)}" +
       ".hs-gate-btn:disabled{opacity:.65;cursor:not-allowed;transform:none}" +
       ".hs-bundle-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(17.5rem,1fr));gap:1.35rem;padding:.5rem 0}" +
-      ".hs-bundle-card{background:var(--hs-bundle-bg,#fff);border:1px solid var(--hs-bundle-border,rgba(0,0,0,.08));border-radius:1rem;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 4px 20px rgba(0,0,0,.06);transition:transform .2s,box-shadow .2s}" +
+      ".hs-bundle-card{background:var(--hs-bundle-bg,var(--main-background,#fff));border:1px solid var(--hs-bundle-border,color-mix(in srgb,var(--accent-color,#6366f1) 18%,transparent));border-radius:1rem;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 4px 20px color-mix(in srgb,var(--accent-color,#6366f1) 8%,transparent);transition:transform .2s,box-shadow .2s}" +
       ":root[data-color-scheme='dark'] .hs-bundle-card{--hs-bundle-bg:#161618;--hs-bundle-border:rgba(255,255,255,.1);box-shadow:0 8px 32px rgba(0,0,0,.35)}" +
       ".hs-bundle-card:hover{transform:translateY(-4px);box-shadow:0 14px 36px rgba(0,0,0,.12)}" +
       ":root[data-color-scheme='dark'] .hs-bundle-card:hover{box-shadow:0 16px 40px rgba(0,0,0,.45)}" +
@@ -141,13 +141,19 @@
       ":root[data-color-scheme='dark'] .hs-bundle-desc{--hs-bundle-muted:#a3a3b2}" +
       ".hs-bundle-list{list-style:none;padding:.65rem 0 0;margin:0 0 1rem;border-top:1px solid var(--hs-bundle-divider,rgba(0,0,0,.06))}" +
       ":root[data-color-scheme='dark'] .hs-bundle-list{--hs-bundle-divider:rgba(255,255,255,.08)}" +
-      ".hs-bundle-row{display:flex;justify-content:space-between;gap:.5rem;font-size:.82rem;padding:.28rem 0;color:var(--hs-bundle-row,#444)}" +
+      ".hs-bundle-row{display:flex;align-items:center;gap:.55rem;font-size:.82rem;padding:.32rem 0;color:var(--hs-bundle-row,#444);min-height:2rem}" +
       ":root[data-color-scheme='dark'] .hs-bundle-row{--hs-bundle-row:#d4d4e0}" +
-      ".hs-bundle-row span:last-child{color:var(--hs-bundle-dim,#999);font-variant-numeric:tabular-nums}" +
+      ".hs-bundle-row-thumb{width:28px;height:28px;border-radius:.35rem;object-fit:cover;flex-shrink:0;background:color-mix(in srgb,var(--accent-color,#6366f1) 12%,#f0f0f5)}" +
+      ":root[data-color-scheme='dark'] .hs-bundle-row-thumb{background:color-mix(in srgb,var(--accent-color,#818cf8) 18%,#252528)}" +
+      ".hs-bundle-row-thumb--ph{display:block}" +
+      ".hs-bundle-row-main{flex:1;display:flex;justify-content:space-between;align-items:center;gap:.65rem;min-width:0}" +
+      ".hs-bundle-row-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}" +
+      ".hs-bundle-row-price{color:var(--hs-bundle-dim,#999);font-variant-numeric:tabular-nums;flex-shrink:0}" +
+      ":root[data-color-scheme='dark'] .hs-bundle-row-price{--hs-bundle-dim:#9ca3af}" +
       ".hs-bundle-price-old{font-size:.84rem;color:var(--hs-bundle-dim,#999);text-decoration:line-through}" +
       ".hs-bundle-price-new{font-size:1.45rem;font-weight:800;color:var(--hs-bundle-title,#111);margin-bottom:.75rem;letter-spacing:-.02em}" +
-      ".hs-bundle-btn{width:100%;padding:.75rem 1rem;background:linear-gradient(135deg,#111,#2a2a2a);color:#fff;border:none;border-radius:.5rem;font-size:.88rem;font-weight:600;cursor:pointer;font:inherit;transition:background .2s,transform .15s}" +
-      ".hs-bundle-btn:hover{transform:translateY(-1px)}" +
+      ".hs-bundle-btn{width:100%;padding:.75rem 1rem;background:var(--accent-color,#111);color:var(--accent-btn-text,#fff);border:none;border-radius:.5rem;font-size:.88rem;font-weight:600;cursor:pointer;font:inherit;transition:opacity .2s,transform .15s,box-shadow .2s;box-shadow:0 2px 12px color-mix(in srgb,var(--accent-color,#6366f1) 35%,transparent)}" +
+      ".hs-bundle-btn:hover{transform:translateY(-1px);opacity:.95}" +
       ".hs-bundle-btn--ok{background:linear-gradient(145deg,#059669,#10b981)}" +
       ".hs-bundle-btn--err{background:linear-gradient(145deg,#b91c1c,#ef4444)}" +
       ".hs-bundle-media{width:100%;height:12.5rem;object-fit:cover;display:block;background:linear-gradient(135deg,#f0f0fa,#e8e8f4)}" +
@@ -295,6 +301,14 @@
       .trim();
     if (!cleaned) return NaN;
     if (langEs) {
+      // "43.080.000": miles (43.080) con grupo ".000" fantasma (no es 43 M). Centena "06–09" evita 35.050.000 (35 M).
+      const milesGhost000 = cleaned.match(/^(\d{2})\.(0[6-9]\d)\.000$/);
+      if (milesGhost000) {
+        const head = parseInt(milesGhost000[1], 10);
+        if (head >= 35 && head <= 99) {
+          return parseInt(milesGhost000[1] + milesGhost000[2], 10);
+        }
+      }
       if (/^\d{1,3}(\.\d{3})+$/.test(cleaned)) {
         return parseInt(cleaned.replace(/\./g, ""), 10);
       }
@@ -310,19 +324,78 @@
     return NaN;
   }
 
+  /** `content` / `data-product-price` pueden venir como "38.820" (miles): Number() daría 38.82. */
+  function parseMoneyAttr(raw, langEs) {
+    if (raw == null || raw === "") return NaN;
+    const cleaned = String(raw)
+      .trim()
+      .replace(/[^\d.,]/g, "");
+    if (!cleaned) return NaN;
+    const viaLocale = parseLocaleMoneyTextToNumber(cleaned, langEs);
+    if (Number.isFinite(viaLocale) && viaLocale > 0) return viaLocale;
+    const n = Number(cleaned.replace(",", "."));
+    return Number.isFinite(n) && n > 0 ? n : NaN;
+  }
+
+  /**
+   * TN / tema a veces dejan enteros ×1000 con "centavos" en los últimos 3 dígitos (39116640 → ~39117).
+   * Solo aplica a valores grandes; no toca precios < 1M.
+   */
+  function normalizeTnPesosCanonical(n) {
+    const x = Math.round(Number(n));
+    if (!Number.isFinite(x) || x < 1_000_000) return n;
+    if (x % 1000 !== 0) {
+      const d = Math.round(x / 1000);
+      if (d >= 800 && d <= 2_000_000) return d;
+    }
+    return n;
+  }
+
   function readCanonicalPriceFromEl(el) {
-    const content = el.getAttribute("content");
-    if (content != null && content !== "") {
-      const n = Number(content);
-      if (Number.isFinite(n) && n > 0) return n;
-    }
-    const dp = el.getAttribute("data-product-price");
-    if (dp != null && dp !== "") {
-      const n = Number(String(dp).replace(",", "."));
-      if (Number.isFinite(n) && n > 0) return n;
-    }
     const langEs = (document.documentElement.getAttribute("lang") || "").toLowerCase().startsWith("es");
-    return parseLocaleMoneyTextToNumber(el.textContent || "", langEs);
+
+    const content = el.getAttribute("content");
+    let fromContent = NaN;
+    if (content != null && content !== "") {
+      fromContent = parseMoneyAttr(content, langEs);
+    }
+    const dpRaw = el.getAttribute("data-product-price");
+    let fromDp = NaN;
+    if (dpRaw != null && dpRaw !== "") {
+      fromDp = parseMoneyAttr(dpRaw, langEs);
+    }
+    const fromText = parseLocaleMoneyTextToNumber(el.textContent || "", langEs);
+
+    const maxAttr = Math.max(
+      Number.isFinite(fromContent) && fromContent > 0 ? fromContent : 0,
+      Number.isFinite(fromDp) && fromDp > 0 ? fromDp : 0,
+    );
+
+    // Listado: `content` y `data-product-price` a veces vienen ×1000 (p. ej. 38820836) y el HTML
+    // visible sigue siendo "$38.820" → priorizar el texto parseado.
+    if (Number.isFinite(fromText) && fromText > 0 && maxAttr > 0) {
+      const r = maxAttr / fromText;
+      if (r >= 50 && r <= 5000) {
+        return normalizeTnPesosCanonical(Math.round(fromText));
+      }
+    }
+
+    // TN a veces expone `content` (price_number) o el texto ya formateado leído mal
+    // (p. ej. "38.772.000" → 38772000). `data-product-price` suele coincidir con el precio de catálogo.
+    if (Number.isFinite(fromDp) && fromDp > 0) {
+      if (Number.isFinite(fromContent) && fromContent / fromDp >= 80) {
+        return normalizeTnPesosCanonical(fromDp);
+      }
+      if (Number.isFinite(fromText) && fromText / fromDp >= 80) {
+        return normalizeTnPesosCanonical(fromDp);
+      }
+    }
+
+    let out = NaN;
+    if (Number.isFinite(fromContent) && fromContent > 0) out = fromContent;
+    else if (Number.isFinite(fromDp) && fromDp > 0) out = fromDp;
+    else if (Number.isFinite(fromText)) out = Math.round(fromText);
+    return normalizeTnPesosCanonical(out);
   }
 
   // ─── MODULE 1: CART GIFT ───────────────────────────────────────────────────
@@ -710,13 +783,13 @@
       container.innerHTML = '<p class="hs-bundle-state">Cargando combos…</p>';
 
       let data;
-      const cached = lsGet("bundles_temp");
+      const cached = lsGet("bundles_v3");
       if (cached) {
         data = cached;
       } else {
         try {
           data = await apiGet(`/api/storefront/bundles?storeId=${getStoreId()}`);
-          lsSet("bundles_temp", data, 10 * 1000); // 10 seg cache para desarrollo (forzado a nuevo key)
+          lsSet("bundles_v3", data, 10 * 1000);
         } catch (e) {
           container.innerHTML =
             '<p class="hs-bundle-state hs-bundle-state--err">No se pudieron cargar los combos.</p>';
@@ -759,16 +832,24 @@
         : '<div class="hs-bundle-placeholder" aria-hidden="true">📦</div>';
 
       const productsHtml = bundle.products
-        .map(
-          (p) =>
-            '<li class="hs-bundle-row"><span>× ' +
+        .map(function (p) {
+          var thumb = p.thumbnailUrl
+            ? '<img class="hs-bundle-row-thumb" src="' +
+              String(p.thumbnailUrl).replace(/"/g, "") +
+              '" alt="" width="28" height="28" loading="lazy" />'
+            : '<span class="hs-bundle-row-thumb hs-bundle-row-thumb--ph" aria-hidden="true"></span>';
+          return (
+            '<li class="hs-bundle-row">' +
+            thumb +
+            '<span class="hs-bundle-row-main"><span class="hs-bundle-row-name">× ' +
             p.quantity +
             " " +
             String(p.productName).replace(/</g, "&lt;") +
-            '</span><span>$' +
+            '</span><span class="hs-bundle-row-price">$' +
             p.unitPrice.toLocaleString() +
-            "</span></li>"
-        )
+            "</span></span></li>"
+          );
+        })
         .join("");
 
       const descHtml = bundle.description
@@ -1054,6 +1135,17 @@
       .replace(/"/g, "&quot;");
   }
 
+  function formatWishlistMoney(n) {
+    if (!Number.isFinite(n)) return "";
+    var sym =
+      window.LS && LS.currency && LS.currency.display_short
+        ? LS.currency.display_short
+        : "$";
+    var lang = (document.documentElement.getAttribute("lang") || "").toLowerCase();
+    var loc = lang.indexOf("es") === 0 ? "es-AR" : undefined;
+    return sym + Math.round(n).toLocaleString(loc || "es-AR", { maximumFractionDigits: 0 });
+  }
+
   const WishlistPageModule = {
     async init() {
       const root = document.getElementById("hs-wishlist-page");
@@ -1065,10 +1157,11 @@
       const storeId = getStoreId();
       if (!storeId) {
         const err = root.getAttribute("data-msg-error") || "Error";
-        root.innerHTML =
-          '<div class="hs-wishlist-empty text-center py-5"><p class="font-small text-muted mb-0">' +
-          escapeHtmlWishlist(err) +
-          "</p></div>";
+        while (root.firstChild) root.removeChild(root.firstChild);
+        var errBox = document.createElement("div");
+        errBox.className = "hs-wl-error font-small text-muted text-center py-5";
+        errBox.textContent = err;
+        root.appendChild(errBox);
         return;
       }
 
@@ -1089,10 +1182,11 @@
         const line = wishlistUserFacingMessage(code, st, e, { failVerb: "cargar favoritos" });
         const load = root.querySelector(".hs-wishlist-loading-state");
         if (load) load.remove();
-        root.innerHTML =
-          '<div class="hs-wishlist-empty text-center py-5"><p class="font-small text-muted mb-0">' +
-          escapeHtmlWishlist(line) +
-          "</p></div>";
+        while (root.firstChild) root.removeChild(root.firstChild);
+        var errP = document.createElement("div");
+        errP.className = "hs-wl-error font-small text-muted text-center py-5 px-3";
+        errP.textContent = line;
+        root.appendChild(errP);
         return;
       }
 
@@ -1100,22 +1194,62 @@
       const loadEl = root.querySelector(".hs-wishlist-loading-state");
       if (loadEl) loadEl.remove();
 
+      function renderEmptyWishlist() {
+        while (root.firstChild) root.removeChild(root.firstChild);
+        const emptyTitle = root.getAttribute("data-msg-empty") || "";
+        const emptyLead = root.getAttribute("data-msg-empty-lead") || "";
+        const cta = root.getAttribute("data-wl-empty-cta") || "";
+        var wrap = document.createElement("div");
+        wrap.className = "hs-wl-empty";
+        wrap.innerHTML =
+          '<div class="hs-wl-empty__card">' +
+          '<div class="hs-wl-empty__icon" aria-hidden="true">✦</div>' +
+          '<p class="hs-wl-empty__title"></p>' +
+          '<p class="hs-wl-empty__lead"></p>' +
+          '<a class="hs-wl-empty__cta" href="/"></a>' +
+          "</div>";
+        wrap.querySelector(".hs-wl-empty__title").textContent = emptyTitle;
+        wrap.querySelector(".hs-wl-empty__lead").textContent = emptyLead;
+        var a = wrap.querySelector(".hs-wl-empty__cta");
+        a.textContent = cta;
+        a.setAttribute("href", "/");
+        root.appendChild(wrap);
+      }
+
       if (!items.length) {
-        const empty = root.getAttribute("data-msg-empty") || "";
-        root.innerHTML =
-          '<div class="hs-wishlist-empty card border-0 shadow-sm text-center py-5 px-3">' +
-          '<p class="font-body text-muted mb-0">' +
-          escapeHtmlWishlist(empty) +
-          "</p></div>";
+        renderEmptyWishlist();
         return;
       }
+
+      injectHacheSuiteStyles();
 
       const labelView = root.getAttribute("data-label-view") || "Ver producto";
       const labelRemove = root.getAttribute("data-label-remove") || "Quitar";
       const labelRemoved = root.getAttribute("data-label-removed") || "Quitado";
+      const labelBuy = root.getAttribute("data-label-buy") || "Repetir compra";
+      const labelBuyDis = root.getAttribute("data-label-buy-disabled") || "";
+      const toastOk = root.getAttribute("data-toast-cart-ok") || "";
+      const toastFail = root.getAttribute("data-toast-cart-fail") || "";
+      const statNoun = root.getAttribute("data-wl-stat-noun") || "";
+
+      var shell = document.createElement("div");
+      shell.className = "hs-wl-shell";
+
+      var hero = document.createElement("div");
+      hero.className = "hs-wl-hero";
+      hero.innerHTML =
+        '<div class="hs-wl-hero__glow" aria-hidden="true"></div>' +
+        '<div class="hs-wl-hero__content">' +
+        '<div class="hs-wl-hero__stat" aria-live="polite">' +
+        '<span class="hs-wl-hero__stat-num"></span>' +
+        '<span class="hs-wl-hero__stat-label"></span>' +
+        "</div></div>";
+      hero.querySelector(".hs-wl-hero__stat-num").textContent = String(items.length);
+      hero.querySelector(".hs-wl-hero__stat-label").textContent = statNoun;
+      shell.appendChild(hero);
 
       const grid = document.createElement("div");
-      grid.className = "js-product-table row-grid row hs-wishlist-native-grid";
+      grid.className = "hs-wl-grid";
 
       items.forEach((it) => {
         const pid = Number(it.productId);
@@ -1124,78 +1258,139 @@
           typeof it.url === "string" && it.url && it.url !== "#" ? it.url : "#";
         const name = typeof it.name === "string" ? it.name : "Producto";
         const imgSrc = typeof it.image === "string" && it.image ? it.image : "";
+        const excerpt = typeof it.excerpt === "string" ? it.excerpt : "";
+        const variantId =
+          it.variantId != null && Number.isFinite(Number(it.variantId))
+            ? Number(it.variantId)
+            : null;
+        const sale =
+          it.salePrice != null && Number.isFinite(Number(it.salePrice))
+            ? Number(it.salePrice)
+            : null;
+        const list =
+          it.listPrice != null && Number.isFinite(Number(it.listPrice))
+            ? Number(it.listPrice)
+            : null;
 
-        const col = document.createElement("div");
-        col.className = "item-product col-grid col-6 col-md-4 col-lg-3 hs-wishlist-native-item mb-4";
-        if (Number.isFinite(pid) && pid > 0) col.setAttribute("data-product-id", String(pid));
+        const col = document.createElement("article");
+        col.className = "hs-wl-card hs-wishlist-native-item";
+        col.setAttribute("data-product-id", String(pid));
 
-        const inner = document.createElement("div");
-        inner.className = "item";
-
-        const itemImage = document.createElement("div");
-        itemImage.className = "item-image";
-
-        const imgOuter = document.createElement("a");
-        imgOuter.href = href;
-        imgOuter.className = "d-block text-decoration-none";
-        imgOuter.setAttribute("title", name);
-        if (href === "#") imgOuter.setAttribute("aria-disabled", "true");
-
+        const media = document.createElement("a");
+        media.className = "hs-wl-card__media";
+        media.href = href;
+        media.setAttribute("title", name);
+        if (href === "#") media.setAttribute("aria-disabled", "true");
         const pad = document.createElement("div");
         pad.className =
-          "js-item-image-padding position-relative d-block hs-wishlist-native-img-pad" +
-          (imgSrc ? "" : " hs-wishlist-native-img-pad--empty");
-
+          "hs-wl-card__imgpad" + (imgSrc ? "" : " hs-wl-card__imgpad--empty");
         if (imgSrc) {
           const img = document.createElement("img");
           img.src = imgSrc;
           img.alt = name;
-          img.className = "hs-wishlist-native-img img-fluid w-100";
+          img.className = "hs-wl-card__img";
           img.loading = "lazy";
           img.decoding = "async";
           pad.appendChild(img);
         }
+        media.appendChild(pad);
+        col.appendChild(media);
 
-        imgOuter.appendChild(pad);
-        itemImage.appendChild(imgOuter);
+        const body = document.createElement("div");
+        body.className = "hs-wl-card__body";
 
-        const desc = document.createElement("div");
-        desc.className = "item-description pt-3";
+        const titleA = document.createElement("a");
+        titleA.href = href;
+        titleA.className = "hs-wl-card__titlelink";
+        const h = document.createElement("h2");
+        h.className = "hs-wl-card__title";
+        h.textContent = name;
+        titleA.appendChild(h);
+        body.appendChild(titleA);
 
-        const nameLink = document.createElement("a");
-        nameLink.href = href;
-        nameLink.className = "item-link text-decoration-none d-block";
-        const nameEl = document.createElement("div");
-        nameEl.className = "item-name mb-2 font-weight-bold";
-        nameEl.textContent = name;
-        nameLink.appendChild(nameEl);
-        desc.appendChild(nameLink);
+        if (excerpt) {
+          const ex = document.createElement("p");
+          ex.className = "hs-wl-card__excerpt";
+          ex.textContent = excerpt;
+          body.appendChild(ex);
+        }
 
-        const foot = document.createElement("div");
-        foot.className =
-          "hs-wishlist-native-actions d-flex align-items-center justify-content-between mt-2 pt-2";
+        const priceRow = document.createElement("div");
+        priceRow.className = "hs-wl-card__prices";
+        if (list != null && sale != null && list > sale) {
+          var oldP = document.createElement("span");
+          oldP.className = "hs-wl-card__price hs-wl-card__price--old";
+          oldP.textContent = formatWishlistMoney(list);
+          priceRow.appendChild(oldP);
+        }
+        if (sale != null) {
+          var newP = document.createElement("span");
+          newP.className = "hs-wl-card__price hs-wl-card__price--sale";
+          newP.textContent = formatWishlistMoney(sale);
+          priceRow.appendChild(newP);
+        } else if (list != null) {
+          var onlyP = document.createElement("span");
+          onlyP.className = "hs-wl-card__price";
+          onlyP.textContent = formatWishlistMoney(list);
+          priceRow.appendChild(onlyP);
+        } else {
+          var ask = document.createElement("span");
+          ask.className = "hs-wl-card__price hs-wl-card__price--muted";
+          ask.textContent = "—";
+          priceRow.appendChild(ask);
+        }
+        body.appendChild(priceRow);
+
+        const actions = document.createElement("div");
+        actions.className = "hs-wl-card__actions";
+
+        const buy = document.createElement("button");
+        buy.type = "button";
+        buy.className = "hs-wl-card__btn hs-wl-card__btn--primary";
+        buy.textContent = labelBuy;
+        if (variantId) {
+          buy.addEventListener("click", function () {
+            buy.disabled = true;
+            Promise.resolve(addToCart(pid, variantId, 1))
+              .then(function () {
+                hsToast(toastOk || "OK", "success");
+              })
+              .catch(function () {
+                hsToast(toastFail || "Error", "error");
+              })
+              .finally(function () {
+                buy.disabled = false;
+              });
+          });
+        } else {
+          buy.classList.add("hs-wl-card__btn--ghost");
+          buy.disabled = true;
+          buy.title = labelBuyDis;
+        }
 
         const viewA = document.createElement("a");
         viewA.href = href;
-        viewA.className = "font-small font-weight-bold text-uppercase text-decoration-none";
-        viewA.style.letterSpacing = "0.05em";
+        viewA.className = "hs-wl-card__btn hs-wl-card__btn--secondary";
         viewA.textContent = labelView;
 
         const rm = document.createElement("button");
         rm.type = "button";
-        rm.className = "js-wishlist-page-remove btn btn-link font-small p-0 text-muted text-decoration-none";
+        rm.className = "js-wishlist-page-remove hs-wl-card__iconbtn";
         rm.setAttribute("data-product-id", String(pid));
-        rm.textContent = labelRemove;
+        rm.setAttribute("aria-label", labelRemove);
+        rm.innerHTML = '<span class="hs-wl-card__heart" aria-hidden="true">♥</span>';
 
-        foot.appendChild(viewA);
-        foot.appendChild(rm);
-        desc.appendChild(foot);
+        actions.appendChild(buy);
+        actions.appendChild(viewA);
+        actions.appendChild(rm);
+        body.appendChild(actions);
 
-        inner.appendChild(itemImage);
-        inner.appendChild(desc);
-        col.appendChild(inner);
+        col.appendChild(body);
         grid.appendChild(col);
       });
+
+      shell.appendChild(grid);
+      root.appendChild(shell);
 
       grid.addEventListener("click", (ev) => {
         const btn = ev.target.closest(".js-wishlist-page-remove");
@@ -1212,15 +1407,14 @@
             if (d && d.inWishlist) return;
             const card = btn.closest(".hs-wishlist-native-item");
             if (card && card.parentNode) card.parentNode.removeChild(card);
-            WishlistModule.wishlistToast(labelRemoved, false);
-            if (!grid.querySelector(".hs-wishlist-native-item")) {
-              const empty = root.getAttribute("data-msg-empty") || "";
-              root.removeChild(grid);
-              root.innerHTML =
-                '<div class="hs-wishlist-empty card border-0 shadow-sm text-center py-5 px-3">' +
-                '<p class="font-body text-muted mb-0">' +
-                escapeHtmlWishlist(empty) +
-                "</p></div>";
+            hsToast(labelRemoved, "success");
+            var numEl = root.querySelector(".hs-wl-hero__stat-num");
+            var left = grid.querySelectorAll(".hs-wishlist-native-item").length;
+            if (numEl) numEl.textContent = String(left);
+            if (!left) {
+              var sh = root.querySelector(".hs-wl-shell");
+              if (sh && sh.parentNode === root) root.removeChild(sh);
+              renderEmptyWishlist();
             }
           })
           .catch((err) => {
@@ -1230,8 +1424,6 @@
             WishlistModule.wishlistToast(wishlistUserFacingMessage(code, st, err), true);
           });
       });
-
-      root.appendChild(grid);
     },
   };
 

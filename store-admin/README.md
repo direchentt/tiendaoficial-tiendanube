@@ -41,6 +41,23 @@ Panel y API para reglas que van mas alla del admin estandar de Tiendanube, apoya
 2. Ingresa el valor de `ADMIN_SECRET` del `.env`
 3. Desde ahi: reglas de pago, listado de medios de pago, ajuste de precios, categorias bloqueadas
 
+## UI: Kokonut UI + shadcn (Tailwind v4)
+
+El panel incluye la base para usar componentes de **[Kokonut UI](https://github.com/kokonut-labs/kokonutui)** (registro remoto compatible con shadcn CLI), según la [guía oficial](https://kokonutui.com/docs).
+
+- **Tailwind CSS v4** + PostCSS (`postcss.config.mjs`, `src/app/globals.css`).
+- **`components.json`**: preset shadcn + registro `"@kokonutui": "https://kokonutui.com/r/{name}.json"`.
+- **Tema**: `<html class="dark">` + tokens shadcn en `globals.css` (convive con variables legacy `--surface`, `--accent`, etc. para pantallas que aún usan estilos inline).
+
+Agregar un bloque de Kokonut (ejemplo):
+
+```bash
+cd store-admin
+npx shadcn@latest add @kokonutui/particle-button -y
+```
+
+Luego importá el componente generado (suele quedar bajo `src/components/kokonutui/`) en cualquier página o layout client/server según corresponda. Si el CLI pregunta por sobrescribir archivos, usá `--overwrite`. En monorepos: `npx shadcn@latest add @kokonutui/NOMBRE -c ./store-admin`.
+
 ## Despliegue en Railway
 
 1. Subi el repo a GitHub (o conecta el repo que ya uses).

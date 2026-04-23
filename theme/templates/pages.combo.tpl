@@ -4,14 +4,14 @@
 
 {# Página especial de Bundles/Combos — renderizada por hache-suite.js #}
 
-<section class="hs-bundles-page pb-5 pt-md-1">
+<section class="user-content brand-page-user-content theme-brand-phase1 hs-bundles-page pb-5 pt-md-1">
 	<div class="container-fluid">
-		<div class="row">
-			<div class="col-12">
+		<div class="row justify-content-center">
+			<div class="col-12 col-lg-11 col-xl-10 brand-page-rail">
 
 				{# Intro text (editable desde el admin de TN en el campo de contenido de la página) #}
 				{% if page.content %}
-				<div class="user-content-body text-center mb-4">
+				<div class="user-content-body text-center mb-4 mb-md-5">
 					{{ page.content }}
 				</div>
 				{% endif %}
@@ -35,8 +35,12 @@
 </section>
 
 <style>
-/* Estilos base para la página de combos */
 .hs-bundles-page {
-	padding-top: 2rem;
+	padding-top: 0.5rem;
+}
+@media (min-width: 768px) {
+	.hs-bundles-page {
+		padding-top: 1rem;
+	}
 }
 </style>

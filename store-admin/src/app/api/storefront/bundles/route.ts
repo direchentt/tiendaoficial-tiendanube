@@ -36,7 +36,7 @@ export async function GET(req: NextRequest) {
 
   const bundles = await prisma.bundle.findMany({
     where: { storeId: store.id, enabled: true },
-    include: { products: { orderBy: { productName: "asc" } } },
+    include: { products: { orderBy: { id: "asc" } } },
     orderBy: { createdAt: "desc" },
   });
 

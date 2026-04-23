@@ -25,9 +25,11 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const q = searchParams.get("q") ?? "";
   const page = searchParams.get("page") ?? "1";
+  const perPageRaw = parseInt(searchParams.get("per_page") ?? "20", 10);
+  const perPage = Math.min(48, Math.max(8, Number.isFinite(perPageRaw) ? perPageRaw : 20));
 
   const params = new URLSearchParams();
-  params.set("per_page", "20");
+  params.set("per_page", String(perPage));
   params.set("page", page);
   if (q.trim()) params.set("q", q.trim());
 

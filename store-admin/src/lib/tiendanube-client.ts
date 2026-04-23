@@ -116,6 +116,7 @@ export type ProductListItem = {
 export type ProductDetail = {
   id: number;
   name?: string | Record<string, string>;
+  description?: string | Record<string, string>;
   handle?: string;
   canonical_url?: string;
   permalink?: string;

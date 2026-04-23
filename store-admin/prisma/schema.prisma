@@ -150,6 +150,8 @@ model BundleProduct {
   variantId   Int     @default(0)
   /// Nombre para mostrar (cacheado para no re-fetchear siempre)
   productName String
+  /// Miniatura del producto (URL) para listados y PDP
+  thumbnailUrl String?
   /// Precio unitario original (informativo)
   unitPrice   Float   @default(0)
   quantity    Int     @default(1)

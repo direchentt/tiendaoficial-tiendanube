@@ -8,6 +8,7 @@ const bundleProductSchema = z.object({
   productId: z.number().int().positive(),
   variantId: z.number().int().default(0),
   productName: z.string().min(1),
+  thumbnailUrl: z.string().max(2000).optional().nullable(),
   unitPrice: z.number().default(0),
   quantity: z.number().int().positive().default(1),
 });

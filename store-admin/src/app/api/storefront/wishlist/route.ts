@@ -21,14 +21,8 @@ function parseIntParam(v: string | null): number | null {
 }
 
 function pickProductName(p: ProductDetail): string {
-  const n = p.name;
-  if (typeof n === "string" && n.trim()) return n.trim();
-  if (n && typeof n === "object") {
-    const o = n as Record<string, string>;
-    const v = o.es || o.pt || o.en || o.es_mx || Object.values(o).find((x) => typeof x === "string" && x.trim());
-    if (typeof v === "string" && v.trim()) return v.trim();
-  }
-  return "Producto";
+  const n = pickLocalizedRecord(p.name ?? "");
+  return n || "Producto";
 }
 
 function pickProductUrl(p: ProductDetail): string {
@@ -51,6 +45,64 @@ function pickProductUrl(p: ProductDetail): string {
 function pickProductImage(p: ProductDetail): string | null {
   const src = p.images?.[0]?.src;
   return typeof src === "string" && src.trim() ? src.trim() : null;
+}
+
+function pickLocalizedRecord(
+  field: string | Record<string, string> | undefined
+): string {
+  if (typeof field === "string" && field.trim()) return field.trim();
+  if (field && typeof field === "object") {
+    const o = field as Record<string, string>;
+    const v =
+      o.es ||
+      o.pt ||
+      o.en ||
+      o.es_mx ||
+      Object.values(o).find((x) => typeof x === "string" && x.trim());
+    if (typeof v === "string" && v.trim()) return v.trim();
+  }
+  return "";
+}
+
+function stripHtml(html: string): string {
+  return html
+    .replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style[\s\S]*?>[\s\S]*?<\/style>/gi, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/** Texto plano corto para la tarjeta de favoritos (sin HTML). */
+function pickProductExcerpt(p: ProductDetail, maxLen: number): string {
+  const raw = pickLocalizedRecord(p.description);
+  if (!raw) return "";
+  const plain = stripHtml(raw);
+  if (plain.length <= maxLen) return plain;
+  return `${plain.slice(0, maxLen - 1).trim()}…`;
+}
+
+function parseMoney(s: string | null | undefined): number | null {
+  if (s == null || s === "") return null;
+  const n = parseFloat(String(s).replace(",", "."));
+  return Number.isFinite(n) && n >= 0 ? n : null;
+}
+
+function pickFirstVariant(p: ProductDetail): {
+  variantId: number | null;
+  salePrice: number | null;
+  listPrice: number | null;
+} {
+  const v = p.variants?.[0];
+  if (!v || typeof v.id !== "number" || v.id <= 0) {
+    return { variantId: null, salePrice: null, listPrice: null };
+  }
+  const list = parseMoney(v.price ?? null);
+  const promo = parseMoney(v.promotional_price ?? null);
+  if (list != null && promo != null && promo < list) {
+    return { variantId: v.id, salePrice: promo, listPrice: list };
+  }
+  return { variantId: v.id, salePrice: list ?? promo, listPrice: null };
 }
 
 /**
@@ -107,15 +159,29 @@ export async function GET(req: NextRequest) {
   }
 
   const max = 40;
-  const items: { productId: number; name: string; url: string; image: string | null }[] = [];
+  const items: {
+    productId: number;
+    name: string;
+    url: string;
+    image: string | null;
+    excerpt: string;
+    variantId: number | null;
+    salePrice: number | null;
+    listPrice: number | null;
+  }[] = [];
   for (const productId of productIds.slice(0, max)) {
     try {
       const p = await getProduct(config, productId);
+      const { variantId, salePrice, listPrice } = pickFirstVariant(p);
       items.push({
         productId,
         name: pickProductName(p),
         url: pickProductUrl(p),
         image: pickProductImage(p),
+        excerpt: pickProductExcerpt(p, 200),
+        variantId,
+        salePrice,
+        listPrice,
       });
     } catch {
       items.push({
@@ -123,6 +189,10 @@ export async function GET(req: NextRequest) {
         name: `Producto #${productId}`,
         url: "#",
         image: null,
+        excerpt: "",
+        variantId: null,
+        salePrice: null,
+        listPrice: null,
       });
     }
   }
