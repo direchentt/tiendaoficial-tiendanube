@@ -174,6 +174,7 @@ brand_category_rail_enable = 0
 brand_category_rail_show_on_product = 0
 brand_category_rail_load_mode = ajax
 brand_promo_split_enable = 0
+brand_promo_split_media_url =
 brand_promo_split_show_home = 1
 brand_promo_split_show_category = 1
 brand_promo_split_show_product = 1

@@ -27,7 +27,8 @@
   brand_category_carousel: show_help or (show_component_help and not has_brand_category_carousel),
   brand_category_rail: show_help or (show_component_help and not settings.brand_category_rail_enable),
   brand_routine_showcase: show_help or (show_component_help and not (settings.brand_routine_showcase_enable | default(false))),
-  brand_shoppable_stories: show_help or (show_component_help and not (settings.brand_shoppable_stories_enable | default(false)))
+  brand_shoppable_stories: show_help or (show_component_help and not (settings.brand_shoppable_stories_enable | default(false))),
+  brand_promo_split: show_help or (show_component_help and not has_brand_promo_split)
 } %}
 
 {% if section_select == 'slider' %}
@@ -240,6 +241,14 @@
 		{% include 'snipplets/defaults/home/brand_shoppable_stories_help.tpl' %}
 	{% else %}
 		{% include 'snipplets/home/home-brand-shoppable-stories.tpl' %}
+	{% endif %}
+
+{% elseif section_select == 'brand_promo_split' %}
+
+	{% if home_help.brand_promo_split %}
+		{% snipplet 'defaults/home/brand_promo_split_help.tpl' %}
+	{% else %}
+		{% include 'snipplets/brand/brand-promo-split.tpl' %}
 	{% endif %}
 
 {% endif %}

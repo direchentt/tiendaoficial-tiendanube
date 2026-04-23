@@ -8632,12 +8632,14 @@ body.theme-brand-phase1 b {
 
 /*============================================================================
   #Brand: promo split (banner nativo + 4 ítems de sección TN)
-  Banner acotado al viewport; tarjetas compactas; 2×2 en desktop y mobile.
+  Desktop: banner llena toda la columna (misma altura que grilla 2×2); grilla con
+  huecos entre ítems; tarjetas compactas. Mobile: banner acotado + grilla 2×2.
 ==============================================================================*/
 
 .brand-promo-split {
-  --brand-promo-split-banner-max: min(72svh, 34rem);
-  --brand-promo-split-banner-mobile: min(40svh, 15rem);
+  --brand-promo-split-banner-mobile: min(38svh, 14.5rem);
+  --brand-promo-split-mosaic-gap: 0.8rem;
+  --brand-promo-split-mosaic-gap-lg: 1.15rem;
 }
 
 .brand-promo-split__wrap {
@@ -8651,10 +8653,33 @@ body.theme-brand-phase1 b {
 }
 
 .brand-promo-split__col {
-  padding: 0.25rem;
+  padding: 0.35rem;
   min-width: 0;
 }
 
+/* Grilla 2×2 con separación (reemplaza flex row + no-gutters) */
+.brand-promo-split__grid.row {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--brand-promo-split-mosaic-gap);
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  min-height: 0;
+}
+
+.brand-promo-split__grid > .js-item-product.item-product {
+  flex: none !important;
+  max-width: none !important;
+  width: 100% !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+.brand-promo-split__grid > .js-item-product .item {
+  margin-bottom: 0 !important;
+}
+
+/* Mobile: altura fija del banner (no estirar con la grilla de abajo) */
 .brand-promo-split__banner-inner {
   position: relative;
   width: 100%;
@@ -8675,66 +8700,102 @@ body.theme-brand-phase1 b {
   object-position: center center;
 }
 
-.brand-promo-split__grid {
-  min-height: 0;
+/* Video / embed (misma caja que la imagen; reusa brand-video-media.tpl) */
+.brand-promo-split__banner-inner .brand-split-video__iframe,
+.brand-promo-split__banner-inner .brand-split-video__video-el {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  max-width: none !important;
+  transform: none !important;
+  border: 0;
+  object-fit: cover;
+  pointer-events: auto;
 }
 
-/* Tarjetas más chicas: ratio de foto y tipografía */
+.brand-promo-split__banner-inner .brand-split-video__fallback {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Tarjetas compactas + tipografía acotada a esta sección */
 .brand-promo-split .item-product:not(.item-product-reduced) .item-image .js-item-image-padding {
-  padding-bottom: 90% !important;
+  padding-bottom: 38% !important;
 }
 
 .brand-promo-split .item-product .item-description {
-  padding-top: 0.45rem !important;
+  padding-top: 0.35rem !important;
 }
 
 .brand-promo-split .item-product .js-item-name.item-name {
-  font-size: clamp(0.62rem, 2.4vw, 0.78rem);
+  font-size: clamp(0.52rem, 2vw, 0.62rem);
   line-height: 1.2;
-  margin-bottom: 0.25rem !important;
+  margin-bottom: 0.2rem !important;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  overflow-wrap: anywhere;
 }
 
 .brand-promo-split .item-product .item-price,
 .brand-promo-split .item-product .price-compare,
 .brand-promo-split .item-product .item-price-container {
-  font-size: clamp(0.58rem, 2.1vw, 0.72rem);
-  line-height: 1.25;
+  font-size: clamp(0.48rem, 1.85vw, 0.58rem);
+  line-height: 1.2;
 }
 
 .brand-promo-split .item-product .item-img-flip-btn {
-  transform: scale(0.88);
+  transform: scale(0.82);
   transform-origin: bottom right;
 }
 
 .brand-promo-split .item-product .item .mb-3,
 .brand-promo-split .item-product .item .mt-3 {
-  margin-top: 0.35rem !important;
-  margin-bottom: 0.35rem !important;
+  margin-top: 0.3rem !important;
+  margin-bottom: 0.3rem !important;
 }
 
 @media (min-width: 992px) {
+  .brand-promo-split__grid.row {
+    gap: var(--brand-promo-split-mosaic-gap-lg);
+    align-content: start;
+  }
+
+  /* Misma altura en ambas columnas: el banner ocupa todo el “cuadro” izquierdo */
   .brand-promo-split__row {
-    align-items: flex-start;
+    align-items: stretch !important;
+  }
+
+  .brand-promo-split__col--banner {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
   }
 
   .brand-promo-split__banner-inner {
-    height: var(--brand-promo-split-banner-max);
-    max-height: var(--brand-promo-split-banner-max);
+    flex: 1 1 auto;
+    min-height: 0;
+    height: 100%;
+    max-height: none;
+  }
+
+  .brand-promo-split__col--grid {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
   }
 
   .brand-promo-split .item-product:not(.item-product-reduced) .item-image .js-item-image-padding {
-    padding-bottom: 82% !important;
+    padding-bottom: 32% !important;
   }
-}
-
-/* Forzar 2×2 sobre el grid nativo del ítem en plantillas que no son home */
-.brand-promo-split__grid > .js-item-product.item-product {
-  flex: 0 0 50% !important;
-  max-width: 50% !important;
-}
-
-.brand-promo-split__grid > .js-item-product .item {
-  margin-bottom: 0 !important;
 }
 
 /*============================================================================

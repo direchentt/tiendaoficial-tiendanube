@@ -27,9 +27,14 @@
 
   /** TN a veces hidrata `LS.store` después del primer paint; no cortar el bundle entero. */
   function getStoreId() {
+    var meta =
+      typeof document !== "undefined" &&
+      document.querySelector('meta[name="hache-store-user-id"]');
+    var metaId = meta && meta.getAttribute("content") ? String(meta.getAttribute("content")).trim() : "";
     const id =
       window.LS?.store?.id?.toString() ||
       window.store_id?.toString() ||
+      metaId ||
       "";
     return id.trim();
   }
@@ -939,12 +944,14 @@
 
       let data;
       const cached = lsGet("bundles_v3");
-      if (cached) {
+      if (cached && (cached.bundles || []).length > 0) {
         data = cached;
       } else {
         try {
           data = await apiGet(`/api/storefront/bundles?storeId=${getStoreId()}`);
-          lsSet("bundles_v3", data, 10 * 1000);
+          if ((data.bundles || []).length > 0) {
+            lsSet("bundles_v3", data, 30 * 1000);
+          }
         } catch (e) {
           container.innerHTML =
             '<p class="hs-bundle-state hs-bundle-state--err">No se pudieron cargar los combos.</p>';

@@ -13,6 +13,7 @@
         <meta name="x-hache-customer-id" content="{{ customer.id }}" />
         <meta name="x-hache-customer-email" content="{{ customer.email|e('html_attr') }}" />
         {% endif %}
+        <meta name="hache-store-user-id" content="{{ store.id }}" />
         <title>{{ page_title }}</title>
         <meta name="description" content="{{ page_description }}" />
         <link rel="preload" as="style" href="{{ [settings.font_headings, settings.font_rest] | google_fonts_url('400,500,600,700') }}" />

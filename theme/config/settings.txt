@@ -1537,6 +1537,7 @@ Página de inicio
 			brand_category_carousel = Carrusel de categorías marca (6 bloques)
 			brand_routine_showcase = Vitrina Arma tu rutina (productos)
 			brand_shoppable_stories = Carrusel video shoppable (Stories)
+			brand_promo_split = Promo split (banner + 4 productos)
 			brand_category_rail = Carril categorías (Novedades / pestañas)
 			main_product = Producto principal
 			instafeed = Publicaciones de Instagram
@@ -2017,7 +2018,7 @@ Promo split — banner + 4 productos
 		icon = th-large
 		advanced = false
 	subtitle
-		subtitle = <span class='legend'>Nativo Tiendanube: subí el banner acá. En <strong>Productos &gt; Secciones</strong> asigná la sección <strong>Promo split (banner + 4 productos)</strong> y <strong>arrastrá</strong> los modelos para el orden: se muestran los <strong>primeros 4</strong> (hasta 40 en la sección). En <strong>Diseño &gt; Página de inicio</strong> podés ubicar el bloque en el orden del home.</span>
+		subtitle = <span class='legend'>Nativo Tiendanube: subí el banner o pegá una <strong>URL de imagen o video</strong> abajo (el enlace manda si está lleno). En <strong>Productos &gt; Secciones</strong> asigná <strong>Promo split (banner + 4 productos)</strong> y <strong>arrastrá</strong> el orden (primeros 4). En <strong>Diseño &gt; Página de inicio &gt; Orden</strong> elegí la posición <strong>Promo split (banner + 4 productos)</strong> y arrastrá para mover el bloque.</span>
 	description
 		description = El bloque aparece en inicio, categoría y/o PDP según los interruptores. Las tarjetas reutilizan el ítem de grilla del tema (compra rápida, precios, etc.).
 	checkbox
@@ -2028,6 +2029,9 @@ Promo split — banner + 4 productos
 		title = Imagen del banner (vertical u horizontal; en la tienda la altura se limita al alto de pantalla)
 		width = 1200
 		height = 1800
+	i18n_input
+		name = brand_promo_split_media_url
+		description = Opcional: URL de imagen (https…jpg/png/webp) o video (archivo .mp4/.webm, YouTube, Vimeo, TikTok). Si completás este campo, tiene prioridad sobre la imagen subida arriba.
 	checkbox
 		name = brand_promo_split_show_home
 		description = Mostrar en la página de inicio

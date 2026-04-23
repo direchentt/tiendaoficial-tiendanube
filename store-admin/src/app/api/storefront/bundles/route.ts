@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { loadStoreForStorefront } from "@/lib/default-store";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -26,9 +27,7 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  const store = await prisma.store.findUnique({
-    where: { tiendanubeUserId: storeUserId },
-  });
+  const store = await loadStoreForStorefront(storeUserId);
 
   if (!store) {
     return NextResponse.json({ bundles: [] }, { headers: CORS });
