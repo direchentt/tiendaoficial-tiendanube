@@ -11,6 +11,8 @@ const bodySchema = z.object({
   giftVariantId: z.number().int().positive(),
   giftQty: z.number().int().positive().default(1),
   enabled: z.boolean().default(true),
+  publicBenefitTitle: z.string().max(200).optional().nullable(),
+  publicBenefitMessage: z.string().max(2000).optional().nullable(),
 });
 
 export async function GET(req: NextRequest) {

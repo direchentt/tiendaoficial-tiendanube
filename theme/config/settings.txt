@@ -2012,6 +2012,32 @@ Marca editorial (layout)
 		description = ID del producto
 		placeholder = Ej. 98765432
 
+Promo split — banner + 4 productos
+	meta
+		icon = th-large
+		advanced = false
+	subtitle
+		subtitle = <span class='legend'>Nativo Tiendanube: subí el banner acá. En <strong>Productos &gt; Secciones</strong> asigná la sección <strong>Promo split (banner + 4 productos)</strong> y <strong>arrastrá</strong> los modelos para el orden: se muestran los <strong>primeros 4</strong> (hasta 40 en la sección). En <strong>Diseño &gt; Página de inicio</strong> podés ubicar el bloque en el orden del home.</span>
+	description
+		description = El bloque aparece en inicio, categoría y/o PDP según los interruptores. Las tarjetas reutilizan el ítem de grilla del tema (compra rápida, precios, etc.).
+	checkbox
+		name = brand_promo_split_enable
+		description = Activar bloque promo split
+	image
+		original = brand_promo_split_banner.jpg
+		title = Imagen del banner (vertical u horizontal; en la tienda la altura se limita al alto de pantalla)
+		width = 1200
+		height = 1800
+	checkbox
+		name = brand_promo_split_show_home
+		description = Mostrar en la página de inicio
+	checkbox
+		name = brand_promo_split_show_category
+		description = Mostrar en listados de categoría
+	checkbox
+		name = brand_promo_split_show_product
+		description = Mostrar en ficha de producto (PDP)
+
 Carril categorías
 	meta
 		icon = th-list

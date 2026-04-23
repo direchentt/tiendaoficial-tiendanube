@@ -300,8 +300,13 @@ export default function BundlesPage() {
         </div>
         <p style={{ color: "var(--text-muted)", fontSize: "0.875rem", maxWidth: "52rem" }}>
           Armá combos con el <strong>catálogo visual</strong> o la búsqueda. El precio de cada variante viene de
-          Tiendanube; podés reordenar ítems y usar la primera foto como portada. En la tienda se muestran en{" "}
-          <code>/pages/combos</code> con el mismo look que tu marca.
+          Tiendanube; podés reordenar ítems y usar la primera foto como portada. En la tienda se muestran en la ruta{" "}
+          <code>/combos</code> (p. ej.{" "}
+          <a href="https://www.direchentt.com.ar/combos" target="_blank" rel="noreferrer">
+            direchentt.com.ar/combos
+          </a>
+          ) con el mismo look que tu marca. Otras configuraciones de TN pueden usar <code>/pages/combos</code> o{" "}
+          <code>/paginas/combos</code>.
         </p>
       </div>
 
@@ -764,7 +769,11 @@ export default function BundlesPage() {
         <h2 style={{ marginBottom: "0.75rem" }}>En la tienda</h2>
         <ol style={{ paddingLeft: "1.25rem", lineHeight: 1.85, fontSize: "0.875rem", color: "var(--text-muted)" }}>
           <li>
-            Página con slug <code>combos</code> (URL típica <code>/pages/combos</code> o <code>/paginas/combos</code>).
+            Ruta pública <code>/combos</code> — en producción:{" "}
+            <a href="https://www.direchentt.com.ar/combos" target="_blank" rel="noreferrer">
+              https://www.direchentt.com.ar/combos
+            </a>
+            . Otras tiendas pueden usar <code>/pages/combos</code> o <code>/paginas/combos</code>.
           </li>
           <li>
             El script <code>hache-suite.js</code> pide <code>/api/storefront/bundles</code> y dibuja la grilla con colores del tema.

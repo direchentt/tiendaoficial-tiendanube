@@ -8631,6 +8631,113 @@ body.theme-brand-phase1 b {
 }
 
 /*============================================================================
+  #Brand: promo split (banner nativo + 4 ítems de sección TN)
+  Banner acotado al viewport; tarjetas compactas; 2×2 en desktop y mobile.
+==============================================================================*/
+
+.brand-promo-split {
+  --brand-promo-split-banner-max: min(72svh, 34rem);
+  --brand-promo-split-banner-mobile: min(40svh, 15rem);
+}
+
+.brand-promo-split__wrap {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+.brand-promo-split__row {
+  margin-left: -0.25rem;
+  margin-right: -0.25rem;
+}
+
+.brand-promo-split__col {
+  padding: 0.25rem;
+  min-width: 0;
+}
+
+.brand-promo-split__banner-inner {
+  position: relative;
+  width: 100%;
+  height: var(--brand-promo-split-banner-mobile);
+  max-height: var(--brand-promo-split-banner-mobile);
+  border-radius: 0;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--accent-color, #6366f1) 8%, var(--main-background, #f6f6f8));
+}
+
+.brand-promo-split__banner-img {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+}
+
+.brand-promo-split__grid {
+  min-height: 0;
+}
+
+/* Tarjetas más chicas: ratio de foto y tipografía */
+.brand-promo-split .item-product:not(.item-product-reduced) .item-image .js-item-image-padding {
+  padding-bottom: 90% !important;
+}
+
+.brand-promo-split .item-product .item-description {
+  padding-top: 0.45rem !important;
+}
+
+.brand-promo-split .item-product .js-item-name.item-name {
+  font-size: clamp(0.62rem, 2.4vw, 0.78rem);
+  line-height: 1.2;
+  margin-bottom: 0.25rem !important;
+}
+
+.brand-promo-split .item-product .item-price,
+.brand-promo-split .item-product .price-compare,
+.brand-promo-split .item-product .item-price-container {
+  font-size: clamp(0.58rem, 2.1vw, 0.72rem);
+  line-height: 1.25;
+}
+
+.brand-promo-split .item-product .item-img-flip-btn {
+  transform: scale(0.88);
+  transform-origin: bottom right;
+}
+
+.brand-promo-split .item-product .item .mb-3,
+.brand-promo-split .item-product .item .mt-3 {
+  margin-top: 0.35rem !important;
+  margin-bottom: 0.35rem !important;
+}
+
+@media (min-width: 992px) {
+  .brand-promo-split__row {
+    align-items: flex-start;
+  }
+
+  .brand-promo-split__banner-inner {
+    height: var(--brand-promo-split-banner-max);
+    max-height: var(--brand-promo-split-banner-max);
+  }
+
+  .brand-promo-split .item-product:not(.item-product-reduced) .item-image .js-item-image-padding {
+    padding-bottom: 82% !important;
+  }
+}
+
+/* Forzar 2×2 sobre el grid nativo del ítem en plantillas que no son home */
+.brand-promo-split__grid > .js-item-product.item-product {
+  flex: 0 0 50% !important;
+  max-width: 50% !important;
+}
+
+.brand-promo-split__grid > .js-item-product .item {
+  margin-bottom: 0 !important;
+}
+
+/*============================================================================
   #Brand: category triptych (3 bloques)
 ==============================================================================*/
 

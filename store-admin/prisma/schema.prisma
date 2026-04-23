@@ -92,6 +92,10 @@ model CartGiftRule {
   giftVariantId  Int
   /// Cantidad a agregar
   giftQty        Int      @default(1)
+  /// Título del popup en la tienda (vacío = se usa `name`)
+  publicBenefitTitle   String?
+  /// Texto del beneficio en el popup (vacío = mensaje genérico con el mínimo)
+  publicBenefitMessage String?
   enabled        Boolean  @default(true)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt

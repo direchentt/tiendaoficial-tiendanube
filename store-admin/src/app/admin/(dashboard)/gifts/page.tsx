@@ -12,6 +12,8 @@ type GiftRule = {
   giftVariantId: number;
   giftQty: number;
   enabled: boolean;
+  publicBenefitTitle?: string | null;
+  publicBenefitMessage?: string | null;
 };
 
 type TNVariant = { id: number; price: string; values?: { es?: string; pt?: string; en?: string }[] };
@@ -35,6 +37,8 @@ const EMPTY_FORM = {
   minTotal: "",
   giftQty: "1",
   enabled: true,
+  publicBenefitTitle: "",
+  publicBenefitMessage: "",
 };
 
 export default function GiftsPage() {
@@ -53,6 +57,10 @@ export default function GiftsPage() {
   const [selectedProduct, setSelectedProduct] = useState<TNProduct | null>(null);
   const [selectedVariant, setSelectedVariant] = useState<TNVariant | null>(null);
 
+  /** Borradores del copy del popup por regla (sincroniza al cargar reglas nuevas). */
+  const [benefitDrafts, setBenefitDrafts] = useState<Record<string, { t: string; m: string }>>({});
+  const [savingCopyId, setSavingCopyId] = useState<string | null>(null);
+
   const fetchRules = useCallback(async () => {
     const r = await adminFetch("/api/admin/cart-gifts");
     if (r.ok) setRules(await r.json());
@@ -60,6 +68,18 @@ export default function GiftsPage() {
   }, []);
 
   useEffect(() => { fetchRules(); }, [fetchRules]);
+
+  useEffect(() => {
+    setBenefitDrafts((prev) => {
+      const next = { ...prev };
+      for (const r of rules) {
+        if (!(r.id in next)) {
+          next[r.id] = { t: r.publicBenefitTitle ?? "", m: r.publicBenefitMessage ?? "" };
+        }
+      }
+      return next;
+    });
+  }, [rules]);
 
   const searchProducts = useCallback(async (q: string) => {
     const trimmed = q.trim();
@@ -119,6 +139,8 @@ export default function GiftsPage() {
         giftVariantId: selectedVariant.id,
         giftQty: parseInt(form.giftQty),
         enabled: form.enabled,
+        publicBenefitTitle: form.publicBenefitTitle.trim() || null,
+        publicBenefitMessage: form.publicBenefitMessage.trim() || null,
       };
       const r = await adminFetch("/api/admin/cart-gifts", {
         method: "POST",
@@ -147,6 +169,41 @@ export default function GiftsPage() {
       body: JSON.stringify({ enabled: !rule.enabled }),
     });
     fetchRules();
+  }
+
+  async function saveRulePublicCopy(ruleId: string) {
+    const d = benefitDrafts[ruleId];
+    if (!d) return;
+    setSavingCopyId(ruleId);
+    setError(null);
+    try {
+      const r = await adminFetch(`/api/admin/cart-gifts/${ruleId}`, {
+        method: "PATCH",
+        body: JSON.stringify({
+          publicBenefitTitle: d.t.trim() || null,
+          publicBenefitMessage: d.m.trim() || null,
+        }),
+      });
+      if (!r.ok) {
+        const err = await r.json().catch(() => null);
+        setError(formatAdminApiError(err, r.status));
+      } else {
+        const updated = (await r.json().catch(() => null)) as GiftRule | null;
+        if (updated && updated.id) {
+          setBenefitDrafts((prev) => ({
+            ...prev,
+            [updated.id]: {
+              t: updated.publicBenefitTitle ?? "",
+              m: updated.publicBenefitMessage ?? "",
+            },
+          }));
+        }
+        setSuccess("✓ Texto del popup actualizado");
+        fetchRules();
+      }
+    } finally {
+      setSavingCopyId(null);
+    }
   }
 
   async function handleDelete(id: string) {
@@ -184,6 +241,34 @@ export default function GiftsPage() {
               <label>Monto mínimo del carrito ($)</label>
               <input type="number" min="0" step="100" placeholder="50000" value={form.minTotal}
                 onChange={e => setForm({ ...form, minTotal: e.target.value })} required />
+            </div>
+
+            <div>
+              <label>Título del popup en la tienda (opcional)</label>
+              <input
+                placeholder="Ej: ¡Desbloqueaste un regalo!"
+                value={form.publicBenefitTitle}
+                onChange={(e) => setForm({ ...form, publicBenefitTitle: e.target.value })}
+                maxLength={200}
+              />
+              <p style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginTop: "0.35rem", marginBottom: 0 }}>
+                Si lo dejás vacío, se usa el nombre de la regla como título.
+              </p>
+            </div>
+
+            <div>
+              <label>Mensaje del beneficio en la tienda (opcional)</label>
+              <textarea
+                placeholder="Ej: Por superar los $50.000 te sumamos una muestra exclusiva al carrito. ¡Gracias por elegirnos!"
+                value={form.publicBenefitMessage}
+                onChange={(e) => setForm({ ...form, publicBenefitMessage: e.target.value })}
+                rows={4}
+                maxLength={2000}
+                style={{ width: "100%", resize: "vertical", fontFamily: "inherit", fontSize: "0.875rem" }}
+              />
+              <p style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginTop: "0.35rem", marginBottom: 0 }}>
+                Se muestra en un popup cuando se agrega el regalo. Si está vacío, se arma un texto genérico con el mínimo.
+              </p>
             </div>
 
             {/* Product picker: contenedor relative para que el absolute quede bajo el input */}
@@ -312,19 +397,58 @@ export default function GiftsPage() {
               {rules.map(rule => (
                 <div key={rule.id} style={{ ...ruleCard, opacity: rule.enabled ? 1 : 0.6, borderColor: rule.enabled ? "rgba(124,92,252,0.2)" : "var(--border)" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "0.5rem" }}>
-                    <div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontWeight: 600, fontSize: "0.9rem", marginBottom: "0.3rem" }}>{rule.name}</div>
                       <div style={{ fontSize: "0.78rem", color: "var(--text-muted)" }}>
                         Mínimo: <strong style={{ color: "var(--success)" }}>${rule.minTotal.toLocaleString()}</strong>
                         {" "}· Producto #{rule.giftProductId} · ×{rule.giftQty}
                       </div>
                     </div>
-                    <div style={{ display: "flex", gap: "0.4rem" }}>
+                    <div style={{ display: "flex", gap: "0.4rem", flexShrink: 0 }}>
                       <button type="button" onClick={() => toggleEnabled(rule)} style={btnToggle(rule.enabled)}>
                         {rule.enabled ? "ON" : "OFF"}
                       </button>
                       <button type="button" onClick={() => handleDelete(rule.id)} style={btnDanger}>✕</button>
                     </div>
+                  </div>
+                  <div style={{ marginTop: "0.85rem", paddingTop: "0.85rem", borderTop: "1px solid var(--border)" }}>
+                    <div style={{ fontSize: "0.72rem", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.04em", color: "var(--text-muted)", marginBottom: "0.5rem" }}>
+                      Popup en la tienda
+                    </div>
+                    <label style={{ fontSize: "0.78rem" }}>Título (opcional)</label>
+                    <input
+                      style={{ marginTop: "0.25rem", marginBottom: "0.5rem", width: "100%" }}
+                      value={benefitDrafts[rule.id]?.t ?? ""}
+                      onChange={(e) =>
+                        setBenefitDrafts((prev) => ({
+                          ...prev,
+                          [rule.id]: { t: e.target.value, m: prev[rule.id]?.m ?? "" },
+                        }))
+                      }
+                      maxLength={200}
+                      placeholder="Vacío = nombre de la regla"
+                    />
+                    <label style={{ fontSize: "0.78rem" }}>Mensaje (opcional)</label>
+                    <textarea
+                      style={{ marginTop: "0.25rem", width: "100%", resize: "vertical", fontFamily: "inherit", fontSize: "0.8rem", minHeight: "4rem" }}
+                      value={benefitDrafts[rule.id]?.m ?? ""}
+                      onChange={(e) =>
+                        setBenefitDrafts((prev) => ({
+                          ...prev,
+                          [rule.id]: { t: prev[rule.id]?.t ?? "", m: e.target.value },
+                        }))
+                      }
+                      maxLength={2000}
+                      placeholder="Texto del beneficio que ve el cliente"
+                    />
+                    <button
+                      type="button"
+                      disabled={savingCopyId === rule.id}
+                      onClick={() => saveRulePublicCopy(rule.id)}
+                      style={{ ...btnPrimary, marginTop: "0.5rem", fontSize: "0.8rem", padding: "0.45rem 0.9rem" }}
+                    >
+                      {savingCopyId === rule.id ? "Guardando…" : "Guardar texto del popup"}
+                    </button>
                   </div>
                 </div>
               ))}
@@ -340,7 +464,8 @@ export default function GiftsPage() {
           <li>El cliente agrega productos al carrito de tu tienda.</li>
           <li><code>hache-suite.js</code> detecta el cambio de carrito y consulta <code>/api/storefront/cart-gifts</code>.</li>
           <li>Si el total supera el mínimo configurado, se agrega el producto regalo automáticamente.</li>
-          <li>Se guarda en <code>localStorage</code> para no duplicarlo en la misma sesión.</li>
+          <li>Al aplicarse la regla se abre un popup con el título y mensaje que configuraste (o valores por defecto).</li>
+          <li>La línea del regalo en el carrito se marca con un distintivo visual.</li>
         </ol>
       </div>
     </div>

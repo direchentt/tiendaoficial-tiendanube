@@ -41,6 +41,7 @@
     {% endif %}
 
     <div id="vip-content" style="{% if is_vip_locked %}display:none; opacity:0; transition: opacity 0.5s ease;{% endif %}">
+        {% include 'snipplets/brand/brand-promo-split.tpl' %}
         {% include 'snipplets/brand/brand-split-video-hero.tpl' %}
 
         {% set category_banner = (category.images is not empty) or ("banner-products.jpg" | has_custom_image) %}

@@ -171,7 +171,24 @@
       ".hs-dyn-old{text-decoration:line-through;color:#888;font-size:.85em}" +
       ":root[data-color-scheme='dark'] .hs-dyn-old{color:#737373}" +
       ".hs-dyn-badge{background:rgba(16,185,129,.14);color:#059669;padding:2px 7px;border-radius:999px;font-size:.68rem;font-weight:700}" +
-      ":root[data-color-scheme='dark'] .hs-dyn-badge{color:#4ade80;background:rgba(74,222,128,.14)}";
+      ":root[data-color-scheme='dark'] .hs-dyn-badge{color:#4ade80;background:rgba(74,222,128,.14)}" +
+      "@keyframes hs-gift-pop{0%{opacity:0;transform:scale(.94) translateY(8px)}100%{opacity:1;transform:scale(1) translateY(0)}}" +
+      ".hs-gift-modal-overlay{position:fixed;inset:0;z-index:2147482500;display:flex;align-items:center;justify-content:center;padding:1rem;background:color-mix(in srgb,var(--accent-color,#6366f1) 12%,rgba(8,8,12,.82));backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}" +
+      ".hs-gift-modal-card{width:100%;max-width:26rem;border-radius:1.15rem;overflow:hidden;background:var(--main-background,#fff);color:var(--main-foreground,#111);box-shadow:0 24px 64px rgba(0,0,0,.28),0 0 0 1px color-mix(in srgb,var(--accent-color,#6366f1) 22%,transparent);animation:hs-gift-pop .38s ease both}" +
+      ":root[data-color-scheme='dark'] .hs-gift-modal-card{background:#141416;color:#f4f4f5;box-shadow:0 28px 72px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.08)}" +
+      ".hs-gift-modal-ribbon{height:5px;background:linear-gradient(90deg,var(--accent-color,#7c5cfc),color-mix(in srgb,var(--accent-color,#a78bfa) 70%,#34d399))}" +
+      ".hs-gift-modal-inner{padding:1.35rem 1.4rem 1.25rem}" +
+      ".hs-gift-modal-icon{font-size:2.5rem;line-height:1;text-align:center;margin-bottom:.35rem}" +
+      ".hs-gift-modal-title{font-size:1.12rem;font-weight:800;margin:0 0 .65rem;letter-spacing:-.02em;line-height:1.25;text-align:center;color:inherit}" +
+      ".hs-gift-modal-body{font-size:.9rem;line-height:1.55;margin:0 0 1.1rem;color:color-mix(in srgb,currentColor 78%,transparent);text-align:center}" +
+      ".hs-gift-modal-meta{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;font-weight:700;color:var(--accent-color,#7c5cfc);text-align:center;margin-bottom:.85rem}" +
+      ":root[data-color-scheme='dark'] .hs-gift-modal-meta{color:color-mix(in srgb,var(--accent-color,#a5b4fc) 85%,#fff)}" +
+      ".hs-gift-modal-btn{width:100%;padding:.72rem 1rem;border:none;border-radius:.65rem;font-size:.88rem;font-weight:700;cursor:pointer;font:inherit;background:var(--accent-color,#111);color:var(--accent-btn-text,#fff);transition:opacity .2s,transform .15s;box-shadow:0 4px 18px color-mix(in srgb,var(--accent-color,#6366f1) 38%,transparent)}" +
+      ".hs-gift-modal-btn:hover{opacity:.95;transform:translateY(-1px)}" +
+      ".hs-cart-gift-line{position:relative;border-radius:.5rem!important;outline:2px solid color-mix(in srgb,var(--accent-color,#6366f1) 35%,transparent);outline-offset:2px;background:color-mix(in srgb,var(--accent-color,#6366f1) 6%,transparent)!important}" +
+      ":root[data-color-scheme='dark'] .hs-cart-gift-line{background:color-mix(in srgb,var(--accent-color,#818cf8) 10%,transparent)!important;outline-color:color-mix(in srgb,var(--accent-color,#a5b4fc) 40%,transparent)}" +
+      ".hs-cart-gift-badge{display:inline-flex;align-items:center;gap:.25rem;padding:.12rem .45rem;border-radius:999px;font-size:.62rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;background:color-mix(in srgb,var(--accent-color,#6366f1) 18%,transparent);color:var(--accent-color,#4f46e5);margin-bottom:.35rem}" +
+      ":root[data-color-scheme='dark'] .hs-cart-gift-badge{color:color-mix(in srgb,var(--accent-color,#c7d2fe) 90%,#fff);background:color-mix(in srgb,var(--accent-color,#6366f1) 22%,transparent)}";
     document.head.appendChild(st);
   }
 
@@ -280,7 +297,13 @@
 
   function getCurrentPageType() {
     const path = window.location.pathname;
-    if (path.startsWith("/pages/combos") || path.startsWith("/paginas/combos")) return "bundle";
+    if (
+      path === "/combos" ||
+      path.startsWith("/combos/") ||
+      path.startsWith("/pages/combos") ||
+      path.startsWith("/paginas/combos")
+    )
+      return "bundle";
     if (window.LS?.product?.id) return "product";
     if (window.LS?.category?.id) return "category";
     if (path === "/" || path === "") return "home";
@@ -398,17 +421,146 @@
     return normalizeTnPesosCanonical(out);
   }
 
+  function hsEscapeHtml(str) {
+    return String(str || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function hsFormatGiftMoney(n) {
+    var x = Number(n);
+    if (!Number.isFinite(x)) return String(n);
+    try {
+      return x.toLocaleString("es-AR", { maximumFractionDigits: 0 });
+    } catch (_) {
+      return String(Math.round(x));
+    }
+  }
+
+  function cartItemMatchesGift(item, gift) {
+    if (!item || !gift) return false;
+    var pid = item.product_id != null ? item.product_id : item.productId;
+    var vid = item.variant_id != null ? item.variant_id : item.variantId;
+    if (pid == null || vid == null) return false;
+    return Number(pid) === Number(gift.giftProductId) && Number(vid) === Number(gift.giftVariantId);
+  }
+
+  function cartHasGiftLine(gift) {
+    var items = (window.LS && window.LS.cart && window.LS.cart.items) || [];
+    for (var i = 0; i < items.length; i++) {
+      if (cartItemMatchesGift(items[i], gift)) return true;
+    }
+    return false;
+  }
+
+  function showGiftBenefitModal(rule) {
+    injectHacheSuiteStyles();
+    var old = document.getElementById("hs-gift-modal-overlay");
+    if (old && old.parentNode) old.parentNode.removeChild(old);
+    var title =
+      (rule.publicBenefitTitle && String(rule.publicBenefitTitle).trim()) ||
+      (rule.name && String(rule.name).trim()) ||
+      "¡Tenés un regalo!";
+    var rawMsg = rule.publicBenefitMessage && String(rule.publicBenefitMessage).trim();
+    var bodyInner;
+    if (rawMsg) {
+      bodyInner = hsEscapeHtml(rawMsg).replace(/\r\n|\r|\n/g, "<br />");
+    } else {
+      bodyInner =
+        "Tu compra alcanzó <strong>$" +
+        hsFormatGiftMoney(rule.minTotal) +
+        "</strong> y sumamos tu regalo al carrito.";
+    }
+    var overlay = document.createElement("div");
+    overlay.id = "hs-gift-modal-overlay";
+    overlay.className = "hs-gift-modal-overlay";
+    overlay.setAttribute("role", "dialog");
+    overlay.setAttribute("aria-modal", "true");
+    overlay.setAttribute("aria-labelledby", "hs-gift-modal-title");
+    overlay.innerHTML =
+      '<div class="hs-gift-modal-card">' +
+      '<div class="hs-gift-modal-ribbon"></div>' +
+      '<div class="hs-gift-modal-inner">' +
+      '<div class="hs-gift-modal-icon" aria-hidden="true">🎁</div>' +
+      '<p class="hs-gift-modal-meta">Beneficio activado</p>' +
+      '<h2 id="hs-gift-modal-title" class="hs-gift-modal-title">' +
+      hsEscapeHtml(title) +
+      "</h2>" +
+      '<div class="hs-gift-modal-body">' +
+      bodyInner +
+      "</div>" +
+      '<button type="button" class="hs-gift-modal-btn" id="hs-gift-modal-close">Genial, gracias</button>' +
+      "</div></div>";
+    document.body.appendChild(overlay);
+    function closeModal() {
+      document.removeEventListener("keydown", onKey);
+      if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+    }
+    function onKey(e) {
+      if (e.key === "Escape") closeModal();
+    }
+    document.addEventListener("keydown", onKey);
+    overlay.addEventListener("click", function (e) {
+      if (e.target === overlay) closeModal();
+    });
+    var btn = document.getElementById("hs-gift-modal-close");
+    if (btn) btn.addEventListener("click", closeModal);
+  }
+
+  function decorateGiftCartLines(applicableRules) {
+    var allRows = document.querySelectorAll(".js-cart-item");
+    for (var a = 0; a < allRows.length; a++) {
+      allRows[a].classList.remove("hs-cart-gift-line");
+      var oldBadge = allRows[a].querySelector(".hs-cart-gift-badge");
+      if (oldBadge && oldBadge.parentNode) oldBadge.parentNode.removeChild(oldBadge);
+    }
+    if (!applicableRules || !applicableRules.length) return;
+    for (var j = 0; j < applicableRules.length; j++) {
+      var rule = applicableRules[j];
+      if (!cartHasGiftLine(rule)) continue;
+      var pid = rule.giftProductId;
+      var el = document.querySelector('.js-cart-item[data-store="cart-item-' + pid + '"]');
+      if (!el) {
+        var inner = document.querySelector('[data-store="cart-item-' + pid + '"]');
+        el = inner && inner.closest ? inner.closest(".js-cart-item") : null;
+      }
+      if (!el) continue;
+      el.classList.add("hs-cart-gift-line");
+      var nameWrap =
+        el.querySelector(".cart-item-name-container") ||
+        el.querySelector(".cart-item-name") ||
+        el.querySelector(".col.pl-3");
+      if (nameWrap && !nameWrap.querySelector(".hs-cart-gift-badge")) {
+        var badge = document.createElement("span");
+        badge.className = "hs-cart-gift-badge";
+        badge.textContent = "Regalo";
+        nameWrap.insertBefore(badge, nameWrap.firstChild);
+      }
+    }
+  }
+
   // ─── MODULE 1: CART GIFT ───────────────────────────────────────────────────
 
   const CartGiftModule = {
-    appliedGiftIds: new Set(),
+    _addingSet: new Set(),
+    _debounceTimer: null,
+
+    scheduleCheck() {
+      if (this._debounceTimer) clearTimeout(this._debounceTimer);
+      const self = this;
+      this._debounceTimer = setTimeout(function () {
+        self._debounceTimer = null;
+        self.check().catch(function () {});
+      }, 320);
+    },
 
     async init() {
       await this.check();
-      // Re-check on cart change events (Tiendanube fires custom events)
-      document.addEventListener("cart:update", () => this.check());
-      document.addEventListener("cart:itemAdded", () => this.check());
-      document.addEventListener("cart:itemRemoved", () => this.check());
+      document.addEventListener("cart:update", () => this.scheduleCheck());
+      document.addEventListener("cart:itemAdded", () => this.scheduleCheck());
+      document.addEventListener("cart:itemRemoved", () => this.scheduleCheck());
     },
 
     async check() {
@@ -417,7 +569,8 @@
       if (total <= 0) return;
 
       let gifts;
-      const cached = lsGet("cart_gifts_" + Math.floor(total / 100)); // check subtotal range
+      const cacheKey = "cart_gifts_v2_" + Math.floor(total / 100);
+      const cached = lsGet(cacheKey);
       if (cached) {
         gifts = cached;
       } else {
@@ -426,37 +579,39 @@
             `/api/storefront/cart-gifts?storeId=${getStoreId()}&total=${total}`
           );
           gifts = res.gifts || [];
-          lsSet("cart_gifts_" + Math.floor(total / 100), gifts, 10 * 1000); // 10 seg cache para desarrollo
+          lsSet(cacheKey, gifts, 10 * 1000);
         } catch (e) {
           console.warn("[HacheSuite][CartGift]", e);
           return;
         }
       }
 
-      // Check current cart items
-      let cartItems = window.LS?.cart?.items || [];
-      // Fallback: if LS.cart isn't updated instantly, we might need to rely on the DOM or recent additions
-      
-      // Apply gifts not yet in cart
-      for (const gift of gifts) {
-        if (this.appliedGiftIds.has(gift.id)) continue;
-        
-        let giftInCart = cartItems.find((i) => i.id === gift.giftVariantId || i.product_id === gift.giftProductId);
-        if (giftInCart) {
-          this.appliedGiftIds.add(gift.id);
-          continue;
-        }
+      const applicable = gifts.filter((g) => Number(g.minTotal) <= total);
 
+      for (const gift of gifts) {
+        if (Number(gift.minTotal) > total) continue;
+        if (cartHasGiftLine(gift)) continue;
+        if (this._addingSet.has(gift.id)) continue;
         try {
-          await addToCart(gift.giftProductId, gift.giftVariantId, gift.giftQty);
-          this.appliedGiftIds.add(gift.id);
-          hsToast(gift.name || "¡Tu regalo fue agregado al carrito! 🎁", "success");
+          this._addingSet.add(gift.id);
+          await addToCart(
+            gift.giftProductId,
+            gift.giftVariantId,
+            gift.giftQty && gift.giftQty > 0 ? gift.giftQty : 1
+          );
+          showGiftBenefitModal(gift);
         } catch (err) {
           console.warn("[HacheSuite][CartGift] Error agregando regalo:", err);
+        } finally {
+          this._addingSet.delete(gift.id);
         }
       }
-    },
 
+      decorateGiftCartLines(applicable);
+      setTimeout(function () {
+        decorateGiftCartLines(applicable);
+      }, 600);
+    },
   };
 
   // ─── MODULE 2: CATEGORY GATE ───────────────────────────────────────────────
@@ -1732,7 +1887,7 @@
         DynamicPricingModule.init().catch(console.warn);
       }
 
-      // Bundle Page — only on /pages/combos
+      // Bundle Page — /combos, /pages/combos, /paginas/combos
       if (pageType === "bundle") {
         BundlePageModule.init().catch(console.warn);
       }

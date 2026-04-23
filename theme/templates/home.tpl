@@ -43,6 +43,7 @@
 {# Tracks sections already rendered so order slots do not duplicate the same block. #}
 {% set home_sections_rendered = [] %}
 <div class="js-home-sections-container home-sections-container{% if settings.brand_home_wide_sections %} brand-home-wide-sections{% endif %}" role="region" aria-label="{{ 'Página de inicio' | translate }}">
+	{% include 'snipplets/brand/brand-promo-split.tpl' %}
 	{% for i in 1..19 %}
 		{% set section = 'home_order_position_' ~ i %}
 		{% set section_select = attribute(settings, section) %}

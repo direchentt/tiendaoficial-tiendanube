@@ -11,6 +11,8 @@ const patchSchema = z.object({
   giftVariantId: z.number().int().positive().optional(),
   giftQty: z.number().int().positive().optional(),
   enabled: z.boolean().optional(),
+  publicBenefitTitle: z.string().max(200).optional().nullable(),
+  publicBenefitMessage: z.string().max(2000).optional().nullable(),
 });
 
 export async function PATCH(

@@ -1,3 +1,4 @@
+{% include 'snipplets/brand/brand-promo-split.tpl' %}
 {% include 'snipplets/brand/brand-split-video-hero.tpl' %}
 <article id="single-product" class="js-has-new-shipping js-product-detail js-product-container js-shipping-calculator-container pb-4 pt-3 pt-md-4 pb-md-3 pdp-app pdp-app--enhanced pdp-app--visual pdp-app--represent" data-variants="{{ product.variants_object | json_encode }}" data-store="product-detail">
     <div class="container-fluid">
