@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { calcDiscountPctForProduct } from "@/lib/dynamic-pricing-calc";
+import {
+  clampStorefrontVisitCount,
+  getMaxDynamicPriceProductIds,
+  parseProductIdsListCsv,
+  parseStorefrontStoreUserId,
+} from "@/lib/storefront-limits";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -18,13 +24,16 @@ export async function OPTIONS() {
  */
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const storeUserId = searchParams.get("storeId");
+  const storeUserIdRaw = searchParams.get("storeId");
+  const storeUserId = parseStorefrontStoreUserId(storeUserIdRaw);
   const productsParam = searchParams.get("products") ?? "";
-  const visitCount = parseInt(searchParams.get("visitCount") ?? "1", 10);
+  const visitCount = clampStorefrontVisitCount(
+    parseInt(searchParams.get("visitCount") ?? "1", 10)
+  );
 
   if (!storeUserId) {
     return NextResponse.json(
-      { error: "storeId is required" },
+      { error: "storeId is required", hint: "Debe ser el id numérico de la tienda (LS.store.id)." },
       { status: 400, headers: CORS }
     );
   }
@@ -52,12 +61,16 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  const productIds = productsParam
-    .split(",")
-    .map((s) => parseInt(s.trim(), 10))
-    .filter((n) => !isNaN(n) && n > 0);
+  const maxProductIds = getMaxDynamicPriceProductIds();
+  const { ids: productIds, truncated: productIdsTruncated } = parseProductIdsListCsv(
+    productsParam,
+    maxProductIds
+  );
 
-  /** Lista en Prisma `excludedCategoryIds`; hoy = IDs de producto a omitir. */
+  /**
+   * Campo Prisma `excludedCategoryIds` (JSON): puede contener IDs de **producto** a excluir
+   * del motor aunque el nombre sea histórico; mantener alineado con el panel y con dynamic-price-commit.
+   */
   let excludedProductIds: number[] = [];
   try {
     const raw = JSON.parse(config.excludedCategoryIds || "[]");
@@ -92,6 +105,9 @@ export async function GET(req: NextRequest) {
       cacheTtlHours: config.cacheTtlHours,
       algorithm: config.algorithm,
       commitOnAddToCart: config.commitOnAddToCart,
+      ...(productIdsTruncated
+        ? { productIdsTruncated: true as const, maxProductIdsPerRequest: maxProductIds }
+        : {}),
     },
     { headers: CORS }
   );

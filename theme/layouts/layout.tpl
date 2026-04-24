@@ -6,6 +6,7 @@
         <link rel="dns-prefetch" href="{{ store_resource_hints }}" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -190,6 +191,11 @@
         {# Javascript used in the store #}
 
         {# Critical libraries #}
+
+        {# GSAP + ScrollTrigger (CDN); theme-gsap-global.js usa ambos en listados y expone themeGsap.refresh() #}
+        <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.7/dist/gsap.min.js" defer crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.7/dist/ScrollTrigger.min.js" defer crossorigin="anonymous"></script>
+        <script src="{{ 'js/theme-gsap-global.js' | static_url }}" defer></script>
 
         {{ 'js/external-no-dependencies.js.tpl' | static_url | script_tag }}
 

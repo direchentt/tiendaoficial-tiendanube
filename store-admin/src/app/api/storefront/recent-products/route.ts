@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { loadStoreForStorefront } from "@/lib/default-store";
 import { getRecentPublishedProducts, type ProductRecentListItem } from "@/lib/tiendanube-client";
 import { tnConfigFromStore } from "@/lib/wishlist-verify-customer";
+import { parseStorefrontStoreUserId } from "@/lib/storefront-limits";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -57,12 +58,19 @@ function pickImage(p: ProductRecentListItem): string | null {
  */
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const storeUserId = searchParams.get("storeId")?.trim() ?? "";
+  const storeUserId = parseStorefrontStoreUserId(searchParams.get("storeId"));
   const days = parseIntParam(searchParams.get("days"), 30, 1, 90);
   const limit = parseIntParam(searchParams.get("limit"), 12, 1, 30);
 
   if (!storeUserId) {
-    return NextResponse.json({ error: "missing_params", need: ["storeId"] }, { status: 400, headers: CORS });
+    return NextResponse.json(
+      {
+        error: "missing_params",
+        need: ["storeId"],
+        hint: "storeId debe ser el id numérico de la tienda (LS.store.id).",
+      },
+      { status: 400, headers: CORS }
+    );
   }
 
   const store = await loadStoreForStorefront(storeUserId);

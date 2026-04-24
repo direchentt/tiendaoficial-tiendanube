@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+import { logAdminAudit } from "@/lib/admin-audit";
+import { ensureDefaultStore } from "@/lib/default-store";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/require-admin";
-import { ensureDefaultStore } from "@/lib/default-store";
 import { z } from "zod";
 
 const bundleProductSchema = z.object({
@@ -73,6 +74,15 @@ export async function PATCH(
     });
   });
 
+  await logAdminAudit({
+    storeId: store.id,
+    action: "bundle.update",
+    entityType: "Bundle",
+    entityId: params.id,
+    summary: `Combo actualizado: ${bundle.name}`,
+    meta: { enabled: bundle.enabled },
+  });
+
   return NextResponse.json(bundle);
 }
 
@@ -90,5 +100,12 @@ export async function DELETE(
   if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
   await prisma.bundle.delete({ where: { id: params.id } });
+  await logAdminAudit({
+    storeId: store.id,
+    action: "bundle.delete",
+    entityType: "Bundle",
+    entityId: params.id,
+    summary: `Eliminado combo: ${existing.name}`,
+  });
   return new NextResponse(null, { status: 204 });
 }

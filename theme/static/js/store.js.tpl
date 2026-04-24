@@ -131,6 +131,59 @@ function themeRefreshTransferLines($root) {
 }
 window.themeRefreshTransferLines = themeRefreshTransferLines;
 
+/** Tras infinite scroll / AJAX de grillas: nuevas tarjetas + refresh de ScrollTrigger. */
+function themeGsapRefreshIfAvailable() {
+    try {
+        if (window.themeGsap && typeof window.themeGsap.bindProductCardReveal === 'function') {
+            window.themeGsap.bindProductCardReveal();
+        }
+        if (window.themeGsap && typeof window.themeGsap.refresh === 'function') {
+            window.themeGsap.refresh();
+        }
+    } catch (eGsap) { /* ignore */ }
+}
+window.themeGsapRefreshIfAvailable = themeGsapRefreshIfAvailable;
+
+/**
+ * TN LS.fillQuickshop a veces vuelca todo el texto del bloque de precio dentro de .js-price-display
+ * (p. ej. "$387.720$430.800-10%"). Partimos en precio + addon Hache y dejamos compare aparte.
+ */
+function themeRepairQuickshopPriceLine() {
+    var $m = jQueryNuvem('#quickshop-modal');
+    if (!$m.length) {
+        return;
+    }
+    var $box = $m.find('.js-quickshop-modal-shell [data-store^="product-item-price"]').first();
+    if (!$box.length) {
+        return;
+    }
+    var $pd = $box.find('.js-price-display').first();
+    if (!$pd.length) {
+        return;
+    }
+    $box.find('.hs-dyn-price-addon').slice(1).remove();
+    var compact = String($pd.text() || '').replace(/\s+/g, '');
+    /* TN fillQuickshop: "$348.948$387.720-10%" o con compare pegado "$348.948$387.720-10%$430.800" */
+    var m = compact.match(/^(\$[\d.,]+)(\$[\d.,]+)(-\d+%)(\$[\d.,]+)?$/);
+    if (!m) {
+        return;
+    }
+    $pd.empty().text(m[1]);
+    $pd.next('.hs-dyn-price-addon').remove();
+    var $addon = jQueryNuvem('<span class="hs-dyn-price-addon hs-dyn-wrap"></span>');
+    $addon.html(
+        '<span class="hs-dyn-old">' + m[2] + '</span><span class="hs-dyn-badge">' + m[3] + '</span>'
+    );
+    $pd.after($addon);
+    if (m[4]) {
+        var $cmp = $box.find('.js-compare-price-display').first();
+        if ($cmp.length) {
+            $cmp.text(m[4]).show();
+        }
+    }
+}
+window.themeRepairQuickshopPriceLine = themeRepairQuickshopPriceLine;
+
 {#/*============================================================================
   #Lazy load
 ==============================================================================*/ #}
@@ -218,6 +271,9 @@ DOMContentLoaded.addEventOrExecute(() => {
             }
             var t = e.target;
             var btn = t.closest('.item-image-slider .swiper-button-prev, .item-image-slider .swiper-button-next');
+            if (!btn) {
+                btn = t.closest('.js-item-product .swiper-button-prev, .js-item-product .swiper-button-next');
+            }
             var bullet = !btn
                 ? t.closest('.js-item-product .swiper-pagination-bullet.swiper-pagination-bullet')
                 : null;
@@ -228,6 +284,9 @@ DOMContentLoaded.addEventOrExecute(() => {
                 return;
             }
             var host = btn ? sliderHostFromControl(btn) : sliderHostFromItemCard(bullet);
+            if (!host && btn) {
+                host = sliderHostFromItemCard(btn);
+            }
             var sw = swiperFromHost(host);
             if (!sw) {
                 if (btn || bullet) {
@@ -2747,6 +2806,9 @@ DOMContentLoaded.addEventOrExecute(() => {
                                     pagination_type: 'bullets',
                                 });
                             {% endif %}
+                            requestAnimationFrame(function () {
+                                themeGsapRefreshIfAvailable();
+                            });
                         },
                     });
                 {% endif %}
@@ -2851,6 +2913,7 @@ DOMContentLoaded.addEventOrExecute(() => {
             {% endif %}
 
             LS.fillQuickshop($this);
+            themeRepairQuickshopPriceLine();
 
             var $srcItem = $this.closest('.js-item-product');
             var $qh = jQueryNuvem('#quickshop-modal .js-theme-transfer-quickshop');
@@ -2866,8 +2929,13 @@ DOMContentLoaded.addEventOrExecute(() => {
             }
 
             setTimeout(function () {
+                themeRepairQuickshopPriceLine();
                 themeRefreshTransferLines(jQueryNuvem('#quickshop-modal'));
             }, 0);
+            setTimeout(function () {
+                themeRepairQuickshopPriceLine();
+                themeRefreshTransferLines(jQueryNuvem('#quickshop-modal'));
+            }, 160);
 
             if (window.innerWidth < 768) {
                 {# Image dimensions #}
@@ -3155,6 +3223,8 @@ DOMContentLoaded.addEventOrExecute(() => {
 	        var priceLabel = (variant.price_number != null && variant.price_number !== '' && !isNaN(Number(variant.price_number)))
 	            ? formatMoneyRoundedNumber(variant.price_number)
 	            : variant.price_short;
+	        parent.find('.hs-dyn-price-addon').remove();
+	        parent.find('.js-price-display .hs-dyn-wrap').remove();
 	        parent.find('.js-price-display').removeAttr('data-hs-effective-price').text(priceLabel).show();
 	        parent.find('.js-price-display').attr("content", variant.price_number).data('productPrice', variant.price_number_raw);
             
@@ -3211,6 +3281,7 @@ DOMContentLoaded.addEventOrExecute(() => {
 
         var $transferRoot = jQueryNuvem(parent).closest('.js-product-container, .js-quickshop-container, .js-quickshop-modal-shell');
         themeRefreshTransferLines($transferRoot.length ? $transferRoot : parent);
+        themeRepairQuickshopPriceLine();
 
         var button = parent.find('.js-addtocart');
         const quickshopButtonWording = parent.find('.js-open-quickshop-wording');
@@ -5373,6 +5444,9 @@ DOMContentLoaded.addEventOrExecute(() => {
                         }
                     }
                     initLazyForRail($root);
+                    requestAnimationFrame(function () {
+                        themeGsapRefreshIfAvailable();
+                    });
                 }
 
                 {# HTML completo primero (como navegador); XHR solo si hace falta — TN suele devolver el listado completo en category.tpl. #}
@@ -5509,6 +5583,9 @@ DOMContentLoaded.addEventOrExecute(() => {
                                         $activeTrack.html(innerP);
                                         initLazyForRail($root);
                                         setupRailScrollDots($root);
+                                        requestAnimationFrame(function () {
+                                            themeGsapRefreshIfAvailable();
+                                        });
                                         return railCategoryFetchDoneMarker;
                                     }
                                     return railFetchCategoryHtml(normalizeRailFetchUrl(href), true);

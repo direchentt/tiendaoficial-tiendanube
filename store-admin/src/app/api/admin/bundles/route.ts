@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+import { logAdminAudit } from "@/lib/admin-audit";
+import { ensureDefaultStore } from "@/lib/default-store";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/require-admin";
-import { ensureDefaultStore } from "@/lib/default-store";
 import { z } from "zod";
 
 const bundleProductSchema = z.object({
@@ -56,6 +57,15 @@ export async function POST(req: NextRequest) {
       products: { create: products },
     },
     include: { products: true },
+  });
+
+  await logAdminAudit({
+    storeId: store.id,
+    action: "bundle.create",
+    entityType: "Bundle",
+    entityId: bundle.id,
+    summary: `Nuevo combo: ${bundle.name}`,
+    meta: { enabled: bundle.enabled, comboPrice: bundle.comboPrice },
   });
 
   return NextResponse.json(bundle, { status: 201 });

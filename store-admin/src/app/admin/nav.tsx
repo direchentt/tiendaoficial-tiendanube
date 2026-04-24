@@ -5,6 +5,9 @@ import { usePathname } from "next/navigation";
 
 const NAV_ITEMS = [
   { href: "/admin", label: "Dashboard", icon: "⬡" },
+  { href: "/admin/conversion", label: "Conversión (CVR)", icon: "📈" },
+  { href: "/admin/webhooks", label: "Webhooks TN", icon: "🔗" },
+  { href: "/admin/audit", label: "Auditoría", icon: "📜" },
   { href: "/admin/gifts", label: "Regalos en Carrito", icon: "🎁" },
   { href: "/admin/dynamic-pricing", label: "Precios Dinámicos", icon: "💰" },
   { href: "/admin/bundles", label: "Bundles / Combos", icon: "📦" },

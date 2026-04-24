@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { calcDiscountPctForProduct } from "@/lib/dynamic-pricing-calc";
+import { clampStorefrontVisitCount, parseStorefrontStoreUserId } from "@/lib/storefront-limits";
 import {
   getProduct,
   patchProductVariants,
@@ -14,12 +15,22 @@ const CORS = {
   "Access-Control-Allow-Headers": "Content-Type",
 };
 
-const bodySchema = z.object({
-  storeId: z.string().min(1),
-  productId: z.number().int().positive(),
-  variantId: z.number().int().positive().optional(),
-  visitCount: z.number().int().min(1).max(999).optional(),
-});
+const bodySchema = z
+  .object({
+    storeId: z.string().min(1),
+    productId: z.number().int().positive(),
+    variantId: z.number().int().positive().optional(),
+    visitCount: z.number().int().min(1).max(999).optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (!parseStorefrontStoreUserId(data.storeId)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "storeId must be the numeric Tiendanube store id (LS.store.id)",
+        path: ["storeId"],
+      });
+    }
+  });
 
 function parsePrice(p: string | null | undefined): number {
   if (p == null || p === "") return 0;
@@ -73,10 +84,11 @@ export async function POST(req: NextRequest) {
   }
 
   const { storeId, productId, variantId, visitCount } = parsed.data;
-  const visits = visitCount ?? 1;
+  const storeUserId = parseStorefrontStoreUserId(storeId)!;
+  const visits = clampStorefrontVisitCount(visitCount ?? 1);
 
   const store = await prisma.store.findUnique({
-    where: { tiendanubeUserId: storeId },
+    where: { tiendanubeUserId: storeUserId },
   });
   if (!store) {
     return NextResponse.json({ error: "store_not_found" }, { status: 404, headers: CORS });
@@ -92,8 +104,10 @@ export async function POST(req: NextRequest) {
 
   let excluded: number[] = [];
   try {
-    excluded = JSON.parse(config.excludedCategoryIds || "[]") as number[];
-    if (!Array.isArray(excluded)) excluded = [];
+    const raw = JSON.parse(config.excludedCategoryIds || "[]");
+    excluded = Array.isArray(raw)
+      ? raw.filter((x: unknown) => typeof x === "number" && x > 0)
+      : [];
   } catch {
     excluded = [];
   }

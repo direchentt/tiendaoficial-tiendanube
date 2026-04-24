@@ -1,8 +1,10 @@
 "use client";
+import { TnProductPicker } from "@/components/admin/TnProductPicker";
+import type { TNProduct, TNVariant } from "@/components/admin/tn-product-picker-utils";
 import { adminFetch } from "@/lib/admin-fetch";
 import { formatAdminApiError } from "@/lib/format-admin-api-error";
 
-import { useEffect, useState, useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 type GiftRule = {
   id: string;
@@ -15,22 +17,6 @@ type GiftRule = {
   publicBenefitTitle?: string | null;
   publicBenefitMessage?: string | null;
 };
-
-type TNVariant = { id: number; price: string; values?: { es?: string; pt?: string; en?: string }[] };
-type TNProduct = {
-  id: number;
-  name: string;
-  price: string;
-  images: string[];
-  variants: TNVariant[];
-};
-
-function variantLabel(v: TNVariant): string {
-  const parts = (v.values ?? [])
-    .map((x) => x.es ?? x.pt ?? x.en ?? "")
-    .filter(Boolean);
-  return parts.join(" / ") || `Variante ${v.id}`;
-}
 
 const EMPTY_FORM = {
   name: "",
@@ -48,12 +34,6 @@ export default function GiftsPage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  // Product picker
-  const [search, setSearch] = useState("");
-  const [products, setProducts] = useState<TNProduct[]>([]);
-  const [loadingProducts, setLoadingProducts] = useState(false);
-  const [searchError, setSearchError] = useState<string | null>(null);
-  const [searchEmpty, setSearchEmpty] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<TNProduct | null>(null);
   const [selectedVariant, setSelectedVariant] = useState<TNVariant | null>(null);
 
@@ -81,46 +61,10 @@ export default function GiftsPage() {
     });
   }, [rules]);
 
-  const searchProducts = useCallback(async (q: string) => {
-    const trimmed = q.trim();
-    if (trimmed.length < 2) {
-      setProducts([]);
-      setSearchError(null);
-      setSearchEmpty(false);
-      return;
-    }
-    setLoadingProducts(true);
-    setSearchError(null);
-    setSearchEmpty(false);
-    try {
-      const r = await adminFetch(`/api/admin/tn-products?q=${encodeURIComponent(trimmed)}`);
-      const data = await r.json().catch(() => ({}));
-      if (r.ok) {
-        const list = Array.isArray(data.products) ? data.products : [];
-        setProducts(list);
-        setSearchEmpty(list.length === 0);
-      } else {
-        setProducts([]);
-        setSearchEmpty(false);
-        const msg =
-          typeof data.error === "string"
-            ? data.error
-            : `Error ${r.status} al buscar en Tiendanube`;
-        const detail = typeof data.detail === "string" ? data.detail.slice(0, 200) : "";
-        setSearchError(detail ? `${msg}: ${detail}` : msg);
-      }
-    } catch {
-      setProducts([]);
-      setSearchError("No se pudo conectar con el buscador de productos.");
-    } finally {
-      setLoadingProducts(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    const t = setTimeout(() => searchProducts(search), 400);
-    return () => clearTimeout(t);
-  }, [search, searchProducts]);
+  function handleGiftProductPick(p: TNProduct, v: TNVariant) {
+    setSelectedProduct(p);
+    setSelectedVariant(v);
+  }
 
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
@@ -154,8 +98,6 @@ export default function GiftsPage() {
         setForm(EMPTY_FORM);
         setSelectedProduct(null);
         setSelectedVariant(null);
-        setSearch("");
-        setProducts([]);
         fetchRules();
       }
     } finally {
@@ -271,86 +213,11 @@ export default function GiftsPage() {
               </p>
             </div>
 
-            {/* Product picker: contenedor relative para que el absolute quede bajo el input */}
-            <div style={pickerFieldWrap}>
-              <label>Buscar producto regalo</label>
-              <input
-                placeholder="Escribí al menos 2 caracteres (nombre, SKU o tag)..."
-                value={search}
-                onChange={(e) => {
-                  setSearch(e.target.value);
-                  setSelectedProduct(null);
-                  setSelectedVariant(null);
-                  setSearchError(null);
-                  setSearchEmpty(false);
-                }}
-              />
-              {loadingProducts && (
-                <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginTop: "0.35rem" }}>Buscando…</p>
-              )}
-              {searchError && (
-                <p style={{ fontSize: "0.8rem", color: "var(--danger)", marginTop: "0.35rem" }}>{searchError}</p>
-              )}
-              {!loadingProducts && searchEmpty && search.trim().length >= 2 && !selectedProduct && (
-                <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginTop: "0.35rem" }}>
-                  No hay productos para esa búsqueda. Probá otra palabra o el SKU.
-                </p>
-              )}
-              {products.length > 0 && !selectedProduct && (
-                <div style={pickerDropdown} role="listbox" aria-label="Resultados de búsqueda">
-                  {products.map((p) => (
-                    <button
-                      key={p.id}
-                      type="button"
-                      onClick={() => {
-                        const first = p.variants[0] ?? null;
-                        setSelectedProduct(p);
-                        setSelectedVariant(first);
-                        setSearch(p.name);
-                        setProducts([]);
-                        setSearchEmpty(false);
-                        setSearchError(null);
-                      }}
-                      style={pickerItem}
-                    >
-                      {p.images[0] ? (
-                        <img src={p.images[0]} alt="" style={{ width: 36, height: 36, objectFit: "cover", borderRadius: 6, flexShrink: 0 }} />
-                      ) : (
-                        <span style={{ width: 36, height: 36, borderRadius: 6, background: "var(--surface2)", flexShrink: 0 }} aria-hidden />
-                      )}
-                      <div style={{ textAlign: "left" }}>
-                        <div style={{ fontWeight: 600, fontSize: "0.85rem" }}>{p.name}</div>
-                        <div style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>
-                          {p.variants.length} variante{p.variants.length !== 1 ? "s" : ""} · desde ${p.price}
-                        </div>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              )}
+            <div>
+              <label style={{ marginBottom: "0.5rem", display: "block" }}>Producto regalo</label>
+              <TnProductPicker onPick={handleGiftProductPick} />
             </div>
 
-            {/* Variant selector */}
-            {selectedProduct && selectedProduct.variants.length > 1 && (
-              <div>
-                <label>Variante del producto</label>
-                <select
-                  value={selectedVariant?.id ?? ""}
-                  onChange={e => {
-                    const v = selectedProduct.variants.find(x => x.id === parseInt(e.target.value));
-                    setSelectedVariant(v ?? null);
-                  }}
-                >
-                  {selectedProduct.variants.map((v) => (
-                    <option key={v.id} value={v.id}>
-                      {variantLabel(v)} — ${v.price}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-
-            {/* Selected product preview */}
             {selectedProduct && selectedVariant && (
               <div style={selectedPreview}>
                 <span style={{ fontSize: "1.1rem" }}>✓</span>
@@ -360,7 +227,16 @@ export default function GiftsPage() {
                     ID: {selectedProduct.id} · Variante: {selectedVariant.id} · ${selectedVariant.price}
                   </div>
                 </div>
-                <button type="button" onClick={() => { setSelectedProduct(null); setSelectedVariant(null); setSearch(""); }} style={btnClear}>✕</button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedProduct(null);
+                    setSelectedVariant(null);
+                  }}
+                  style={btnClear}
+                >
+                  ✕
+                </button>
               </div>
             )}
 
@@ -475,22 +351,6 @@ export default function GiftsPage() {
 // Styles
 const card: React.CSSProperties = { background: "var(--surface)", border: "1px solid var(--border)", borderRadius: "var(--radius)", padding: "1.5rem" };
 const ruleCard: React.CSSProperties = { padding: "0.9rem 1rem", background: "var(--surface2)", borderRadius: "var(--radius-sm)", border: "1px solid var(--border)" };
-const pickerFieldWrap: React.CSSProperties = { position: "relative", zIndex: 20 };
-const pickerDropdown: React.CSSProperties = {
-  position: "absolute",
-  left: 0,
-  right: 0,
-  top: "100%",
-  marginTop: 4,
-  zIndex: 60,
-  background: "var(--surface)",
-  border: "1px solid var(--border)",
-  borderRadius: "var(--radius-sm)",
-  maxHeight: "260px",
-  overflowY: "auto",
-  boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
-};
-const pickerItem: React.CSSProperties = { display: "flex", alignItems: "center", gap: "0.65rem", width: "100%", padding: "0.65rem 0.9rem", background: "transparent", border: "none", cursor: "pointer", textAlign: "left", borderBottom: "1px solid var(--border)", color: "var(--text)" };
 const selectedPreview: React.CSSProperties = { display: "flex", alignItems: "center", gap: "0.65rem", padding: "0.75rem 1rem", background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.25)", borderRadius: "var(--radius-sm)", fontSize: "0.875rem", color: "var(--success)" };
 const btnPrimary: React.CSSProperties = { padding: "0.65rem 1.25rem", background: "linear-gradient(135deg, var(--accent), var(--accent2))", color: "#fff", border: "none", borderRadius: "var(--radius-sm)", cursor: "pointer", fontWeight: 600, fontSize: "0.875rem", fontFamily: "inherit" };
 const btnDanger: React.CSSProperties = { padding: "0.35rem 0.65rem", background: "rgba(239,68,68,0.15)", color: "var(--danger)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: "6px", cursor: "pointer", fontSize: "0.8rem" };

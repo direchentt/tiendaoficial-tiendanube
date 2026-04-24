@@ -25,6 +25,21 @@ function baseUrl(config: TiendanubeClientConfig): string {
   return `https://${domain}/${TN_API_VERSION}/${config.storeUserId.trim()}`;
 }
 
+function sleep(ms: number): Promise<void> {
+  return new Promise((r) => setTimeout(r, ms));
+}
+
+function shouldRetryTnStatus(status: number, method: string): boolean {
+  if (status === 429) return true;
+  const safe = method === "GET" || method === "HEAD";
+  if (safe && (status === 502 || status === 503 || status === 504)) return true;
+  return false;
+}
+
+/**
+ * Fetch a la API TN con reintentos acotados (429 / 5xx en GET).
+ * No reintenta POST/PATCH salvo 429 (rate limit).
+ */
 export async function tnFetch<T>(
   config: TiendanubeClientConfig,
   path: string,
@@ -33,27 +48,43 @@ export async function tnFetch<T>(
   const token = config.accessToken.trim();
   const ua = config.userAgent.trim();
   const url = `${baseUrl(config)}${path.startsWith("/") ? path : `/${path}`}`;
-  const res = await fetch(url, {
-    ...init,
-    headers: {
-      "Content-Type": "application/json; charset=utf-8",
-      /* TN exige este header (no "Authorization"); bearer en minúsculas. */
-      Authentication: `bearer ${token}`,
-      "User-Agent": ua,
-      ...init?.headers,
-    },
-  });
+  const method = (init?.method ?? "GET").toUpperCase();
+  const maxAttempts = 4;
 
-  if (!res.ok) {
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    const res = await fetch(url, {
+      ...init,
+      headers: {
+        "Content-Type": "application/json; charset=utf-8",
+        /* TN exige este header (no "Authorization"); bearer en minúsculas. */
+        Authentication: `bearer ${token}`,
+        "User-Agent": ua,
+        ...init?.headers,
+      },
+    });
+
+    if (res.ok) {
+      if (res.status === 204) {
+        return undefined as T;
+      }
+      return res.json() as Promise<T>;
+    }
+
     const text = await res.text();
+    const retry = shouldRetryTnStatus(res.status, method) && attempt < maxAttempts - 1;
+    if (retry) {
+      const ra = parseInt(res.headers.get("retry-after") ?? "", 10);
+      const fromHeader =
+        Number.isFinite(ra) && ra > 0 ? Math.min(ra * 1000, 10_000) : null;
+      const backoff = Math.min(400 * 2 ** attempt, 4000);
+      await sleep(fromHeader ?? backoff);
+      continue;
+    }
+
     throw new Error(`TN API ${res.status}: ${text.slice(0, 500)}`);
   }
 
-  if (res.status === 204) {
-    return undefined as T;
-  }
-
-  return res.json() as Promise<T>;
+  throw new Error("TN API: reintentos agotados");
 }
 
 /** Opciones de pago para checkout (scope read_payments). Documentacion: Business Rules + Payment providers. */

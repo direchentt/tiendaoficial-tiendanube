@@ -11,8 +11,8 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="js-item-variants col-md-6 p-3 p-md-4">
-                            <div class="row no-gutters align-items-start mr-md-1 mb-3 d-flex">
+                        <div class="js-item-variants col-md-6 p-3 p-md-4 quickshop-info-column">
+                            <div class="row no-gutters align-items-start mr-md-1 mb-3 d-flex quickshop-info-header">
                                 <div class="col">
                                     <div class="js-item-name h4-huge h3-huge-md mb-2 mb-md-0" data-store="product-item-name-{{ product.id }}"></div>
                                 </div>
@@ -22,19 +22,25 @@
                                     </a>
                                 </div>
                             </div>
-                            <div class="mb-4 mr-md-1" data-store="product-item-price-{{ product.id }}">
-                                <span class="js-price-display font-largest font-weight-bold"></span>
-                                <span class="js-compare-price-display price-compare font-big ml-2"></span>
-                                {% if settings.payment_discount_price %}
-                                    <div class="mt-1 mb-3 font-small js-theme-transfer-computed js-theme-transfer-quickshop" data-transfer-pct="" style="display: none;">
-                                        <span class="js-theme-transfer-amount h5 font-big font-family-body text-accent"></span>
-                                        <span class="opacity-90 js-theme-transfer-quickshop-label" aria-hidden="true"></span>
+                            {# Misma envoltura que item.tpl (data-store); precio dinámico Hache: .hs-dyn-price-addon hermano de .js-price-display. #}
+                            <div class="quickshop-price-block mb-4 mr-md-1">
+                                <div class="item-price-container d-flex flex-column align-items-center align-items-md-start" data-store="product-item-price-{{ product.id }}">
+                                    {# Fila única: precio + addon Hache (hermano de .js-price-display) + compare; TN a veces concatena todo en .js-price-display — themeRepairQuickshopPriceLine lo parte. #}
+                                    <div class="quickshop-price-line d-flex flex-row flex-wrap align-items-baseline justify-content-center justify-content-md-start">
+                                        <span class="js-price-display item-price font-largest font-weight-bold"></span>
+                                        <span class="js-compare-price-display price-compare font-big ml-md-2 mt-1 mt-md-0"></span>
                                     </div>
-                                {% endif %}
+                                    {% if settings.payment_discount_price %}
+                                        <div class="w-100 mt-2 pt-1 font-small js-theme-transfer-computed js-theme-transfer-quickshop quickshop-transfer-row" data-transfer-pct="" style="display: none;">
+                                            <span class="js-theme-transfer-amount h5 font-big font-family-body text-accent"></span>
+                                            <span class="opacity-90 js-theme-transfer-quickshop-label" aria-hidden="true"></span>
+                                        </div>
+                                    {% endif %}
+                                </div>
                             </div>
                             {# Image is hidden but present so it can be used on cart notifiaction #}
                             
-                            <div id="quickshop-form" class="mr-md-1"></div>
+                            <div id="quickshop-form" class="mr-md-1 quickshop-form-slot"></div>
                         </div>
                     </div>
                 </div>

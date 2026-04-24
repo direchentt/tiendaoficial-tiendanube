@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { parseStorefrontStoreUserId } from "@/lib/storefront-limits";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -17,12 +18,12 @@ export async function OPTIONS() {
  */
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const storeUserId = searchParams.get("storeId");
+  const storeUserId = parseStorefrontStoreUserId(searchParams.get("storeId"));
   const totalRaw = searchParams.get("total");
 
   if (!storeUserId) {
     return NextResponse.json(
-      { error: "storeId is required" },
+      { error: "storeId is required", hint: "Id numérico de la tienda (LS.store.id)." },
       { status: 400, headers: CORS }
     );
   }

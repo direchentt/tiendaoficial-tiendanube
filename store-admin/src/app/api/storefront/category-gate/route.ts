@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import {
+  parseStorefrontStoreUserId,
+  STOREFRONT_CATEGORY_GATE_PASSWORD_MAX,
+} from "@/lib/storefront-limits";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -18,12 +22,15 @@ export async function OPTIONS() {
  */
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const storeUserId = searchParams.get("storeId");
+  const storeUserId = parseStorefrontStoreUserId(searchParams.get("storeId"));
   const categoryId = parseInt(searchParams.get("categoryId") ?? "", 10);
 
   if (!storeUserId || isNaN(categoryId)) {
     return NextResponse.json(
-      { error: "storeId and categoryId are required" },
+      {
+        error: "storeId and categoryId are required",
+        hint: "storeId debe ser el id numérico de la tienda (LS.store.id).",
+      },
       { status: 400, headers: CORS }
     );
   }
@@ -54,17 +61,28 @@ export async function GET(req: NextRequest) {
  */
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({}));
-  const { storeId: storeUserId, categoryId, password } = body as {
+  const { storeId: storeIdRaw, categoryId: categoryIdRaw, password: passwordRaw } = body as {
     storeId?: string;
-    categoryId?: number;
+    categoryId?: number | string;
     password?: string;
   };
 
-  if (!storeUserId || !categoryId || !password) {
+  const storeUserId = parseStorefrontStoreUserId(storeIdRaw ?? null);
+  const categoryId =
+    typeof categoryIdRaw === "number"
+      ? categoryIdRaw
+      : parseInt(String(categoryIdRaw ?? ""), 10);
+  const password = typeof passwordRaw === "string" ? passwordRaw : "";
+
+  if (!storeUserId || !Number.isFinite(categoryId) || categoryId <= 0 || !password) {
     return NextResponse.json(
       { error: "storeId, categoryId and password are required" },
       { status: 400, headers: CORS }
     );
+  }
+
+  if (password.length > STOREFRONT_CATEGORY_GATE_PASSWORD_MAX) {
+    return NextResponse.json({ error: "password_too_long" }, { status: 400, headers: CORS });
   }
 
   const store = await prisma.store.findUnique({

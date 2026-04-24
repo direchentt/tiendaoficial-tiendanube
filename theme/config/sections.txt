@@ -16,6 +16,3 @@ comp_pdp
 alt_pdp
 	name = Alternativos (ficha de producto)
 	description = Productos sugeridos como alternativa o mismo estilo en la ficha. Misma carga y filtros que complementarios.
-promo_split_pool
-	name = Promo split (banner + 4 productos)
-	description = Asigná productos en Productos > Secciones y arrastrá para ordenarlos; el tema muestra los primeros 4 en ese orden junto al banner (Marca editorial / Promo split).

@@ -1,7 +1,10 @@
 "use client";
 
+import { TnProductPicker } from "@/components/admin/TnProductPicker";
+import type { TNProduct, TNVariant } from "@/components/admin/tn-product-picker-utils";
+import { variantLabel } from "@/components/admin/tn-product-picker-utils";
 import { adminFetch } from "@/lib/admin-fetch";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 type BundleProduct = {
   id: string;
@@ -12,26 +15,6 @@ type BundleProduct = {
   quantity: number;
   thumbnailUrl?: string | null;
 };
-
-type TNVariant = {
-  id: number;
-  price: string;
-  values?: { es?: string; pt?: string; en?: string }[];
-};
-type TNProduct = {
-  id: number;
-  name: string;
-  price: string;
-  images: string[];
-  variants: TNVariant[];
-};
-
-function variantLabel(v: TNVariant): string {
-  const parts = (v.values ?? [])
-    .map((x) => x.es ?? x.pt ?? x.en ?? "")
-    .filter(Boolean);
-  return parts.join(" / ") || `Variante ${v.id}`;
-}
 
 type Bundle = {
   id: string;
@@ -81,87 +64,6 @@ export default function BundlesPage() {
   const [success, setSuccess] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
 
-  const [pickerTab, setPickerTab] = useState<"catalog" | "search">("catalog");
-  const [search, setSearch] = useState("");
-  const [tnProducts, setTnProducts] = useState<TNProduct[]>([]);
-  const [loadingProducts, setLoadingProducts] = useState(false);
-  const [searchError, setSearchError] = useState<string | null>(null);
-  const [searchEmpty, setSearchEmpty] = useState(false);
-
-  const [catalogPage, setCatalogPage] = useState(1);
-  const [catalogItems, setCatalogItems] = useState<TNProduct[]>([]);
-  const [catalogLoading, setCatalogLoading] = useState(false);
-  const [catalogHasMore, setCatalogHasMore] = useState(true);
-
-  const fetchCatalogPage = useCallback(async (page: number, append: boolean) => {
-    setCatalogLoading(true);
-    try {
-      const r = await adminFetch(
-        `/api/admin/tn-products?q=&page=${page}&per_page=24`
-      );
-      const data = await r.json().catch(() => ({}));
-      if (!r.ok) {
-        setSearchError(typeof data.error === "string" ? data.error : "Error al cargar catálogo");
-        setCatalogLoading(false);
-        return;
-      }
-      const list = Array.isArray(data.products) ? data.products : [];
-      setCatalogItems((prev) => (append ? [...prev, ...list] : list));
-      setCatalogHasMore(list.length >= 24);
-      setCatalogPage(page);
-      setSearchError(null);
-    } catch {
-      setSearchError("No se pudo cargar el catálogo.");
-    } finally {
-      setCatalogLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (pickerTab !== "catalog") return;
-    void fetchCatalogPage(1, false);
-  }, [pickerTab, fetchCatalogPage]);
-
-  async function searchProducts(q: string) {
-    const trimmed = q.trim();
-    if (trimmed.length < 2) {
-      setTnProducts([]);
-      setSearchError(null);
-      setSearchEmpty(false);
-      return;
-    }
-    setLoadingProducts(true);
-    setSearchError(null);
-    setSearchEmpty(false);
-    try {
-      const r = await adminFetch(
-        `/api/admin/tn-products?q=${encodeURIComponent(trimmed)}&per_page=20`
-      );
-      const data = await r.json().catch(() => ({}));
-      if (r.ok) {
-        const list = Array.isArray(data.products) ? data.products : [];
-        setTnProducts(list);
-        setSearchEmpty(list.length === 0);
-      } else {
-        setTnProducts([]);
-        setSearchEmpty(false);
-        const msg = typeof data.error === "string" ? data.error : `Error al buscar`;
-        setSearchError(msg);
-      }
-    } catch {
-      setTnProducts([]);
-      setSearchError("No se pudo conectar con el buscador.");
-    } finally {
-      setLoadingProducts(false);
-    }
-  }
-
-  useEffect(() => {
-    if (pickerTab !== "search") return;
-    const t = setTimeout(() => searchProducts(search), 400);
-    return () => clearTimeout(t);
-  }, [search, pickerTab]);
-
   async function fetchBundles() {
     const r = await adminFetch("/api/admin/bundles");
     if (r.ok) setBundles(await r.json());
@@ -185,8 +87,6 @@ export default function BundlesPage() {
       thumbnailUrl: thumb || undefined,
     };
     setProducts((prev) => [...prev, newRow]);
-    setSearch("");
-    setTnProducts([]);
   }
 
   function updateProduct(id: string, field: keyof ProductRow, value: string | number) {
@@ -375,151 +275,7 @@ export default function BundlesPage() {
               <label style={{ marginBottom: "0.5rem", display: "block" }}>
                 Elegí productos
               </label>
-              <div style={tabRow}>
-                <button
-                  type="button"
-                  style={pickerTab === "catalog" ? tabActive : tabIdle}
-                  onClick={() => setPickerTab("catalog")}
-                >
-                  Catálogo
-                </button>
-                <button
-                  type="button"
-                  style={pickerTab === "search" ? tabActive : tabIdle}
-                  onClick={() => setPickerTab("search")}
-                >
-                  Buscar
-                </button>
-              </div>
-
-              {pickerTab === "catalog" && (
-                <div style={{ marginTop: "0.75rem" }}>
-                  {catalogLoading && catalogItems.length === 0 ? (
-                    <p style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>Cargando productos…</p>
-                  ) : (
-                    <>
-                      <div style={catalogGrid}>
-                        {catalogItems.map((p) => (
-                          <div key={p.id} style={catalogCard}>
-                            {p.images[0] ? (
-                              <img
-                                src={p.images[0]}
-                                alt=""
-                                style={{
-                                  width: "100%",
-                                  aspectRatio: "1",
-                                  objectFit: "cover",
-                                  borderRadius: "8px",
-                                  background: "var(--surface2)",
-                                }}
-                              />
-                            ) : (
-                              <div
-                                style={{
-                                  width: "100%",
-                                  aspectRatio: "1",
-                                  borderRadius: "8px",
-                                  background: "var(--surface2)",
-                                }}
-                              />
-                            )}
-                            <div style={{ fontWeight: 600, fontSize: "0.8rem", marginTop: "0.45rem", lineHeight: 1.3 }}>
-                              {p.name}
-                            </div>
-                            <div style={{ marginTop: "0.35rem", display: "flex", flexDirection: "column", gap: "0.25rem" }}>
-                              {p.variants.map((v) => (
-                                <button
-                                  key={v.id}
-                                  type="button"
-                                  style={btnMini}
-                                  onClick={() => addProductFromTn(p, v)}
-                                >
-                                  + {variantLabel(v)} · ${v.price}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                      {catalogHasMore && (
-                        <button
-                          type="button"
-                          style={{ ...btnSecondary, marginTop: "0.75rem", width: "100%" }}
-                          disabled={catalogLoading}
-                          onClick={() => fetchCatalogPage(catalogPage + 1, true)}
-                        >
-                          {catalogLoading ? "Cargando…" : "Cargar más productos"}
-                        </button>
-                      )}
-                    </>
-                  )}
-                </div>
-              )}
-
-              {pickerTab === "search" && (
-                <div style={{ marginTop: "0.75rem", position: "relative", zIndex: 20 }}>
-                  <input
-                    placeholder="Nombre, SKU o tag (mín. 2 caracteres)…"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                  />
-                  {loadingProducts && (
-                    <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginTop: "0.35rem" }}>
-                      Buscando…
-                    </p>
-                  )}
-                  {searchError && (
-                    <p style={{ fontSize: "0.8rem", color: "var(--danger)", marginTop: "0.35rem" }}>
-                      {searchError}
-                    </p>
-                  )}
-                  {!loadingProducts && searchEmpty && search.trim().length >= 2 && (
-                    <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginTop: "0.35rem" }}>
-                      Sin resultados.
-                    </p>
-                  )}
-                  {tnProducts.length > 0 && (
-                    <div style={pickerDropdown}>
-                      {tnProducts.map((p) => (
-                        <div key={p.id} style={{ padding: "0.5rem", borderBottom: "1px solid var(--border)" }}>
-                          <div style={{ display: "flex", gap: "0.65rem", alignItems: "center" }}>
-                            {p.images[0] ? (
-                              <img
-                                src={p.images[0]}
-                                alt=""
-                                style={{ width: 36, height: 36, objectFit: "cover", borderRadius: 6 }}
-                              />
-                            ) : (
-                              <div style={{ width: 36, height: 36, borderRadius: 6, background: "var(--surface2)" }} />
-                            )}
-                            <div style={{ fontWeight: 600, fontSize: "0.85rem", flex: 1 }}>{p.name}</div>
-                          </div>
-                          <div
-                            style={{
-                              paddingLeft: "44px",
-                              marginTop: "0.25rem",
-                              display: "flex",
-                              flexDirection: "column",
-                              gap: "0.25rem",
-                            }}
-                          >
-                            {p.variants.map((v) => (
-                              <button
-                                key={v.id}
-                                type="button"
-                                style={btnSecondary}
-                                onClick={() => addProductFromTn(p, v)}
-                              >
-                                + {variantLabel(v)} (${v.price})
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
+              <TnProductPicker onPick={addProductFromTn} />
             </div>
 
             <div>
@@ -837,12 +593,6 @@ const btnGhost: React.CSSProperties = {
   fontSize: "0.78rem",
 };
 
-const btnMini: React.CSSProperties = {
-  ...btnSecondary,
-  textAlign: "left" as const,
-  fontSize: "0.72rem",
-};
-
 const btnReorder: React.CSSProperties = {
   width: "2rem",
   height: "2rem",
@@ -927,52 +677,6 @@ function alertStyle(type: "success" | "danger"): React.CSSProperties {
 const emptyStyle: React.CSSProperties = {
   textAlign: "center",
   padding: "2.5rem 1rem",
-};
-
-const pickerDropdown: React.CSSProperties = {
-  position: "absolute",
-  left: 0,
-  right: 0,
-  top: "100%",
-  marginTop: 4,
-  zIndex: 60,
-  background: "var(--surface)",
-  border: "1px solid var(--border)",
-  borderRadius: "var(--radius-sm)",
-  maxHeight: "340px",
-  overflowY: "auto",
-  boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
-};
-
-const tabRow: React.CSSProperties = {
-  display: "flex",
-  gap: "0.35rem",
-  flexWrap: "wrap",
-};
-
-const tabActive: React.CSSProperties = {
-  ...btnSecondary,
-  borderColor: "var(--accent)",
-  color: "var(--accent2)",
-  background: "rgba(124,92,252,0.12)",
-};
-
-const tabIdle: React.CSSProperties = {
-  ...btnSecondary,
-  opacity: 0.85,
-};
-
-const catalogGrid: React.CSSProperties = {
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fill, minmax(9.5rem, 1fr))",
-  gap: "0.65rem",
-};
-
-const catalogCard: React.CSSProperties = {
-  border: "1px solid var(--border)",
-  borderRadius: "10px",
-  padding: "0.5rem",
-  background: "var(--surface)",
 };
 
 const stepRail: React.CSSProperties = {

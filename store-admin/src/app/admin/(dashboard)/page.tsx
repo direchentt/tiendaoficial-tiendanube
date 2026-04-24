@@ -2,6 +2,27 @@ import Link from "next/link";
 
 const MODULES = [
   {
+    href: "/admin/conversion",
+    icon: "📈",
+    title: "Conversión (CVR)",
+    desc: "Embudo mínimo: vistas PDP, add to cart y páginas clave (hache-suite).",
+    color: "#10b981",
+  },
+  {
+    href: "/admin/webhooks",
+    icon: "🔗",
+    title: "Webhooks",
+    desc: "Ingesta genérica de eventos TN con secreto; listado para diagnóstico.",
+    color: "#6366f1",
+  },
+  {
+    href: "/admin/audit",
+    icon: "📜",
+    title: "Auditoría",
+    desc: "Historial de cambios en reglas de pago y precios dinámicos.",
+    color: "#78716c",
+  },
+  {
     href: "/admin/gifts",
     icon: "🎁",
     title: "Regalos en Carrito",
@@ -97,13 +118,18 @@ export default function AdminHomePage() {
 
       {/* Webhook info */}
       <div style={sectionStyle}>
-        <h2 style={{ marginBottom: "0.75rem" }}>🔗 URL del Webhook (Business Rules)</h2>
-        <p style={{ fontSize: "0.85rem", color: "var(--text-muted)", marginBottom: "0.75rem" }}>
-          Registrá esta URL en el Partnership Portal de Tiendanube:
+        <h2 style={{ marginBottom: "0.75rem" }}>🔗 Webhooks Tiendanube</h2>
+        <p style={{ fontSize: "0.85rem", color: "var(--text-muted)", marginBottom: "0.5rem" }}>
+          <strong>Business Rules</strong> (pagos) — Partnership Portal:
         </p>
-        <pre style={{ margin: 0 }}>{`${base}/api/tn/payments-before-filter`}</pre>
+        <pre style={{ margin: 0, marginBottom: "1rem" }}>{`${base}/api/tn/payments-before-filter`}</pre>
+        <p style={{ fontSize: "0.85rem", color: "var(--text-muted)", marginBottom: "0.5rem" }}>
+          <strong>Eventos genéricos</strong> (pedidos, stock, etc.) — misma base, con header{" "}
+          <code>x-hache-webhook-secret</code> = <code>TN_WEBHOOK_SECRET</code>:
+        </p>
+        <pre style={{ margin: 0 }}>{`${base}/api/tn/events`}</pre>
         <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginTop: "0.75rem" }}>
-          Para desarrollo local usá{" "}
+          Ver registros en <Link href="/admin/webhooks">Webhooks</Link>. Desarrollo local:{" "}
           <code>ngrok http 3010</code> o <code>cloudflared tunnel</code>.
         </p>
       </div>

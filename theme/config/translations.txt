@@ -5148,13 +5148,3 @@ es "Paginación del carril de productos"
 pt "Paginacao do carril de produtos"
 en "Product rail pagination"
 es_mx "Paginación del carril de productos"
-
-es "Promo split (banner + 4 productos)"
-pt "Promo split (banner + 4 produtos)"
-en "Promo split (banner + 4 products)"
-es_mx "Promo split (banner + 4 productos)"
-
-es "Activá el bloque en Diseño > Marca editorial (layout) > Promo split, subí el banner o pegá una URL de imagen o video, y asigná productos a la sección en Productos > Secciones. Luego arrastrá esta sección en el orden de la página de inicio."
-pt "Ative o bloco em Design > Marca editorial > Promo split, envie o banner ou cole URL de imagem ou video, e atribua produtos em Produtos > Secoes. Depois arraste esta secao na ordem da pagina inicial."
-en "Enable the block under Design > Brand editorial > Promo split, upload the banner or paste an image/video URL, and assign products under Products > Sections. Then drag this section in your home page order."
-es_mx "Activa el bloque en Diseño > Marca editorial (layout) > Promo split, sube el banner o pega una URL de imagen o video, y asigna productos en Productos > Secciones. Luego arrastra esta sección en el orden de la página de inicio."

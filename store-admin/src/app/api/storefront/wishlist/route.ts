@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { loadStoreForStorefront } from "@/lib/default-store";
 import { wishlistVerifyCustomer, tnConfigFromStore } from "@/lib/wishlist-verify-customer";
 import { getProduct, type ProductDetail } from "@/lib/tiendanube-client";
+import { parseStorefrontStoreUserId } from "@/lib/storefront-limits";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -111,14 +112,18 @@ function pickFirstVariant(p: ProductDetail): {
  */
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const storeUserId = searchParams.get("storeId");
+  const storeUserId = parseStorefrontStoreUserId(searchParams.get("storeId"));
   const customerId = parseIntParam(searchParams.get("customerId"));
   const email = searchParams.get("email") ?? "";
   const withDetails = searchParams.get("details") === "1";
 
   if (!storeUserId || !customerId || !email.trim()) {
     return NextResponse.json(
-      { error: "missing_params", need: ["storeId", "customerId", "email"] },
+      {
+        error: "missing_params",
+        need: ["storeId", "customerId", "email"],
+        hint: "storeId debe ser el id numérico de la tienda (LS.store.id).",
+      },
       { status: 400, headers: CORS }
     );
   }
@@ -220,14 +225,18 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "invalid_json" }, { status: 400, headers: CORS });
   }
 
-  const storeUserId = body.storeId?.trim();
+  const storeUserId = parseStorefrontStoreUserId(body.storeId ?? null);
   const customerId = Number(body.customerId);
   const customerEmail = body.customerEmail?.trim() ?? "";
   const productId = Number(body.productId);
 
   if (!storeUserId || !customerEmail || !Number.isFinite(customerId) || customerId <= 0) {
     return NextResponse.json(
-      { error: "missing_fields", need: ["storeId", "customerId", "customerEmail", "productId"] },
+      {
+        error: "missing_fields",
+        need: ["storeId", "customerId", "customerEmail", "productId"],
+        hint: "storeId debe ser el id numérico de la tienda (LS.store.id).",
+      },
       { status: 400, headers: CORS }
     );
   }

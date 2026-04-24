@@ -8,6 +8,7 @@
     "start": "next start -p 3010",
     "start:railway": "node scripts/railway-start.mjs",
     "lint": "next lint",
+    "ci": "npm run lint && npm run build",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate deploy",
     "db:studio": "prisma studio",

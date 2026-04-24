@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { logAdminAudit } from "@/lib/admin-audit";
 import { ensureDefaultStore } from "@/lib/default-store";
 import { prisma } from "@/lib/prisma";
 
@@ -86,7 +87,7 @@ export async function createPaymentRule(formData: FormData): Promise<RuleFormRes
     if (!p.name) {
       return { ok: false, message: "Nombre obligatorio" };
     }
-    await prisma.paymentRule.create({
+    const created = await prisma.paymentRule.create({
       data: {
         storeId: store.id,
         name: p.name,
@@ -95,6 +96,14 @@ export async function createPaymentRule(formData: FormData): Promise<RuleFormRes
         conditions: p.conditionsJson,
         excludePairs: p.excludeJson,
       },
+    });
+    await logAdminAudit({
+      storeId: store.id,
+      action: "payment_rule.create",
+      entityType: "PaymentRule",
+      entityId: created.id,
+      summary: `Nueva regla de pago: ${p.name}`,
+      meta: { priority: p.priority, enabled: p.enabled },
     });
     revalidatePath("/admin/payment-rules");
     return { ok: true };
@@ -109,7 +118,7 @@ export async function updatePaymentRule(
   formData: FormData
 ): Promise<RuleFormResult> {
   try {
-    await ensureDefaultStore();
+    const store = await ensureDefaultStore();
     const p = parseForm(formData);
     if (!p.name) {
       return { ok: false, message: "Nombre obligatorio" };
@@ -124,6 +133,14 @@ export async function updatePaymentRule(
         excludePairs: p.excludeJson,
       },
     });
+    await logAdminAudit({
+      storeId: store.id,
+      action: "payment_rule.update",
+      entityType: "PaymentRule",
+      entityId: ruleId,
+      summary: `Regla de pago actualizada: ${p.name}`,
+      meta: { priority: p.priority, enabled: p.enabled },
+    });
     revalidatePath("/admin/payment-rules");
     return { ok: true };
   } catch (e) {
@@ -133,7 +150,15 @@ export async function updatePaymentRule(
 }
 
 export async function deletePaymentRule(ruleId: string) {
+  const store = await ensureDefaultStore();
   await prisma.paymentRule.delete({ where: { id: ruleId } });
+  await logAdminAudit({
+    storeId: store.id,
+    action: "payment_rule.delete",
+    entityType: "PaymentRule",
+    entityId: ruleId,
+    summary: `Eliminada regla de pago id ${ruleId}`,
+  });
   revalidatePath("/admin/payment-rules");
 }
 

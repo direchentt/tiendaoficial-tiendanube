@@ -14,6 +14,9 @@
  *   LS.cart           → objeto del carrito
  *
  * Wishlist: requiere cuenta TN; verificacion en backend con API read_customers.
+ *
+ * CVR (embudo): envía eventos a POST /api/storefront/conversion-events. Desactivar:
+ *   window.HACHE_DISABLE_CVR = true;
  */
 
 (function (window) {
@@ -37,6 +40,73 @@
       metaId ||
       "";
     return id.trim();
+  }
+
+  var HS_CVR = "hs_cvr_";
+
+  function sendConversionEvent(type, extra) {
+    if (
+      typeof window !== "undefined" &&
+      (window.HACHE_DISABLE_CVR === "1" || window.HACHE_DISABLE_CVR === true)
+    ) {
+      return;
+    }
+    var sid = getStoreId();
+    if (!sid) return;
+    var payload = {
+      type: type,
+      storeId: sid,
+      path: (typeof window !== "undefined" && window.location && window.location.pathname) || "",
+    };
+    if (extra && typeof extra === "object") {
+      if (extra.productId != null) payload.productId = extra.productId;
+      if (extra.categoryId != null) payload.categoryId = extra.categoryId;
+    }
+    try {
+      fetch(BACKEND_URL + "/api/storefront/conversion-events", {
+        method: "POST",
+        mode: "cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+        keepalive: true,
+      }).catch(function () {});
+    } catch (_) {}
+  }
+
+  /** Una vez por sesión de pestaña (sessionStorage) para vistas de página. */
+  function trackConversionPageViewsOnce() {
+    try {
+      var pt = getCurrentPageType();
+      if (pt === "home") {
+        if (!sessionStorage.getItem(HS_CVR + "home")) {
+          sessionStorage.setItem(HS_CVR + "home", "1");
+          sendConversionEvent("home_view", {});
+        }
+        return;
+      }
+      if (pt === "category" && window.LS && window.LS.category && window.LS.category.id) {
+        var cid = String(window.LS.category.id);
+        if (!sessionStorage.getItem(HS_CVR + "cat_" + cid)) {
+          sessionStorage.setItem(HS_CVR + "cat_" + cid, "1");
+          sendConversionEvent("category_view", { categoryId: window.LS.category.id });
+        }
+        return;
+      }
+      if (pt === "product" && window.LS && window.LS.product && window.LS.product.id) {
+        var pvId = String(window.LS.product.id);
+        if (!sessionStorage.getItem(HS_CVR + "pv_" + pvId)) {
+          sessionStorage.setItem(HS_CVR + "pv_" + pvId, "1");
+          sendConversionEvent("product_view", { productId: window.LS.product.id });
+        }
+        return;
+      }
+      if (pt === "bundle") {
+        if (!sessionStorage.getItem(HS_CVR + "bundle")) {
+          sessionStorage.setItem(HS_CVR + "bundle", "1");
+          sendConversionEvent("bundle_view", {});
+        }
+      }
+    } catch (_) {}
   }
 
   /** GET/POST wishlist: mismo parseo de JSON + errores que postToggle. */
@@ -170,7 +240,7 @@
       ".hs-bundle-state{text-align:center;padding:2rem 1rem;font:.9rem/1.5 system-ui,sans-serif;color:var(--hs-state,#888)}" +
       ".hs-bundle-state--err{color:#dc2626}" +
       ":root[data-color-scheme='dark'] .hs-bundle-state{--hs-state:#a1a1aa}" +
-      ".hs-dyn-wrap{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap;vertical-align:middle}" +
+      ".hs-dyn-wrap,.hs-dyn-price-addon{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap;vertical-align:middle}" +
       ".hs-dyn-new{font-weight:700;color:#059669}" +
       ":root[data-color-scheme='dark'] .hs-dyn-new{color:#4ade80}" +
       ".hs-dyn-old{text-decoration:line-through;color:#888;font-size:.85em}" +
@@ -265,13 +335,31 @@
    */
   function addToCart(productId, variantId, quantity) {
     quantity = quantity || 1;
+    function trackAddToCartOk() {
+      try {
+        var pid = parseInt(String(productId), 10);
+        if (Number.isFinite(pid) && pid > 0) {
+          sendConversionEvent("add_to_cart", { productId: pid });
+        }
+      } catch (_) {}
+    }
     // Método 1: API nativa de Tiendanube (recomendado)
     if (window.LS && window.LS.Cart && typeof window.LS.Cart.addItem === "function") {
-      return window.LS.Cart.addItem({
-        product_id: productId,
-        variant_id: variantId,
-        quantity: quantity,
-      });
+      return Promise.resolve(
+        window.LS.Cart.addItem({
+          product_id: productId,
+          variant_id: variantId,
+          quantity: quantity,
+        })
+      ).then(
+        function (res) {
+          trackAddToCartOk();
+          return res;
+        },
+        function (err) {
+          return Promise.reject(err);
+        }
+      );
     }
     // Método 2: API REST de Tiendanube (fallback)
     return fetch("/api/storefront/cart/items", {
@@ -281,7 +369,12 @@
       body: JSON.stringify({
         add: [{ product_id: productId, variant_id: variantId, quantity: quantity }],
       }),
-    }).then(function(r) { return r.json(); });
+    }).then(function (r) {
+      return r.json().then(function (data) {
+        if (r.ok) trackAddToCartOk();
+        return data;
+      });
+    });
   }
 
   function getCartTotal() {
@@ -301,14 +394,14 @@
   }
 
   function getCurrentPageType() {
-    const path = window.location.pathname;
+    const path = (window.location && window.location.pathname) || "/";
     if (
-      path === "/combos" ||
-      path.startsWith("/combos/") ||
-      path.startsWith("/pages/combos") ||
-      path.startsWith("/paginas/combos")
-    )
+      /^\/combos(\/|$)/i.test(path) ||
+      /^\/pages\/combos(\/|$)/i.test(path) ||
+      /^\/paginas\/combos(\/|$)/i.test(path)
+    ) {
       return "bundle";
+    }
     if (window.LS?.product?.id) return "product";
     if (window.LS?.category?.id) return "category";
     if (path === "/" || path === "") return "home";
@@ -895,13 +988,17 @@
       };
 
       injectHacheSuiteStyles();
-      var wrapper = document.createElement("span");
-      wrapper.className = "hs-dyn-wrap";
-      wrapper.innerHTML =
-        '<span class="hs-dyn-new">' +
-        sym +
-        fmtNum(discounted) +
-        "</span>" +
+      /* Solo el precio efectivo dentro de .js-price-display: TN fillQuickshop / .text() concatenan
+         todo el texto de los hijos y rompen compra rápida. Tachado + badge van como hermano (.hs-dyn-price-addon). */
+      while (el.firstChild) {
+        el.removeChild(el.firstChild);
+      }
+      el.textContent = sym + fmtNum(discounted);
+      el.setAttribute("data-hs-effective-price", String(discounted));
+
+      var addon = document.createElement("span");
+      addon.className = "hs-dyn-price-addon hs-dyn-wrap";
+      addon.innerHTML =
         '<span class="hs-dyn-old">' +
         sym +
         fmtNum(original) +
@@ -909,10 +1006,9 @@
         '<span class="hs-dyn-badge">-' +
         pct +
         "%</span>";
-
-      el.textContent = "";
-      el.appendChild(wrapper);
-      el.setAttribute("data-hs-effective-price", String(discounted));
+      if (el.parentNode) {
+        el.parentNode.insertBefore(addon, el.nextSibling);
+      }
 
       var root = el.closest(".js-item-product, .js-product-container, #single-product, .js-price-container");
       if (root) {
@@ -934,12 +1030,38 @@
   // ─── MODULE 4: BUNDLE PAGE ─────────────────────────────────────────────────
 
   const BundlePageModule = {
+    _loadStarted: false,
+
     async init() {
       const container = document.getElementById("hs-bundles-container");
       if (!container) return;
-      if (!getStoreId()) return;
 
       injectHacheSuiteStyles();
+
+      if (!getStoreId()) {
+        container.innerHTML =
+          '<p class="hs-bundle-state">Conectando con la tienda…</p>';
+        let tries = 0;
+        const timer = window.setInterval(() => {
+          tries += 1;
+          if (getStoreId()) {
+            window.clearInterval(timer);
+            this._loadStarted = false;
+            this.init();
+            return;
+          }
+          if (tries >= 50) {
+            window.clearInterval(timer);
+            container.innerHTML =
+              '<p class="hs-bundle-state hs-bundle-state--err">No se detectó el id de la tienda (LS.store.id). Agregá en el tema la meta <code>&lt;meta name="hache-store-user-id" content="TU_ID"&gt;</code> con el mismo número que en el panel (TN_STORE_USER_ID), o recargá la página.</p>';
+          }
+        }, 200);
+        return;
+      }
+
+      if (this._loadStarted) return;
+      this._loadStarted = true;
+
       container.innerHTML = '<p class="hs-bundle-state">Cargando combos…</p>';
 
       let data;
@@ -948,21 +1070,28 @@
         data = cached;
       } else {
         try {
-          data = await apiGet(`/api/storefront/bundles?storeId=${getStoreId()}`);
+          data = await apiGet(
+            `/api/storefront/bundles?storeId=${encodeURIComponent(getStoreId())}`
+          );
           if ((data.bundles || []).length > 0) {
             lsSet("bundles_v3", data, 30 * 1000);
           }
         } catch (e) {
+          this._loadStarted = false;
           container.innerHTML =
-            '<p class="hs-bundle-state hs-bundle-state--err">No se pudieron cargar los combos.</p>';
+            '<p class="hs-bundle-state hs-bundle-state--err">No se pudieron cargar los combos. Revisá la consola (F12) y que HACHE_BACKEND_URL / CORS apunten al panel.</p>';
           return;
         }
       }
 
       const bundles = data.bundles || [];
       if (bundles.length === 0) {
+        this._loadStarted = false;
+        try {
+          localStorage.removeItem(NS + "bundles_v3");
+        } catch (_) {}
         container.innerHTML =
-          '<p class="hs-bundle-state">No hay combos disponibles por el momento.</p>';
+          '<p class="hs-bundle-state">No hay combos publicados todavía. Creálos en el panel Hache (Bundles) y marcá <strong>activo</strong>; el id de tienda en el servidor debe coincidir con esta tienda.</p>';
         return;
       }
 
@@ -975,6 +1104,7 @@
         grid.appendChild(card);
       }
       container.appendChild(grid);
+      this._loadStarted = false;
     },
 
     renderCard(bundle) {
@@ -1878,6 +2008,8 @@
       if (typeof window !== "undefined" && window.HACHE_DEBUG) {
         console.log("[HacheSuite] Iniciando — página:", pageType, "| tienda:", getStoreId() || "(sin id aún)");
       }
+
+      trackConversionPageViewsOnce();
 
       // Cart Gifts — run on all pages except bundle page
       if (pageType !== "bundle") {

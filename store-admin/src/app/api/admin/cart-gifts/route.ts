@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+import { logAdminAudit } from "@/lib/admin-audit";
+import { ensureDefaultStore } from "@/lib/default-store";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/require-admin";
-import { ensureDefaultStore } from "@/lib/default-store";
 import { z } from "zod";
 
 const bodySchema = z.object({
@@ -51,6 +52,14 @@ export async function POST(req: NextRequest) {
   try {
     const rule = await prisma.cartGiftRule.create({
       data: { storeId: store.id, ...parsed.data },
+    });
+    await logAdminAudit({
+      storeId: store.id,
+      action: "cart_gift.create",
+      entityType: "CartGiftRule",
+      entityId: rule.id,
+      summary: `Regalo en carrito: ${rule.name} (mín. ${rule.minTotal})`,
+      meta: { giftProductId: rule.giftProductId, enabled: rule.enabled },
     });
     return NextResponse.json(rule, { status: 201 });
   } catch (e) {

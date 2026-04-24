@@ -9,17 +9,11 @@
 #}
 
 {% set slide_item = slide_item | default(false) %}
-{# Promo split: tarjetas 2×2 con columnas pasadas aunque no sea home. #}
-{% set promo_split_item = promo_split_item | default(false) %}
 
-{% if template == 'home' or promo_split_item %}
+{% if template == 'home' %}
     {% set columns_desktop = section_columns_desktop %}
     {% set columns_mobile = section_columns_mobile %}
-    {% if promo_split_item %}
-        {% set section_slider = section_slider | default(false) %}
-    {% else %}
-        {% set section_slider = section_slider %}
-    {% endif %}
+    {% set section_slider = section_slider %}
 {% else %}
     {% set columns_desktop = settings.grid_columns_desktop %}
     {% set columns_mobile = settings.grid_columns_mobile %}

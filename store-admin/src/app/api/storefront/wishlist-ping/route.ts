@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { loadStoreForStorefront } from "@/lib/default-store";
 import { tnConfigFromStore } from "@/lib/wishlist-verify-customer";
+import { parseStorefrontStoreUserId } from "@/lib/storefront-limits";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -24,7 +25,8 @@ export async function OPTIONS() {
 }
 
 export async function GET(req: NextRequest) {
-  const storeUserId = new URL(req.url).searchParams.get("storeId")?.trim() ?? "";
+  const storeUserId =
+    parseStorefrontStoreUserId(new URL(req.url).searchParams.get("storeId")) ?? "";
   const envId = process.env.TN_STORE_USER_ID?.trim();
 
   if (!storeUserId) {
@@ -33,7 +35,7 @@ export async function GET(req: NextRequest) {
         ...BASE,
         ok: false,
         matchedEnv: false,
-        hint: "Falta el query ?storeId= — debe ser el mismo número que LS.store.id en la consola del navegador (F12).",
+        hint: "Falta o es inválido el query ?storeId= — debe ser solo dígitos, igual a LS.store.id (F12 → consola).",
       },
       { status: 200, headers: CORS }
     );

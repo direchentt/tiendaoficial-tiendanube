@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { normalizeTnListProduct } from "@/lib/tn-products-admin-normalize";
 import { requireAdmin } from "@/lib/require-admin";
 import { devOnlyDetail } from "@/lib/safe-client-message";
 import { tnFetch, type TiendanubeClientConfig } from "@/lib/tiendanube-client";
@@ -40,9 +41,9 @@ export async function GET(req: NextRequest) {
     host: process.env.TN_API_HOST === "nuvemshop" ? "nuvemshop" : "tiendanube",
   };
 
-  let products: TNProduct[];
+  let products: unknown[];
   try {
-    products = await tnFetch<TNProduct[]>(config, `/products?${params.toString()}`);
+    products = await tnFetch<unknown[]>(config, `/products?${params.toString()}`);
   } catch (e) {
     const detail = e instanceof Error ? e.message : String(e);
     return NextResponse.json(
@@ -53,32 +54,11 @@ export async function GET(req: NextRequest) {
 
   const list = Array.isArray(products) ? products : [];
 
-  const normalized = list.map((p: TNProduct) => ({
-    id: p.id,
-    name: typeof p.name === "object" ? (p.name.es ?? p.name.pt ?? Object.values(p.name)[0]) : p.name,
-    variants: (p.variants ?? []).map((v: TNVariant) => ({
-      id: v.id,
-      price: v.price,
-      stock: v.stock ?? null,
-      values: v.values ?? [],
-    })),
-    images: (p.images ?? [])
-      .slice(0, 1)
-      .map((img: TNImage) => (typeof img.src === "string" ? img.src : ""))
-      .filter(Boolean),
-    price: p.variants?.[0]?.price ?? "0",
-  }));
+  const normalized = list
+    .map((p) => normalizeTnListProduct(p as never))
+    .filter((p): p is NonNullable<typeof p> => p != null);
 
   return NextResponse.json({
-    products: normalized.filter((p) => p.variants.length > 0),
+    products: normalized,
   });
 }
-
-type TNImage = { src: string };
-type TNVariant = { id: number; price: string; stock?: number | null; values?: { es?: string; pt?: string; en?: string }[] };
-type TNProduct = {
-  id: number;
-  name: string | Record<string, string>;
-  variants?: TNVariant[];
-  images?: TNImage[];
-};

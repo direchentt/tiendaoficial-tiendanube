@@ -18,6 +18,52 @@ model Store {
   pricePresets    PricePreset[]
   lockedCategories LockedCategory[]
   wishlistItems   WishlistItem[]
+  conversionEvents ConversionEvent[]
+  adminAuditLogs   AdminAuditLog[]
+}
+
+/// Webhooks genéricos recibidos (configurá URL + secreto en TN / integraciones).
+model TnWebhookEvent {
+  id               String   @id @default(cuid())
+  /// Si el JSON trae `store_id` de Tiendanube.
+  tiendanubeUserId String?  @db.VarChar(32)
+  topic            String   @db.VarChar(160)
+  /// Cuerpo crudo (truncado al guardar si excede).
+  payload          String   @db.Text
+  createdAt        DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([tiendanubeUserId, createdAt])
+}
+
+/// Cambios sensibles en el panel (reglas de pago, precios dinámicos, etc.).
+model AdminAuditLog {
+  id         String   @id @default(cuid())
+  storeId    String
+  store      Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  action     String   @db.VarChar(120)
+  entityType String?  @db.VarChar(80)
+  entityId   String?  @db.VarChar(80)
+  summary    String   @db.VarChar(500)
+  meta       String?  @db.Text
+  createdAt  DateTime @default(now())
+
+  @@index([storeId, createdAt])
+}
+
+/// Eventos de embudo CVR (vista PDP, add to cart, etc.) — ingesta desde hache-suite.js.
+model ConversionEvent {
+  id         String   @id @default(cuid())
+  storeId    String
+  store      Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  /// home_view | category_view | product_view | add_to_cart | bundle_view
+  type       String
+  productId  Int?
+  categoryId Int?
+  path       String?  @db.VarChar(512)
+  createdAt  DateTime @default(now())
+
+  @@index([storeId, type, createdAt])
 }
 
 /// Favoritos por cliente (identificado por ID de cliente TN + email verificado vía API).

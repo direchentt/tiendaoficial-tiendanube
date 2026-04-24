@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    paths:
+      - "store-admin/**"
+      - ".github/workflows/ci.yml"
+  pull_request:
+    paths:
+      - "store-admin/**"
+      - ".github/workflows/ci.yml"
+  workflow_dispatch:
+
+defaults:
+  run:
+    working-directory: store-admin
+
+jobs:
+  store-admin:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: store-admin/package-lock.json
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: ESLint
+        run: npm run lint
+
+      - name: Build (Prisma + Next)
+        env:
+          # Solo para `prisma generate` / build; no hace falta Postgres accesible.
+          DATABASE_URL: postgresql://ci:ci@127.0.0.1:5432/ci?schema=public
+        run: npm run build

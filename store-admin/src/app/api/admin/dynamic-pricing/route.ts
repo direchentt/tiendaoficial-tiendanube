@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+import { logAdminAudit } from "@/lib/admin-audit";
+import { ensureDefaultStore } from "@/lib/default-store";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/require-admin";
-import { ensureDefaultStore } from "@/lib/default-store";
 import { z } from "zod";
 
 function parseExcludedCategoryIds(raw: string | null | undefined): number[] {
@@ -122,6 +123,21 @@ export async function PUT(req: NextRequest) {
       where: { storeId: store.id },
       create: { storeId: store.id, ...data },
       update: data,
+    });
+
+    await logAdminAudit({
+      storeId: store.id,
+      action: "dynamic_pricing.upsert",
+      entityType: "DynamicPricingConfig",
+      entityId: config.id,
+      summary: `Precios dinámicos: ${config.enabled ? "activo" : "inactivo"} · ${config.algorithm}`,
+      meta: {
+        enabled: config.enabled,
+        algorithm: config.algorithm,
+        minPct: config.minPct,
+        maxPct: config.maxPct,
+        commitOnAddToCart: config.commitOnAddToCart,
+      },
     });
 
     return NextResponse.json({

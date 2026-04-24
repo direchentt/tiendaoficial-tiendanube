@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+import { logAdminAudit } from "@/lib/admin-audit";
+import { ensureDefaultStore } from "@/lib/default-store";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/require-admin";
-import { ensureDefaultStore } from "@/lib/default-store";
 import { z } from "zod";
 
 const patchSchema = z.object({
@@ -38,6 +39,14 @@ export async function PATCH(
     where: { id: params.id },
     data: parsed.data,
   });
+  await logAdminAudit({
+    storeId: store.id,
+    action: "cart_gift.update",
+    entityType: "CartGiftRule",
+    entityId: params.id,
+    summary: `Regalo en carrito actualizado: ${updated.name}`,
+    meta: parsed.data as Record<string, unknown>,
+  });
   return NextResponse.json(updated);
 }
 
@@ -55,5 +64,12 @@ export async function DELETE(
   if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
   await prisma.cartGiftRule.delete({ where: { id: params.id } });
+  await logAdminAudit({
+    storeId: store.id,
+    action: "cart_gift.delete",
+    entityType: "CartGiftRule",
+    entityId: params.id,
+    summary: `Eliminada regla regalo: ${existing.name}`,
+  });
   return new NextResponse(null, { status: 204 });
 }
