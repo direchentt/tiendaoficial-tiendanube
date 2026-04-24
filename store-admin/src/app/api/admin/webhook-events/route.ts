@@ -45,6 +45,8 @@ export async function GET(req: NextRequest) {
         topic: true,
         tiendanubeUserId: true,
         createdAt: true,
+        processedAt: true,
+        processError: true,
         payload: true,
       },
     }),
@@ -56,6 +58,8 @@ export async function GET(req: NextRequest) {
     topic: r.topic,
     tiendanubeUserId: r.tiendanubeUserId,
     createdAt: r.createdAt.toISOString(),
+    processedAt: r.processedAt?.toISOString() ?? null,
+    processError: r.processError,
     payloadPreview: r.payload.slice(0, 400),
     payloadLength: r.payload.length,
   }));

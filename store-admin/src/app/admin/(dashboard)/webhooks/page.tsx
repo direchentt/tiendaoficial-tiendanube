@@ -10,6 +10,8 @@ type Row = {
   topic: string;
   tiendanubeUserId: string | null;
   createdAt: string;
+  processedAt: string | null;
+  processError: string | null;
   payloadPreview: string;
   payloadLength: number;
 };
@@ -79,9 +81,12 @@ export default function WebhooksPage() {
           {base ? `${base}/api/tn/events` : "…/api/tn/events"}
         </pre>
         <p style={{ fontSize: "0.78rem", color: "var(--text-muted)", marginTop: "0.65rem", marginBottom: 0 }}>
-          Header obligatorio: <code>x-hache-webhook-secret</code> (o <code>x-tn-webhook-secret</code>) con el mismo
-          valor que <code>TN_WEBHOOK_SECRET</code> en Railway. Topic opcional: <code>x-tn-event</code> o{" "}
-          <code>x-event-name</code>. Si el cuerpo JSON trae <code>store_id</code> numérico, se indexa por tienda.
+          <strong>Webhooks creados por API (Tiendanube):</strong> envían <code>x-linkedstore-hmac-sha256</code>; en
+          Railway configurá <code>TN_WEBHOOK_APP_SECRET</code> con el secreto de la app (mismo que usa la doc oficial
+          para verificar el HMAC). <strong>Integración custom:</strong>{" "}
+          <code>x-hache-webhook-secret</code> o <code>x-tn-webhook-secret</code> = <code>TN_WEBHOOK_SECRET</code>. El
+          topic puede venir en <code>x-tn-event</code> / <code>x-event-name</code> o en el JSON como{" "}
+          <code>event</code>. <code>store_id</code> en el cuerpo se indexa por tienda.
         </p>
       </div>
 
@@ -169,6 +174,21 @@ export default function WebhooksPage() {
                   store_id: <code>{row.tiendanubeUserId}</code>
                 </div>
               ) : null}
+              <div style={{ fontSize: "0.72rem", color: "var(--text-muted)", marginTop: "0.25rem" }}>
+                Procesado:{" "}
+                {row.processedAt ? (
+                  <>
+                    <time dateTime={row.processedAt}>{new Date(row.processedAt).toLocaleString()}</time>
+                    {row.processError ? (
+                      <span style={{ color: "var(--danger, #b91c1c)", marginLeft: "0.35rem" }}>
+                        (error: {row.processError})
+                      </span>
+                    ) : null}
+                  </>
+                ) : (
+                  <span>pendiente…</span>
+                )}
+              </div>
               <pre
                 style={{
                   margin: "0.5rem 0 0",

@@ -8,7 +8,9 @@
     "start": "next start -p 3010",
     "start:railway": "node scripts/railway-start.mjs",
     "lint": "next lint",
-    "ci": "npm run lint && npm run build",
+    "ci": "npm run lint && npm run test && npm run build",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate deploy",
     "db:studio": "prisma studio",
@@ -40,7 +42,8 @@
     "eslint": "^8.57.0",
     "eslint-config-next": "^14.2.18",
     "prisma": "^6.3.0",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "vitest": "^3.2.4"
   },
   "engines": {
     "node": ">=20"

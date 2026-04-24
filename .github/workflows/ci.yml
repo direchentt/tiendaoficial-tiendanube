@@ -33,6 +33,9 @@ jobs:
       - name: ESLint
         run: npm run lint
 
+      - name: Tests (Vitest)
+        run: npm run test
+
       - name: Build (Prisma + Next)
         env:
           # Solo para `prisma generate` / build; no hace falta Postgres accesible.

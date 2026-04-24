@@ -31,9 +31,12 @@ model TnWebhookEvent {
   /// Cuerpo crudo (truncado al guardar si excede).
   payload          String   @db.Text
   createdAt        DateTime @default(now())
+  processedAt      DateTime?
+  processError     String?  @db.VarChar(500)
 
   @@index([createdAt])
   @@index([tiendanubeUserId, createdAt])
+  @@index([processedAt])
 }
 
 /// Cambios sensibles en el panel (reglas de pago, precios dinámicos, etc.).
