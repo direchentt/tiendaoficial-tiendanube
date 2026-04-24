@@ -4,7 +4,7 @@ import type { Bundle, BundleProduct, Store } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { loadStoreForStorefront } from "@/lib/default-store";
 import { normalizeTnProductDetail } from "@/lib/tn-products-admin-normalize";
-import { getProduct } from "@/lib/tiendanube-client";
+import { getProduct, type ProductDetail } from "@/lib/tiendanube-client";
 import { parseStorefrontStoreUserId } from "@/lib/storefront-limits";
 import { tnConfigFromStore } from "@/lib/wishlist-verify-customer";
 
@@ -18,6 +18,8 @@ export type StorefrontVariantChoice = {
 
 export type StorefrontBundleProductLine = BundleProduct & {
   variantChoices?: StorefrontVariantChoice[];
+  /** Pathname de la PDP en la misma tienda (p. ej. /productos/foo) para fallback variation[] en el theme. */
+  productPath?: string | null;
 };
 
 type BundleStorefrontRow = Omit<BundleWithProducts, "products"> & {
@@ -34,50 +36,90 @@ export async function OPTIONS() {
   return new NextResponse(null, { status: 204, headers: CORS });
 }
 
+function pickLocalizedUrl(
+  v: string | Record<string, string> | undefined
+): string | null {
+  if (!v) return null;
+  if (typeof v === "string" && v.trim()) {
+    const s = v.trim();
+    return s.startsWith("http") || s.startsWith("/") ? s : null;
+  }
+  if (typeof v === "object") {
+    const o = v as Record<string, string>;
+    const s = (o.es ?? o.pt ?? o.en ?? Object.values(o).find((x) => typeof x === "string" && x.trim()))?.trim();
+    if (!s) return null;
+    return s.startsWith("http") || s.startsWith("/") ? s : null;
+  }
+  return null;
+}
+
+/** Path relativo de la PDP para fetch same-origin desde el theme (variation[]). */
+function productPathFromTnProduct(raw: ProductDetail): string | null {
+  const abs =
+    pickLocalizedUrl(raw.canonical_url as string | Record<string, string> | undefined) ??
+    pickLocalizedUrl(raw.permalink as string | Record<string, string> | undefined);
+  if (!abs) return null;
+  if (abs.startsWith("/")) return abs.split("?")[0] || null;
+  try {
+    const u = new URL(abs);
+    return u.pathname || null;
+  } catch {
+    return null;
+  }
+}
+
+type CachedProduct = {
+  tn: ReturnType<typeof normalizeTnProductDetail> | null;
+  productPath: string | null;
+};
+
 /**
  * Resuelve variantId cuando falta y, si customerPicksVariant, adjunta variantChoices desde TN.
+ * Carga siempre un snapshot por productId para productPath (fallback carrito en el theme).
  */
 async function enrichBundlesForStorefront(
   store: Store,
   bundles: BundleWithProducts[]
 ): Promise<BundleStorefrontRow[]> {
   const config = tnConfigFromStore(store);
-  const normalizedByProductId = new Map<
-    number,
-    ReturnType<typeof normalizeTnProductDetail> | null
-  >();
+  const cacheByProductId = new Map<number, CachedProduct>();
 
-  async function loadNormalized(productId: number) {
-    if (!config) return null;
-    if (normalizedByProductId.has(productId)) {
-      return normalizedByProductId.get(productId)!;
+  async function loadProduct(productId: number): Promise<CachedProduct> {
+    if (!config) {
+      return { tn: null, productPath: null };
+    }
+    if (cacheByProductId.has(productId)) {
+      return cacheByProductId.get(productId)!;
     }
     try {
       const raw = await getProduct(config, productId);
-      const n = normalizeTnProductDetail(raw);
-      normalizedByProductId.set(productId, n);
-      return n;
+      const tn = normalizeTnProductDetail(raw);
+      const productPath = productPathFromTnProduct(raw);
+      const row: CachedProduct = { tn, productPath };
+      cacheByProductId.set(productId, row);
+      return row;
     } catch (e) {
       console.error("[storefront/bundles] getProduct", productId, e);
-      normalizedByProductId.set(productId, null);
-      return null;
+      const row: CachedProduct = { tn: null, productPath: null };
+      cacheByProductId.set(productId, row);
+      return row;
     }
   }
 
   const productIdsToFetch = new Set<number>();
   for (const b of bundles) {
     for (const line of b.products) {
-      if (!line.variantId || line.variantId <= 0 || line.customerPicksVariant) {
-        productIdsToFetch.add(line.productId);
-      }
+      productIdsToFetch.add(line.productId);
     }
   }
-  await Promise.all([...productIdsToFetch].map((id) => loadNormalized(id)));
+  await Promise.all([...productIdsToFetch].map((id) => loadProduct(id)));
 
   return bundles.map((b) => ({
     ...b,
     products: b.products.map((line) => {
-      const tn = normalizedByProductId.get(line.productId) ?? null;
+      const cached = cacheByProductId.get(line.productId);
+      const tn = cached?.tn ?? null;
+      const productPath = cached?.productPath ?? null;
       const variants = tn?.variants ?? [];
 
       let variantId = line.variantId;
@@ -108,6 +150,7 @@ async function enrichBundlesForStorefront(
       const out: StorefrontBundleProductLine = {
         ...line,
         variantId,
+        productPath,
       };
       if (variantChoices?.length) {
         out.variantChoices = variantChoices;

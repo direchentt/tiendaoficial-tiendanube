@@ -148,15 +148,19 @@ export type ProductDetail = {
   id: number;
   name?: string | Record<string, string>;
   description?: string | Record<string, string>;
-  handle?: string;
-  canonical_url?: string;
-  permalink?: string;
+  handle?: string | Record<string, string>;
+  canonical_url?: string | Record<string, string>;
+  permalink?: string | Record<string, string>;
   images?: { src?: string }[];
   variants?: {
     id: number;
     price?: string | null;
     promotional_price?: string | null;
     values?: { es?: string; pt?: string; en?: string }[];
+    /** IDs de opción por dimensión (presentes en muchas respuestas TN; útiles para POST variation[]). */
+    option1?: number | null;
+    option2?: number | null;
+    option3?: number | null;
   }[];
 };
 

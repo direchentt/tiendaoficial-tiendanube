@@ -387,7 +387,8 @@
       return res.text().then(function (text) {
         var j = null;
         try {
-          if (text && text.charAt(0) === "{") j = JSON.parse(text);
+          var t0 = (text || "").trim();
+          if (t0.charAt(0) === "{") j = JSON.parse(t0);
         } catch (_e) {}
         if (!res.ok) {
           throw new Error("cart_http_" + res.status);
@@ -400,16 +401,148 @@
     });
   }
 
+  /** Cache HTML de PDP por pathname (mismo origen) para armar variation[] en combos. */
+  var hsPdpHtmlPromiseByPath = {};
+
+  function lsRejectIfCartFailed(res) {
+    if (res && typeof res === "object" && res.success === false) {
+      return Promise.reject(new Error(res.message || String(res.error || "") || "ls_cart_fail"));
+    }
+    return res;
+  }
+
+  function findVariantRowInDataVariants(data, variantId) {
+    var vid = parseInt(String(variantId), 10);
+    if (!Number.isFinite(vid) || vid <= 0) return null;
+    if (data == null) return null;
+    if (Array.isArray(data)) {
+      for (var i = 0; i < data.length; i++) {
+        if (data[i] && Number(data[i].id) === vid) return data[i];
+      }
+      return null;
+    }
+    if (typeof data === "object") {
+      return data[String(vid)] || data[vid] || null;
+    }
+    return null;
+  }
+
   /**
-   * Agrega un item al carrito: LS.Cart.addItem (varios formatos) y fallback POST a store.cart_url.
+   * POST a /comprar con variation[attr]=option como el formulario PDP (TN suele ignorar solo variant_id).
    */
-  function addToCart(productId, variantId, quantity) {
+  function addToCartViaPdpVariationFetch(productPath, productId, variantId, quantity) {
+    var path = String(productPath || "").trim();
+    if (!path || path.charAt(0) !== "/") {
+      return Promise.reject(new Error("bad_product_path"));
+    }
+    var pid = parseInt(String(productId), 10);
+    var qty = Math.max(1, parseInt(String(quantity), 10) || 1);
+    var vid = parseInt(String(variantId), 10);
+    var cartUrl = getHacheCartPostUrl();
+    if (!cartUrl) return Promise.reject(new Error("no_cart_url"));
+
+    if (!hsPdpHtmlPromiseByPath[path]) {
+      hsPdpHtmlPromiseByPath[path] = fetch(path, {
+        method: "GET",
+        mode: "same-origin",
+        credentials: "same-origin",
+        headers: {
+          Accept: "text/html,application/xhtml+xml",
+          "X-Requested-With": "XMLHttpRequest",
+        },
+      }).then(function (res) {
+        if (!res.ok) throw new Error("pdp_http_" + res.status);
+        return res.text();
+      });
+    }
+
+    return hsPdpHtmlPromiseByPath[path].then(function (html) {
+      var doc = new DOMParser().parseFromString(html, "text/html");
+      var formSrc = doc.querySelector("form.js-product-form");
+      if (!formSrc) {
+        throw new Error("no_pdp_form");
+      }
+      var body = new URLSearchParams();
+      body.set("add_to_cart", String(pid));
+      body.set("quantity", String(qty));
+      body.set("quantity" + pid, String(qty));
+      if (Number.isFinite(vid) && vid > 0) {
+        body.set("variant_id", String(vid));
+      }
+
+      var dvEl = doc.querySelector("[data-variants]");
+      var variantsData = null;
+      if (dvEl) {
+        var rawAttr = dvEl.getAttribute("data-variants");
+        if (rawAttr) {
+          try {
+            variantsData = JSON.parse(rawAttr);
+          } catch (_e) {}
+        }
+      }
+      var vrow = findVariantRowInDataVariants(variantsData, vid);
+      var selects = Array.prototype.slice.call(
+        formSrc.querySelectorAll("select.js-variation-option[name^='variation['], select[name^='variation[']")
+      );
+      if (selects.length && vrow) {
+        var sorted = selects
+          .map(function (sel) {
+            var m = /variation\[(\d+)\]/.exec(sel.getAttribute("name") || "");
+            return { attrId: m ? parseInt(m[1], 10) : 0, sel: sel };
+          })
+          .filter(function (x) {
+            return x.attrId > 0;
+          })
+          .sort(function (a, b) {
+            return a.attrId - b.attrId;
+          });
+        var ovals = [vrow.option1, vrow.option2, vrow.option3];
+        for (var j = 0; j < sorted.length && j < ovals.length; j++) {
+          var ov = ovals[j];
+          if (ov == null || ov === "") continue;
+          var nm = sorted[j].sel.getAttribute("name");
+          if (nm) body.set(nm, String(ov));
+        }
+      }
+
+      return fetch(cartUrl, {
+        method: "POST",
+        mode: "same-origin",
+        credentials: "same-origin",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+          Accept: "application/json, text/javascript, */*; q=0.01",
+          "X-Requested-With": "XMLHttpRequest",
+          Referer: typeof window !== "undefined" && window.location ? window.location.href : "",
+        },
+        body: body.toString(),
+      }).then(function (res) {
+        return res.text().then(function (text) {
+          var j = null;
+          try {
+            var t1 = (text || "").trim();
+            if (t1.charAt(0) === "{") j = JSON.parse(t1);
+          } catch (_e2) {}
+          if (!res.ok) throw new Error("cart_http_" + res.status);
+          if (j && j.success === false) {
+            throw new Error(j.message || String(j.error || "") || "cart_fail");
+          }
+          return j || text;
+        });
+      });
+    });
+  }
+
+  /**
+   * Agrega un item al carrito: LS.Cart.addItem, POST simple, luego PDP+variation[] (productPath desde API).
+   */
+  function addToCart(productId, variantId, quantity, productPath) {
     quantity = quantity || 1;
     function trackAddToCartOk() {
       try {
-        var pid = parseInt(String(productId), 10);
-        if (Number.isFinite(pid) && pid > 0) {
-          sendConversionEvent("add_to_cart", { productId: pid });
+        var pidT = parseInt(String(productId), 10);
+        if (Number.isFinite(pidT) && pidT > 0) {
+          sendConversionEvent("add_to_cart", { productId: pidT });
         }
       } catch (_) {}
     }
@@ -428,6 +561,10 @@
     }
     var vidNum = parseInt(String(variantId), 10);
     var hasVid = Number.isFinite(vidNum) && vidNum > 0;
+    var pPath =
+      productPath != null && String(productPath).trim().charAt(0) === "/"
+        ? String(productPath).trim()
+        : "";
 
     function tryLsSnake(useStringVariant) {
       if (!(window.LS && window.LS.Cart && typeof window.LS.Cart.addItem === "function")) {
@@ -437,7 +574,7 @@
       if (hasVid) {
         item.variant_id = useStringVariant ? String(vidNum) : vidNum;
       }
-      return tnThenableToPromise(window.LS.Cart.addItem(item));
+      return tnThenableToPromise(window.LS.Cart.addItem(item)).then(lsRejectIfCartFailed);
     }
 
     function tryLsCamel() {
@@ -446,29 +583,40 @@
       }
       var item = { productId: pid, quantity: qty };
       if (hasVid) item.variantId = vidNum;
-      return tnThenableToPromise(window.LS.Cart.addItem(item));
+      return tnThenableToPromise(window.LS.Cart.addItem(item)).then(lsRejectIfCartFailed);
     }
 
-    function chainLsThenForm(p) {
-      return p.then(finishOk).catch(function (err) {
-        console.warn("[HacheSuite] LS.Cart.addItem falló, intentando POST carrito TN", err);
-        return addToCartViaCartUrl(pid, hasVid ? vidNum : 0, qty).then(finishOk);
-      });
-    }
-
+    var LS_SKIP = {};
+    var lsChain;
     if (window.LS && window.LS.Cart && typeof window.LS.Cart.addItem === "function") {
-      var p = tryLsSnake(false).catch(function () {
+      lsChain = tryLsSnake(false).catch(function () {
         if (!hasVid) return Promise.reject(new Error("ls_no_variant_retry"));
         return tryLsSnake(true);
       });
-      p = p.catch(function () {
+      lsChain = lsChain.catch(function () {
         if (!hasVid) return Promise.reject(new Error("ls_camel_skip"));
         return tryLsCamel();
       });
-      return chainLsThenForm(p);
+    } else {
+      lsChain = Promise.reject(LS_SKIP);
     }
 
-    return addToCartViaCartUrl(pid, hasVid ? vidNum : 0, qty).then(finishOk);
+    return lsChain
+      .catch(function (e1) {
+        if (e1 !== LS_SKIP) {
+          console.warn("[HacheSuite] LS.Cart.addItem falló, POST carrito TN", e1);
+        }
+        return addToCartViaCartUrl(pid, hasVid ? vidNum : 0, qty);
+      })
+      .catch(function (e2) {
+        if (!pPath) {
+          console.warn("[HacheSuite] POST carrito falló (sin productPath para PDP)", e2);
+          return Promise.reject(e2);
+        }
+        console.warn("[HacheSuite] POST simple falló, intentando PDP + variation[]", e2);
+        return addToCartViaPdpVariationFetch(pPath, pid, hasVid ? vidNum : 0, qty);
+      })
+      .then(finishOk);
   }
 
   function getCartTotal() {
@@ -1183,7 +1331,7 @@
       container.innerHTML = '<p class="hs-bundle-state">Cargando combos…</p>';
 
       let data;
-      const cached = lsGet("bundles_v6");
+      const cached = lsGet("bundles_v7");
       if (cached && (cached.bundles || []).length > 0) {
         data = cached;
       } else {
@@ -1192,7 +1340,7 @@
             `/api/storefront/bundles?storeId=${encodeURIComponent(getStoreId())}`
           );
           if ((data.bundles || []).length > 0) {
-            lsSet("bundles_v6", data, 30 * 1000);
+            lsSet("bundles_v7", data, 30 * 1000);
           }
         } catch (e) {
           this._loadStarted = false;
@@ -1206,7 +1354,7 @@
       if (bundles.length === 0) {
         this._loadStarted = false;
         try {
-          localStorage.removeItem(NS + "bundles_v6");
+          localStorage.removeItem(NS + "bundles_v7");
         } catch (_) {}
         container.innerHTML =
           '<p class="hs-bundle-state">No hay combos publicados todavía. Creálos en el panel Hache (Bundles) y marcá <strong>activo</strong>; el id de tienda en el servidor debe coincidir con esta tienda.</p>';
@@ -1382,7 +1530,7 @@
               }
             }
           }
-          await addToCart(p.productId, vid, p.quantity);
+          await addToCart(p.productId, vid, p.quantity, p.productPath);
           await new Promise(function (r) {
             window.setTimeout(r, 320);
           });
