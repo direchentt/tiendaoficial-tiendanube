@@ -3,6 +3,14 @@
 {# Only remove this if you want to take away the theme onboarding advices #}
 {% set show_help = not has_products %}
 
+{# Categoría TN en URL tipo /combos/ (sin productos): landing de bundles Hache, no PLP vacío #}
+{% set _hache_cat_url = category.url | default('') | lower %}
+{% set _hache_cat_handle = category.handle | default('') | lower %}
+{% set is_hache_bundles_category = (_hache_cat_url != '' and (_hache_cat_url | split('/combos') | length) > 1) or (_hache_cat_handle == 'combos') %}
+{% if is_hache_bundles_category %}
+	{% set show_help = false %}
+{% endif %}
+
 {% if settings.pagination == 'infinite' %}
 	{% paginate by 12 %}
 {% else %}
@@ -81,6 +89,9 @@
             </div>
         {% endif %}
 
+        {% if is_hache_bundles_category %}
+            {% include 'snipplets/brand/hache-bundles-storefront.tpl' with { intro_html: category.description } %}
+        {% else %}
         {% include 'snipplets/grid/filters-modals.tpl' %}
 
         <section class="category-body {% if settings.filters_desktop_modal %}pt-md-2{% endif %}" data-store="category-grid-{{ category.id }}" aria-label="{{ category.name }}: {{ 'Listado de productos' | translate }}">
@@ -91,6 +102,7 @@
                 </div>
             </div>
         </section>
+        {% endif %}
 
         {% include 'snipplets/home/home-brand-routine-showcase.tpl' %}
         {% include 'snipplets/home/home-brand-shoppable-stories.tpl' %}

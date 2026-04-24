@@ -426,12 +426,10 @@
       /^\/paginas\/combos(\/|$)/i.test(path) ||
       /^\/paginas\/[^/]+combo/i.test(path) ||
       /^\/pages\/[^/]+combo/i.test(path);
+    if (pathBundle) return "bundle";
     const tplBundle =
       typeof document !== "undefined" && !!document.getElementById("hs-bundles-container");
-    const isBundlePage =
-      pathBundle ||
-      (tplBundle && !window.LS?.product?.id && !window.LS?.category?.id);
-    if (isBundlePage) return "bundle";
+    if (tplBundle && !window.LS?.product?.id) return "bundle";
     if (window.LS?.product?.id) return "product";
     if (window.LS?.category?.id) return "category";
     if (path === "/" || path === "") return "home";

@@ -205,8 +205,9 @@ export default function BundlesPage() {
           <a href="https://www.direchentt.com.ar/combos" target="_blank" rel="noreferrer">
             direchentt.com.ar/combos
           </a>
-          ) con el mismo look que tu marca. Otras configuraciones de TN pueden usar <code>/pages/combos</code> o{" "}
-          <code>/paginas/combos</code>.
+          ) con el mismo look que tu marca. Si en Tiendanube <strong>/combos</strong> es una{" "}
+          <strong>categoría</strong> (sin productos), el tema igual muestra los combos de este panel ahí. Páginas
+          institucionales: <code>/pages/combos</code> o <code>/paginas/combos</code>.
         </p>
       </div>
 
