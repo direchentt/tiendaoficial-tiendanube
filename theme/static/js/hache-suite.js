@@ -345,12 +345,17 @@
     }
     // Método 1: API nativa de Tiendanube (recomendado)
     if (window.LS && window.LS.Cart && typeof window.LS.Cart.addItem === "function") {
+      const pid = parseInt(String(productId), 10);
+      if (!Number.isFinite(pid) || pid <= 0) {
+        return Promise.reject(new Error("invalid_product_id"));
+      }
       const item = {
-        product_id: productId,
-        quantity: quantity,
+        product_id: pid,
+        quantity: Math.max(1, parseInt(String(quantity), 10) || 1),
       };
-      if (variantId != null && variantId !== "" && Number(variantId) > 0) {
-        item.variant_id = Number(variantId);
+      const vidNum = parseInt(String(variantId), 10);
+      if (Number.isFinite(vidNum) && vidNum > 0) {
+        item.variant_id = vidNum;
       }
       return Promise.resolve(window.LS.Cart.addItem(item)).then(
         function (res) {
@@ -358,14 +363,19 @@
           return res;
         },
         function (err) {
+          console.warn("[HacheSuite] LS.Cart.addItem rechazó", item, err);
           return Promise.reject(err);
         }
       );
     }
-    // Método 2: API REST de Tiendanube (fallback)
-    const line = { product_id: productId, quantity: quantity };
-    if (variantId != null && variantId !== "" && Number(variantId) > 0) {
-      line.variant_id = Number(variantId);
+    // Método 2: API REST de Tiendanube (fallback; ruta puede variar según TN)
+    const line = {
+      product_id: parseInt(String(productId), 10),
+      quantity: Math.max(1, parseInt(String(quantity), 10) || 1),
+    };
+    const vidF = parseInt(String(variantId), 10);
+    if (Number.isFinite(vidF) && vidF > 0) {
+      line.variant_id = vidF;
     }
     return fetch("/api/storefront/cart/items", {
       method: "POST",
@@ -1094,7 +1104,7 @@
       container.innerHTML = '<p class="hs-bundle-state">Cargando combos…</p>';
 
       let data;
-      const cached = lsGet("bundles_v3");
+      const cached = lsGet("bundles_v4");
       if (cached && (cached.bundles || []).length > 0) {
         data = cached;
       } else {
@@ -1103,7 +1113,7 @@
             `/api/storefront/bundles?storeId=${encodeURIComponent(getStoreId())}`
           );
           if ((data.bundles || []).length > 0) {
-            lsSet("bundles_v3", data, 30 * 1000);
+            lsSet("bundles_v4", data, 30 * 1000);
           }
         } catch (e) {
           this._loadStarted = false;
@@ -1117,7 +1127,7 @@
       if (bundles.length === 0) {
         this._loadStarted = false;
         try {
-          localStorage.removeItem(NS + "bundles_v3");
+          localStorage.removeItem(NS + "bundles_v4");
         } catch (_) {}
         container.innerHTML =
           '<p class="hs-bundle-state">No hay combos publicados todavía. Creálos en el panel Hache (Bundles) y marcá <strong>activo</strong>; el id de tienda en el servidor debe coincidir con esta tienda.</p>';
