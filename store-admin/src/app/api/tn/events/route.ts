@@ -1,43 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { extractStoreUserIdFromJson, resolveTnWebhookTopic } from "@/lib/tn-webhook-ingest";
 import { verifyLinkedStoreHmacSha256 } from "@/lib/tn-webhook-hmac";
 import { processTnWebhookEventById } from "@/lib/tn-webhook-processor";
 
 const MAX_PAYLOAD = 50_000;
-
-function extractTopicFromHeaders(req: NextRequest): string {
-  const h =
-    req.headers.get("x-tn-event") ||
-    req.headers.get("x-event-name") ||
-    req.headers.get("x-nuvemshop-event") ||
-    req.headers.get("x-tiendanube-event") ||
-    "";
-  const t = h.trim().slice(0, 160);
-  return t;
-}
-
-function extractEventFromJson(raw: string): string {
-  try {
-    const j = JSON.parse(raw) as Record<string, unknown>;
-    const ev = j.event;
-    if (typeof ev === "string" && ev.trim()) return ev.trim().slice(0, 160);
-  } catch {
-    /* no JSON */
-  }
-  return "";
-}
-
-function extractStoreUserIdFromJson(raw: string): string | null {
-  try {
-    const j = JSON.parse(raw) as Record<string, unknown>;
-    const sid = j.store_id ?? j.user_id ?? j.storeId;
-    if (typeof sid === "number" && sid > 0) return String(sid);
-    if (typeof sid === "string" && /^\d{1,24}$/.test(sid.trim())) return sid.trim();
-  } catch {
-    /* vacío o no JSON */
-  }
-  return null;
-}
 
 function getLinkedStoreHmacHeader(req: NextRequest): string | null {
   return req.headers.get("x-linkedstore-hmac-sha256");
@@ -91,9 +58,7 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  const headerTopic = extractTopicFromHeaders(req);
-  const bodyEvent = extractEventFromJson(raw);
-  const topic = (headerTopic || bodyEvent || "unknown").slice(0, 160);
+  const topic = resolveTnWebhookTopic((name) => req.headers.get(name), raw);
   const tiendanubeUserId = extractStoreUserIdFromJson(raw);
   const payload = raw.length > MAX_PAYLOAD ? raw.slice(0, MAX_PAYLOAD) : raw;
 

@@ -23,6 +23,7 @@ export default function WebhooksPage() {
   const [offset, setOffset] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [reprocessBusy, setReprocessBusy] = useState(false);
   const limit = 30;
 
   const load = useCallback(async () => {
@@ -52,6 +53,27 @@ export default function WebhooksPage() {
   useEffect(() => {
     setBase(typeof window !== "undefined" ? window.location.origin.replace(/\/$/, "") : "");
   }, []);
+
+  const reprocessPending = useCallback(async () => {
+    setReprocessBusy(true);
+    setError(null);
+    try {
+      const r = await adminFetch("/api/admin/webhook-reprocess", {
+        method: "POST",
+        body: JSON.stringify({ limit: 50 }),
+      });
+      const j = await r.json().catch(() => null);
+      if (!r.ok) {
+        setError(formatAdminApiError(j, r.status));
+        return;
+      }
+      await load();
+    } catch (e) {
+      setError(String(e));
+    } finally {
+      setReprocessBusy(false);
+    }
+  }, [load]);
 
   return (
     <div>
@@ -108,6 +130,22 @@ export default function WebhooksPage() {
           }}
         >
           Actualizar
+        </button>
+        <button
+          type="button"
+          onClick={() => void reprocessPending()}
+          disabled={loading || reprocessBusy}
+          title="Ejecuta de nuevo los handlers para eventos sin fecha de procesado (máx. 50 más viejos primero)"
+          style={{
+            padding: "0.35rem 0.75rem",
+            borderRadius: 8,
+            border: "1px solid var(--border)",
+            background: "var(--surface2)",
+            cursor: loading || reprocessBusy ? "wait" : "pointer",
+            fontSize: "0.8rem",
+          }}
+        >
+          {reprocessBusy ? "Procesando…" : "Procesar pendientes"}
         </button>
         <button
           type="button"
