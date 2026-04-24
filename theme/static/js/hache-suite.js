@@ -345,13 +345,14 @@
     }
     // Método 1: API nativa de Tiendanube (recomendado)
     if (window.LS && window.LS.Cart && typeof window.LS.Cart.addItem === "function") {
-      return Promise.resolve(
-        window.LS.Cart.addItem({
-          product_id: productId,
-          variant_id: variantId,
-          quantity: quantity,
-        })
-      ).then(
+      const item = {
+        product_id: productId,
+        quantity: quantity,
+      };
+      if (variantId != null && variantId !== "" && Number(variantId) > 0) {
+        item.variant_id = Number(variantId);
+      }
+      return Promise.resolve(window.LS.Cart.addItem(item)).then(
         function (res) {
           trackAddToCartOk();
           return res;
@@ -362,12 +363,16 @@
       );
     }
     // Método 2: API REST de Tiendanube (fallback)
+    const line = { product_id: productId, quantity: quantity };
+    if (variantId != null && variantId !== "" && Number(variantId) > 0) {
+      line.variant_id = Number(variantId);
+    }
     return fetch("/api/storefront/cart/items", {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        add: [{ product_id: productId, variant_id: variantId, quantity: quantity }],
+        add: [line],
       }),
     }).then(function (r) {
       return r.json().then(function (data) {
@@ -378,30 +383,55 @@
   }
 
   function getCartTotal() {
-    let sub = 0;
-    if (window.LS && window.LS.cart && typeof window.LS.cart.subtotal !== 'undefined') {
-       sub = window.LS.cart.subtotal;
-    } 
-    if (!sub || sub <= 0) {
-      const el = document.querySelector(".js-cart-subtotal, [data-store-cart-total]");
-      if (el) {
-        let text = el.textContent;
-        let intPart = text.split(',')[0].replace(/\D/g, '');
-        if (intPart) sub = parseInt(intPart, 10);
+    const langEs = (document.documentElement.getAttribute("lang") || "").toLowerCase().startsWith("es");
+    let sub = NaN;
+
+    const el = document.querySelector(".js-cart-subtotal, .js-ajax-cart-total, [data-store-cart-total]");
+    if (el) {
+      const raw = el.getAttribute("data-priceraw");
+      if (raw != null && String(raw).trim() !== "") {
+        const n = parseFloat(String(raw).trim());
+        if (Number.isFinite(n) && n > 0) sub = n;
+      }
+      if (!Number.isFinite(sub) || sub <= 0) {
+        const parsed = parseLocaleMoneyTextToNumber(el.textContent || "", langEs);
+        if (Number.isFinite(parsed) && parsed > 0) sub = parsed;
       }
     }
-    return sub || 0;
+
+    if (!Number.isFinite(sub) || sub <= 0) {
+      if (window.LS && window.LS.cart && typeof window.LS.cart.subtotal !== "undefined") {
+        const n = Number(window.LS.cart.subtotal);
+        if (Number.isFinite(n) && n > 0) sub = n;
+      }
+    }
+
+    if (!Number.isFinite(sub) || sub <= 0) {
+      if (window.LS && window.LS.data && window.LS.data.cart && typeof window.LS.data.cart.total === "number") {
+        const t = window.LS.data.cart.total;
+        if (t > 0) {
+          sub = t / 100;
+        }
+      }
+    }
+
+    return Number.isFinite(sub) && sub > 0 ? sub : 0;
   }
 
   function getCurrentPageType() {
     const path = (window.location && window.location.pathname) || "/";
-    if (
+    const pathBundle =
       /^\/combos(\/|$)/i.test(path) ||
       /^\/pages\/combos(\/|$)/i.test(path) ||
-      /^\/paginas\/combos(\/|$)/i.test(path)
-    ) {
-      return "bundle";
-    }
+      /^\/paginas\/combos(\/|$)/i.test(path) ||
+      /^\/paginas\/[^/]+combo/i.test(path) ||
+      /^\/pages\/[^/]+combo/i.test(path);
+    const tplBundle =
+      typeof document !== "undefined" && !!document.getElementById("hs-bundles-container");
+    const isBundlePage =
+      pathBundle ||
+      (tplBundle && !window.LS?.product?.id && !window.LS?.category?.id);
+    if (isBundlePage) return "bundle";
     if (window.LS?.product?.id) return "product";
     if (window.LS?.category?.id) return "category";
     if (path === "/" || path === "") return "home";
@@ -659,6 +689,7 @@
       document.addEventListener("cart:update", () => this.scheduleCheck());
       document.addEventListener("cart:itemAdded", () => this.scheduleCheck());
       document.addEventListener("cart:itemRemoved", () => this.scheduleCheck());
+      document.addEventListener("cart.released", () => this.scheduleCheck());
     },
 
     async check() {
@@ -1187,7 +1218,12 @@
       let allOk = true;
       for (const p of bundle.products) {
         try {
-          await addToCart(p.productId, p.variantId || undefined, p.quantity);
+          const vid =
+            p.variantId != null && Number(p.variantId) > 0 ? Number(p.variantId) : undefined;
+          await addToCart(p.productId, vid, p.quantity);
+          await new Promise(function (r) {
+            window.setTimeout(r, 320);
+          });
         } catch (err) {
           console.warn("[HacheSuite][Bundle] Error agregando producto:", p.productName, err);
           allOk = false;

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { loadStoreForStorefront } from "@/lib/default-store";
 import { prisma } from "@/lib/prisma";
 import { parseStorefrontStoreUserId } from "@/lib/storefront-limits";
 
@@ -28,9 +29,7 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  const store = await prisma.store.findUnique({
-    where: { tiendanubeUserId: storeUserId },
-  });
+  const store = await loadStoreForStorefront(storeUserId);
 
   if (!store) {
     return NextResponse.json({ gifts: [] }, { headers: CORS });
