@@ -152,7 +152,12 @@ export type ProductDetail = {
   canonical_url?: string;
   permalink?: string;
   images?: { src?: string }[];
-  variants?: { id: number; price?: string | null; promotional_price?: string | null }[];
+  variants?: {
+    id: number;
+    price?: string | null;
+    promotional_price?: string | null;
+    values?: { es?: string; pt?: string; en?: string }[];
+  }[];
 };
 
 /**

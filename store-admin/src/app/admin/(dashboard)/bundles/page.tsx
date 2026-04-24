@@ -10,6 +10,7 @@ type BundleProduct = {
   id: string;
   productId: number;
   variantId: number;
+  customerPicksVariant?: boolean;
   productName: string;
   unitPrice: number;
   quantity: number;
@@ -31,6 +32,7 @@ type ProductRow = {
   id: string;
   productId: number;
   variantId: number;
+  customerPicksVariant: boolean;
   productName: string;
   unitPrice: string;
   quantity: string;
@@ -41,6 +43,7 @@ const mkProduct = (): ProductRow => ({
   id: Math.random().toString(36).slice(2),
   productId: 0,
   variantId: 0,
+  customerPicksVariant: false,
   productName: "",
   unitPrice: "0",
   quantity: "1",
@@ -80,6 +83,7 @@ export default function BundlesPage() {
       id: Math.random().toString(36).slice(2),
       productId: p.id,
       variantId: v.id,
+      customerPicksVariant: false,
       productName:
         p.name + (p.variants.length > 1 ? ` (${variantLabel(v)})` : ""),
       unitPrice: v.price,
@@ -89,7 +93,30 @@ export default function BundlesPage() {
     setProducts((prev) => [...prev, newRow]);
   }
 
-  function updateProduct(id: string, field: keyof ProductRow, value: string | number) {
+  function addProductFromTnCustomerChoice(p: TNProduct) {
+    if (p.variants.length === 0) return;
+    const first = p.variants[0];
+    const nums = p.variants.map((v) => {
+      const n = parseFloat(String(v.price).replace(/\s/g, "").replace(",", "."));
+      return Number.isFinite(n) ? n : 0;
+    });
+    const minP = nums.length ? Math.min(...nums) : parseFloat(String(first.price).replace(",", ".")) || 0;
+    const multi = p.variants.length > 1;
+    const thumb = p.images[0] ?? "";
+    const newRow: ProductRow = {
+      id: Math.random().toString(36).slice(2),
+      productId: p.id,
+      variantId: first.id,
+      customerPicksVariant: multi,
+      productName: multi ? `${p.name} (cliente elige variante)` : p.name,
+      unitPrice: String(multi ? minP : parseFloat(String(first.price).replace(",", ".")) || 0),
+      quantity: "1",
+      thumbnailUrl: thumb || undefined,
+    };
+    setProducts((prev) => [...prev, newRow]);
+  }
+
+  function updateProduct(id: string, field: keyof ProductRow, value: string | number | boolean) {
     setProducts((prev) =>
       prev.map((p) => (p.id === id ? { ...p, [field]: value } : p))
     );
@@ -138,6 +165,7 @@ export default function BundlesPage() {
         products: validProducts.map((p) => ({
           productId: Number(p.productId),
           variantId: Number(p.variantId),
+          customerPicksVariant: Boolean(p.customerPicksVariant),
           productName: p.productName,
           unitPrice: parseFloat(p.unitPrice) || 0,
           quantity: parseInt(p.quantity) || 1,
@@ -276,7 +304,7 @@ export default function BundlesPage() {
               <label style={{ marginBottom: "0.5rem", display: "block" }}>
                 Elegí productos
               </label>
-              <TnProductPicker onPick={addProductFromTn} />
+              <TnProductPicker onPick={addProductFromTn} onPickCustomerChoice={addProductFromTnCustomerChoice} />
             </div>
 
             <div>
@@ -302,7 +330,8 @@ export default function BundlesPage() {
                     border: "1px dashed var(--border)",
                   }}
                 >
-                  Elegí variantes desde el catálogo o la búsqueda. Podés reordenar con las flechas.
+                  Elegí una variante fija, o <strong>“Todas las variantes (elige el cliente)”</strong> para que en la
+                  tienda puedan elegir talle/color. Podés reordenar con las flechas.
                 </div>
               ) : (
                 <div style={{ display: "flex", flexDirection: "column", gap: "0.65rem" }}>
@@ -390,6 +419,26 @@ export default function BundlesPage() {
                               </button>
                             </div>
                           </div>
+                          <label
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "0.4rem",
+                              marginTop: "0.55rem",
+                              fontSize: "0.78rem",
+                              color: "var(--text-muted)",
+                              cursor: "pointer",
+                            }}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={p.customerPicksVariant}
+                              onChange={(e) =>
+                                updateProduct(p.id, "customerPicksVariant", e.target.checked)
+                              }
+                            />
+                            Cliente elige variante en la tienda (todas las opciones de TN)
+                          </label>
                         </div>
                       </div>
                     </div>
@@ -509,6 +558,18 @@ export default function BundlesPage() {
                         >
                           <span>
                             × {p.quantity} {p.productName}
+                            {p.customerPicksVariant ? (
+                              <span
+                                style={{
+                                  marginLeft: "0.35rem",
+                                  fontSize: "0.65rem",
+                                  color: "var(--accent2)",
+                                  fontWeight: 600,
+                                }}
+                              >
+                                · elige cliente
+                              </span>
+                            ) : null}
                           </span>
                           <span>${p.unitPrice.toLocaleString()}</span>
                         </div>
@@ -535,7 +596,10 @@ export default function BundlesPage() {
           <li>
             El script <code>hache-suite.js</code> pide <code>/api/storefront/bundles</code> y dibuja la grilla con colores del tema.
           </li>
-          <li>Un clic agrega todas las variantes al carrito.</li>
+          <li>
+            Si un ítem tiene <strong>“cliente elige variante”</strong>, en la tarjeta del combo aparece un selector
+            antes de agregar al carrito; el resto se agrega con la variante fijada en el panel.
+          </li>
         </ol>
       </div>
     </div>

@@ -1,12 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
+import { variantLabel } from "@/components/admin/tn-product-picker-utils";
 import type { Bundle, BundleProduct, Store } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { loadStoreForStorefront } from "@/lib/default-store";
+import { normalizeTnProductDetail } from "@/lib/tn-products-admin-normalize";
 import { getProduct } from "@/lib/tiendanube-client";
 import { parseStorefrontStoreUserId } from "@/lib/storefront-limits";
 import { tnConfigFromStore } from "@/lib/wishlist-verify-customer";
 
 type BundleWithProducts = Bundle & { products: BundleProduct[] };
+
+export type StorefrontVariantChoice = {
+  id: number;
+  label: string;
+  price: string;
+};
+
+export type StorefrontBundleProductLine = BundleProduct & {
+  variantChoices?: StorefrontVariantChoice[];
+};
+
+type BundleStorefrontRow = Omit<BundleWithProducts, "products"> & {
+  products: StorefrontBundleProductLine[];
+};
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -19,45 +35,84 @@ export async function OPTIONS() {
 }
 
 /**
- * Si guardaron variantId=0, TN exige el id real de variante para LS.Cart.addItem.
+ * Resuelve variantId cuando falta y, si customerPicksVariant, adjunta variantChoices desde TN.
  */
-async function enrichBundleProductsDefaultVariants(
+async function enrichBundlesForStorefront(
   store: Store,
   bundles: BundleWithProducts[]
-): Promise<BundleWithProducts[]> {
+): Promise<BundleStorefrontRow[]> {
   const config = tnConfigFromStore(store);
-  const defaultVariantByProduct = new Map<number, number>();
+  const normalizedByProductId = new Map<
+    number,
+    ReturnType<typeof normalizeTnProductDetail> | null
+  >();
 
-  if (config) {
-    const productIds = new Set<number>();
-    for (const b of bundles) {
-      for (const line of b.products) {
-        if (!line.variantId || line.variantId <= 0) {
-          productIds.add(line.productId);
-        }
+  async function loadNormalized(productId: number) {
+    if (!config) return null;
+    if (normalizedByProductId.has(productId)) {
+      return normalizedByProductId.get(productId)!;
+    }
+    try {
+      const raw = await getProduct(config, productId);
+      const n = normalizeTnProductDetail(raw);
+      normalizedByProductId.set(productId, n);
+      return n;
+    } catch (e) {
+      console.error("[storefront/bundles] getProduct", productId, e);
+      normalizedByProductId.set(productId, null);
+      return null;
+    }
+  }
+
+  const productIdsToFetch = new Set<number>();
+  for (const b of bundles) {
+    for (const line of b.products) {
+      if (!line.variantId || line.variantId <= 0 || line.customerPicksVariant) {
+        productIdsToFetch.add(line.productId);
       }
     }
-    await Promise.all(
-      [...productIds].map(async (pid) => {
-        try {
-          const p = await getProduct(config, pid);
-          const first = p.variants?.map((v) => v.id).find((id) => id > 0);
-          if (first) defaultVariantByProduct.set(pid, first);
-        } catch (e) {
-          console.error("[storefront/bundles] getProduct", pid, e);
-        }
-      })
-    );
   }
+  await Promise.all([...productIdsToFetch].map((id) => loadNormalized(id)));
 
   return bundles.map((b) => ({
     ...b,
     products: b.products.map((line) => {
-      const resolved =
-        line.variantId > 0
-          ? line.variantId
-          : (defaultVariantByProduct.get(line.productId) ?? line.variantId);
-      return { ...line, variantId: resolved };
+      const tn = normalizedByProductId.get(line.productId) ?? null;
+      const variants = tn?.variants ?? [];
+
+      let variantId = line.variantId;
+      let variantChoices: StorefrontVariantChoice[] | undefined;
+
+      if (line.customerPicksVariant && variants.length > 1) {
+        variantChoices = variants.map((v) => ({
+          id: v.id,
+          label: variantLabel(v),
+          price: v.price,
+        }));
+        const preferred =
+          line.variantId > 0 && variantChoices.some((c) => c.id === line.variantId)
+            ? line.variantId
+            : variants.find((v) => v.id > 0)?.id;
+        if (preferred) {
+          variantId = preferred;
+          variantChoices = [
+            ...variantChoices.filter((c) => c.id === preferred),
+            ...variantChoices.filter((c) => c.id !== preferred),
+          ];
+        }
+      } else if (!variantId || variantId <= 0) {
+        const first = variants.find((v) => v.id > 0)?.id;
+        if (first) variantId = first;
+      }
+
+      const out: StorefrontBundleProductLine = {
+        ...line,
+        variantId,
+      };
+      if (variantChoices?.length) {
+        out.variantChoices = variantChoices;
+      }
+      return out;
     }),
   }));
 }
@@ -89,7 +144,7 @@ export async function GET(req: NextRequest) {
     orderBy: { createdAt: "desc" },
   })) as BundleWithProducts[];
 
-  const enriched = await enrichBundleProductsDefaultVariants(store, bundles);
+  const enriched = await enrichBundlesForStorefront(store, bundles);
 
   return NextResponse.json({ bundles: enriched }, { headers: CORS });
 }

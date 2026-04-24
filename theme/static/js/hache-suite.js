@@ -216,7 +216,7 @@
       ":root[data-color-scheme='dark'] .hs-bundle-desc{--hs-bundle-muted:#a3a3b2}" +
       ".hs-bundle-list{list-style:none;padding:.65rem 0 0;margin:0 0 1rem;border-top:1px solid var(--hs-bundle-divider,rgba(0,0,0,.06))}" +
       ":root[data-color-scheme='dark'] .hs-bundle-list{--hs-bundle-divider:rgba(255,255,255,.08)}" +
-      ".hs-bundle-row{display:flex;align-items:center;gap:.55rem;font-size:.82rem;padding:.32rem 0;color:var(--hs-bundle-row,#444);min-height:2rem}" +
+      ".hs-bundle-row{display:flex;flex-wrap:wrap;align-items:center;gap:.55rem;font-size:.82rem;padding:.32rem 0;color:var(--hs-bundle-row,#444);min-height:2rem}" +
       ":root[data-color-scheme='dark'] .hs-bundle-row{--hs-bundle-row:#d4d4e0}" +
       ".hs-bundle-row-thumb{width:28px;height:28px;border-radius:.35rem;object-fit:cover;flex-shrink:0;background:color-mix(in srgb,var(--accent-color,#6366f1) 12%,#f0f0f5)}" +
       ":root[data-color-scheme='dark'] .hs-bundle-row-thumb{background:color-mix(in srgb,var(--accent-color,#818cf8) 18%,#252528)}" +
@@ -225,6 +225,10 @@
       ".hs-bundle-row-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}" +
       ".hs-bundle-row-price{color:var(--hs-bundle-dim,#999);font-variant-numeric:tabular-nums;flex-shrink:0}" +
       ":root[data-color-scheme='dark'] .hs-bundle-row-price{--hs-bundle-dim:#9ca3af}" +
+      ".hs-bundle-variant-wrap{width:100%;display:flex;align-items:center;gap:.45rem;margin-top:.15rem;padding-left:calc(28px + .55rem);box-sizing:border-box}" +
+      ".hs-bundle-variant-label{font-size:.68rem;color:var(--hs-bundle-dim,#888);flex-shrink:0}" +
+      ".hs-bundle-variant{flex:1;min-width:0;font:inherit;font-size:.78rem;padding:.3rem .45rem;border-radius:.35rem;border:1px solid color-mix(in srgb,var(--accent-color,#6366f1) 28%,#ccc);background:var(--main-background,#fff);color:var(--main-foreground,#111)}" +
+      ":root[data-color-scheme='dark'] .hs-bundle-variant{border-color:rgba(255,255,255,.14);background:#1c1c1f;color:#f4f4f5}" +
       ".hs-bundle-price-old{font-size:.84rem;color:var(--hs-bundle-dim,#999);text-decoration:line-through}" +
       ".hs-bundle-price-new{font-size:1.45rem;font-weight:800;color:var(--hs-bundle-title,#111);margin-bottom:.75rem;letter-spacing:-.02em}" +
       ".hs-bundle-btn{width:100%;padding:.75rem 1rem;background:var(--accent-color,#111);color:var(--accent-btn-text,#fff);border:none;border-radius:.5rem;font-size:.88rem;font-weight:600;cursor:pointer;font:inherit;transition:opacity .2s,transform .15s,box-shadow .2s;box-shadow:0 2px 12px color-mix(in srgb,var(--accent-color,#6366f1) 35%,transparent)}" +
@@ -328,10 +332,76 @@
     }).then((r) => r.json());
   }
 
+  function getHacheCartPostUrl() {
+    var m = document.querySelector('meta[name="hache-cart-url"]');
+    if (m) {
+      var c = (m.getAttribute("content") || "").trim();
+      if (c) return c;
+    }
+    var f = document.querySelector("form.js-product-form[action]");
+    if (f && f.action) return f.action;
+    return null;
+  }
+
+  /** LS.Cart.addItem a veces devuelve jQuery Deferred; Promise.resolve() no siempre basta. */
+  function tnThenableToPromise(ret) {
+    if (ret == null) return Promise.resolve(ret);
+    if (typeof ret.then === "function") return Promise.resolve(ret);
+    if (typeof ret.done === "function" && typeof ret.fail === "function") {
+      return new Promise(function (resolve, reject) {
+        ret.done(resolve).fail(reject);
+      });
+    }
+    return Promise.resolve(ret);
+  }
+
   /**
-   * Agrega un item al carrito usando la API nativa de Tiendanube.
-   * LS.Cart.addItem() es la forma oficial documentada por TN.
-   * Fallback a fetch REST si LS.Cart no está disponible.
+   * Mismo POST que el formulario del tema (store.cart_url): add_to_cart, quantity, variant_id.
+   * No existe /api/storefront/cart/items en el storefront TN.
+   */
+  function addToCartViaCartUrl(productId, variantId, quantity) {
+    var url = getHacheCartPostUrl();
+    if (!url) return Promise.reject(new Error("no_cart_url"));
+    var pid = parseInt(String(productId), 10);
+    var qty = Math.max(1, parseInt(String(quantity), 10) || 1);
+    if (!Number.isFinite(pid) || pid <= 0) return Promise.reject(new Error("invalid_product_id"));
+    var body = new URLSearchParams();
+    body.set("add_to_cart", String(pid));
+    body.set("quantity", String(qty));
+    body.set("quantity" + pid, String(qty));
+    var vid = parseInt(String(variantId), 10);
+    if (Number.isFinite(vid) && vid > 0) {
+      body.set("variant_id", String(vid));
+    }
+    return fetch(url, {
+      method: "POST",
+      mode: "same-origin",
+      credentials: "same-origin",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+        Accept: "application/json, text/javascript, */*; q=0.01",
+        "X-Requested-With": "XMLHttpRequest",
+      },
+      body: body.toString(),
+    }).then(function (res) {
+      return res.text().then(function (text) {
+        var j = null;
+        try {
+          if (text && text.charAt(0) === "{") j = JSON.parse(text);
+        } catch (_e) {}
+        if (!res.ok) {
+          throw new Error("cart_http_" + res.status);
+        }
+        if (j && j.success === false) {
+          throw new Error(j.message || String(j.error || "") || "cart_fail");
+        }
+        return j || text;
+      });
+    });
+  }
+
+  /**
+   * Agrega un item al carrito: LS.Cart.addItem (varios formatos) y fallback POST a store.cart_url.
    */
   function addToCart(productId, variantId, quantity) {
     quantity = quantity || 1;
@@ -343,53 +413,62 @@
         }
       } catch (_) {}
     }
-    // Método 1: API nativa de Tiendanube (recomendado)
-    if (window.LS && window.LS.Cart && typeof window.LS.Cart.addItem === "function") {
-      const pid = parseInt(String(productId), 10);
-      if (!Number.isFinite(pid) || pid <= 0) {
-        return Promise.reject(new Error("invalid_product_id"));
-      }
-      const item = {
-        product_id: pid,
-        quantity: Math.max(1, parseInt(String(quantity), 10) || 1),
-      };
-      const vidNum = parseInt(String(variantId), 10);
-      if (Number.isFinite(vidNum) && vidNum > 0) {
-        item.variant_id = vidNum;
-      }
-      return Promise.resolve(window.LS.Cart.addItem(item)).then(
-        function (res) {
-          trackAddToCartOk();
-          return res;
-        },
-        function (err) {
-          console.warn("[HacheSuite] LS.Cart.addItem rechazó", item, err);
-          return Promise.reject(err);
-        }
-      );
+    function finishOk(res) {
+      trackAddToCartOk();
+      try {
+        document.dispatchEvent(new Event("cart.released"));
+      } catch (_e) {}
+      return res;
     }
-    // Método 2: API REST de Tiendanube (fallback; ruta puede variar según TN)
-    const line = {
-      product_id: parseInt(String(productId), 10),
-      quantity: Math.max(1, parseInt(String(quantity), 10) || 1),
-    };
-    const vidF = parseInt(String(variantId), 10);
-    if (Number.isFinite(vidF) && vidF > 0) {
-      line.variant_id = vidF;
+
+    var pid = parseInt(String(productId), 10);
+    var qty = Math.max(1, parseInt(String(quantity), 10) || 1);
+    if (!Number.isFinite(pid) || pid <= 0) {
+      return Promise.reject(new Error("invalid_product_id"));
     }
-    return fetch("/api/storefront/cart/items", {
-      method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        add: [line],
-      }),
-    }).then(function (r) {
-      return r.json().then(function (data) {
-        if (r.ok) trackAddToCartOk();
-        return data;
+    var vidNum = parseInt(String(variantId), 10);
+    var hasVid = Number.isFinite(vidNum) && vidNum > 0;
+
+    function tryLsSnake(useStringVariant) {
+      if (!(window.LS && window.LS.Cart && typeof window.LS.Cart.addItem === "function")) {
+        return Promise.reject(new Error("no_ls_cart"));
+      }
+      var item = { product_id: pid, quantity: qty };
+      if (hasVid) {
+        item.variant_id = useStringVariant ? String(vidNum) : vidNum;
+      }
+      return tnThenableToPromise(window.LS.Cart.addItem(item));
+    }
+
+    function tryLsCamel() {
+      if (!(window.LS && window.LS.Cart && typeof window.LS.Cart.addItem === "function")) {
+        return Promise.reject(new Error("no_ls_cart"));
+      }
+      var item = { productId: pid, quantity: qty };
+      if (hasVid) item.variantId = vidNum;
+      return tnThenableToPromise(window.LS.Cart.addItem(item));
+    }
+
+    function chainLsThenForm(p) {
+      return p.then(finishOk).catch(function (err) {
+        console.warn("[HacheSuite] LS.Cart.addItem falló, intentando POST carrito TN", err);
+        return addToCartViaCartUrl(pid, hasVid ? vidNum : 0, qty).then(finishOk);
       });
-    });
+    }
+
+    if (window.LS && window.LS.Cart && typeof window.LS.Cart.addItem === "function") {
+      var p = tryLsSnake(false).catch(function () {
+        if (!hasVid) return Promise.reject(new Error("ls_no_variant_retry"));
+        return tryLsSnake(true);
+      });
+      p = p.catch(function () {
+        if (!hasVid) return Promise.reject(new Error("ls_camel_skip"));
+        return tryLsCamel();
+      });
+      return chainLsThenForm(p);
+    }
+
+    return addToCartViaCartUrl(pid, hasVid ? vidNum : 0, qty).then(finishOk);
   }
 
   function getCartTotal() {
@@ -1104,7 +1183,7 @@
       container.innerHTML = '<p class="hs-bundle-state">Cargando combos…</p>';
 
       let data;
-      const cached = lsGet("bundles_v4");
+      const cached = lsGet("bundles_v6");
       if (cached && (cached.bundles || []).length > 0) {
         data = cached;
       } else {
@@ -1113,7 +1192,7 @@
             `/api/storefront/bundles?storeId=${encodeURIComponent(getStoreId())}`
           );
           if ((data.bundles || []).length > 0) {
-            lsSet("bundles_v4", data, 30 * 1000);
+            lsSet("bundles_v6", data, 30 * 1000);
           }
         } catch (e) {
           this._loadStarted = false;
@@ -1127,7 +1206,7 @@
       if (bundles.length === 0) {
         this._loadStarted = false;
         try {
-          localStorage.removeItem(NS + "bundles_v4");
+          localStorage.removeItem(NS + "bundles_v6");
         } catch (_) {}
         container.innerHTML =
           '<p class="hs-bundle-state">No hay combos publicados todavía. Creálos en el panel Hache (Bundles) y marcá <strong>activo</strong>; el id de tienda en el servidor debe coincidir con esta tienda.</p>';
@@ -1158,76 +1237,151 @@
       const card = document.createElement("div");
       card.className = "hs-bundle-card";
 
-      const imgHtml = bundle.imageUrl
-        ? `<img class="hs-bundle-media" src="${bundle.imageUrl}" alt="${bundle.name.replace(/"/g, "&quot;")}" loading="lazy" />`
-        : '<div class="hs-bundle-placeholder" aria-hidden="true">📦</div>';
+      if (bundle.imageUrl) {
+        const media = document.createElement("img");
+        media.className = "hs-bundle-media";
+        media.src = String(bundle.imageUrl);
+        media.alt = String(bundle.name || "Combo");
+        media.loading = "lazy";
+        card.appendChild(media);
+      } else {
+        const ph = document.createElement("div");
+        ph.className = "hs-bundle-placeholder";
+        ph.setAttribute("aria-hidden", "true");
+        ph.textContent = "📦";
+        card.appendChild(ph);
+      }
 
-      const productsHtml = bundle.products
-        .map(function (p) {
-          var thumb = p.thumbnailUrl
-            ? '<img class="hs-bundle-row-thumb" src="' +
-              String(p.thumbnailUrl).replace(/"/g, "") +
-              '" alt="" width="28" height="28" loading="lazy" />'
-            : '<span class="hs-bundle-row-thumb hs-bundle-row-thumb--ph" aria-hidden="true"></span>';
-          return (
-            '<li class="hs-bundle-row">' +
-            thumb +
-            '<span class="hs-bundle-row-main"><span class="hs-bundle-row-name">× ' +
-            p.quantity +
-            " " +
-            String(p.productName).replace(/</g, "&lt;") +
-            '</span><span class="hs-bundle-row-price">$' +
-            p.unitPrice.toLocaleString() +
-            "</span></span></li>"
-          );
-        })
-        .join("");
+      const body = document.createElement("div");
+      body.className = "hs-bundle-body";
 
-      const descHtml = bundle.description
-        ? '<p class="hs-bundle-desc">' + String(bundle.description).replace(/</g, "&lt;") + "</p>"
-        : "";
+      const header = document.createElement("div");
+      header.style.display = "flex";
+      header.style.alignItems = "flex-start";
+      header.style.justifyContent = "space-between";
+      header.style.gap = "0.5rem";
+      header.style.marginBottom = "0.35rem";
+      const title = document.createElement("h3");
+      title.className = "hs-bundle-title";
+      title.textContent = bundle.name || "";
+      header.appendChild(title);
+      if (saving > 0) {
+        const badge = document.createElement("span");
+        badge.className = "hs-bundle-badge";
+        badge.textContent = "-" + saving + "%";
+        header.appendChild(badge);
+      }
+      body.appendChild(header);
 
-      card.innerHTML =
-        imgHtml +
-        '<div class="hs-bundle-body">' +
-        '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;margin-bottom:.35rem">' +
-        "<h3 class=\"hs-bundle-title\">" +
-        String(bundle.name).replace(/</g, "&lt;") +
-        "</h3>" +
-        (saving > 0 ? '<span class="hs-bundle-badge">-' + saving + "%</span>" : "") +
-        "</div>" +
-        descHtml +
-        '<ul class="hs-bundle-list">' +
-        productsHtml +
-        "</ul>" +
-        '<div style="margin-top:auto">' +
-        (totalOriginal > 0
-          ? '<div class="hs-bundle-price-old">$' + totalOriginal.toLocaleString() + "</div>"
-          : "") +
-        '<div class="hs-bundle-price-new">$' +
-        bundle.comboPrice.toLocaleString() +
-        "</div>" +
-        '<button type="button" class="hs-bundle-btn" data-bundle-id="' +
-        bundle.id +
-        '">Agregar combo al carrito</button>' +
-        "</div></div>";
+      if (bundle.description) {
+        const desc = document.createElement("p");
+        desc.className = "hs-bundle-desc";
+        desc.textContent = String(bundle.description);
+        body.appendChild(desc);
+      }
 
-      const btn = card.querySelector(`[data-bundle-id="${bundle.id}"]`);
-      btn.addEventListener("click", () => this.addBundleToCart(bundle, btn));
+      const list = document.createElement("ul");
+      list.className = "hs-bundle-list";
+      bundle.products.forEach(function (p, lineIdx) {
+        const li = document.createElement("li");
+        li.className = "hs-bundle-row";
+        if (p.thumbnailUrl) {
+          const thumb = document.createElement("img");
+          thumb.className = "hs-bundle-row-thumb";
+          thumb.src = String(p.thumbnailUrl);
+          thumb.alt = "";
+          thumb.width = 28;
+          thumb.height = 28;
+          thumb.loading = "lazy";
+          li.appendChild(thumb);
+        } else {
+          const ph = document.createElement("span");
+          ph.className = "hs-bundle-row-thumb hs-bundle-row-thumb--ph";
+          ph.setAttribute("aria-hidden", "true");
+          li.appendChild(ph);
+        }
+        const main = document.createElement("span");
+        main.className = "hs-bundle-row-main";
+        const nameEl = document.createElement("span");
+        nameEl.className = "hs-bundle-row-name";
+        nameEl.textContent = "× " + p.quantity + " " + p.productName;
+        const priceEl = document.createElement("span");
+        priceEl.className = "hs-bundle-row-price";
+        priceEl.textContent = "$" + Number(p.unitPrice).toLocaleString();
+        main.appendChild(nameEl);
+        main.appendChild(priceEl);
+        li.appendChild(main);
 
+        const choices = p.variantChoices;
+        if (choices && choices.length > 1) {
+          const wrap = document.createElement("div");
+          wrap.className = "hs-bundle-variant-wrap";
+          const lab = document.createElement("span");
+          lab.className = "hs-bundle-variant-label";
+          lab.textContent = "Variante";
+          const sel = document.createElement("select");
+          sel.className = "hs-bundle-variant";
+          sel.setAttribute("data-line-index", String(lineIdx));
+          sel.setAttribute("aria-label", "Variante: " + String(p.productName));
+          choices.forEach(function (vc) {
+            const o = document.createElement("option");
+            o.value = String(vc.id);
+            o.textContent = vc.label + (vc.price ? " ($" + vc.price + ")" : "");
+            sel.appendChild(o);
+          });
+          wrap.appendChild(lab);
+          wrap.appendChild(sel);
+          li.appendChild(wrap);
+        }
+        list.appendChild(li);
+      });
+      body.appendChild(list);
+
+      const foot = document.createElement("div");
+      foot.style.marginTop = "auto";
+      if (totalOriginal > 0) {
+        const oldEl = document.createElement("div");
+        oldEl.className = "hs-bundle-price-old";
+        oldEl.textContent = "$" + totalOriginal.toLocaleString();
+        foot.appendChild(oldEl);
+      }
+      const priceNew = document.createElement("div");
+      priceNew.className = "hs-bundle-price-new";
+      priceNew.textContent = "$" + Number(bundle.comboPrice).toLocaleString();
+      foot.appendChild(priceNew);
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "hs-bundle-btn";
+      btn.setAttribute("data-bundle-id", String(bundle.id));
+      btn.textContent = "Agregar combo al carrito";
+      foot.appendChild(btn);
+      body.appendChild(foot);
+      card.appendChild(body);
+
+      btn.addEventListener("click", () => this.addBundleToCart(bundle, btn, card));
       return card;
     },
 
-    async addBundleToCart(bundle, btn) {
+    async addBundleToCart(bundle, btn, card) {
       btn.textContent = "Agregando...";
       btn.disabled = true;
       btn.classList.remove("hs-bundle-btn--ok", "hs-bundle-btn--err");
 
       let allOk = true;
-      for (const p of bundle.products) {
+      for (let i = 0; i < bundle.products.length; i++) {
+        const p = bundle.products[i];
         try {
-          const vid =
+          let vid =
             p.variantId != null && Number(p.variantId) > 0 ? Number(p.variantId) : undefined;
+          if (card) {
+            const sel = card.querySelector('.hs-bundle-variant[data-line-index="' + i + '"]');
+            if (sel && sel.value) {
+              const parsed = parseInt(String(sel.value), 10);
+              if (Number.isFinite(parsed) && parsed > 0) {
+                vid = parsed;
+              }
+            }
+          }
           await addToCart(p.productId, vid, p.quantity);
           await new Promise(function (r) {
             window.setTimeout(r, 320);

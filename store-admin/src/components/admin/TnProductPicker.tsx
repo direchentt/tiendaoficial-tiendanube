@@ -8,6 +8,8 @@ import { variantLabel } from "./tn-product-picker-utils";
 
 export type TnProductPickerProps = {
   onPick: (product: TNProduct, variant: TNVariant) => void;
+  /** Producto completo: todas las variantes disponibles en la tienda (el cliente elige en el combo). */
+  onPickCustomerChoice?: (product: TNProduct) => void;
   /** Tiempo de espera tras escribir antes de llamar a TN (default 400 ms). */
   searchDebounceMs?: number;
   /** Productos por página en la pestaña Catálogo. */
@@ -24,6 +26,7 @@ function isAbortError(e: unknown): boolean {
 
 export function TnProductPicker({
   onPick,
+  onPickCustomerChoice,
   searchDebounceMs = 400,
   catalogPerPage = 24,
   searchPerPage = 20,
@@ -218,8 +221,7 @@ export function TnProductPicker({
     }
   }, [idsInput, maxPasteIds]);
 
-  function handlePick(p: TNProduct, v: TNVariant) {
-    onPick(p, v);
+  function clearPickerAfterPick() {
     setSearch("");
     setTnProducts([]);
     setSearchEmpty(false);
@@ -228,6 +230,16 @@ export function TnProductPicker({
     setIdsInput("");
     setIdsFailed([]);
     setIdsError(null);
+  }
+
+  function handlePick(p: TNProduct, v: TNVariant) {
+    onPick(p, v);
+    clearPickerAfterPick();
+  }
+
+  function handlePickCustomerChoice(p: TNProduct) {
+    onPickCustomerChoice?.(p);
+    clearPickerAfterPick();
   }
 
   return (
@@ -305,6 +317,11 @@ export function TnProductPicker({
                           + {variantLabel(v)} · ${v.price}
                         </button>
                       ))}
+                      {p.variants.length > 1 && onPickCustomerChoice ? (
+                        <button type="button" style={btnChoice} onClick={() => handlePickCustomerChoice(p)}>
+                          Todas las variantes (elige el cliente en la tienda)
+                        </button>
+                      ) : null}
                     </div>
                   </div>
                 ))}
@@ -371,6 +388,11 @@ export function TnProductPicker({
                         + {variantLabel(v)} (${v.price})
                       </button>
                     ))}
+                    {p.variants.length > 1 && onPickCustomerChoice ? (
+                      <button type="button" style={btnChoice} onClick={() => handlePickCustomerChoice(p)}>
+                        Todas las variantes (elige el cliente en la tienda)
+                      </button>
+                    ) : null}
                   </div>
                 </div>
               ))}
@@ -457,6 +479,11 @@ export function TnProductPicker({
                         + {variantLabel(v)} (${v.price})
                       </button>
                     ))}
+                    {p.variants.length > 1 && onPickCustomerChoice ? (
+                      <button type="button" style={btnChoice} onClick={() => handlePickCustomerChoice(p)}>
+                        Todas las variantes (elige el cliente en la tienda)
+                      </button>
+                    ) : null}
                   </div>
                 </div>
               ))}
@@ -482,6 +509,15 @@ const btnMini: CSSProperties = {
   ...btnSecondary,
   textAlign: "left" as const,
   fontSize: "0.72rem",
+};
+
+const btnChoice: CSSProperties = {
+  ...btnSecondary,
+  textAlign: "left" as const,
+  fontSize: "0.68rem",
+  borderStyle: "dashed",
+  borderColor: "var(--accent)",
+  color: "var(--accent2)",
 };
 
 const tabRow: CSSProperties = {

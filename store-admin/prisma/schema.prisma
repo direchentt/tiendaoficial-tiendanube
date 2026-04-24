@@ -199,8 +199,10 @@ model BundleProduct {
   bundle      Bundle  @relation(fields: [bundleId], references: [id], onDelete: Cascade)
   /// ID del producto en Tiendanube
   productId   Int
-  /// ID de la variante (0 = variante por defecto / primera)
+  /// ID de la variante (0 = primera al resolver; si customerPicksVariant, referencia por defecto en admin)
   variantId   Int     @default(0)
+  /// Si true, en la tienda el cliente elige entre todas las variantes del producto (API envía variantChoices).
+  customerPicksVariant Boolean @default(false)
   /// Nombre para mostrar (cacheado para no re-fetchear siempre)
   productName String
   /// Miniatura del producto (URL) para listados y PDP
