@@ -1,14 +1,12 @@
 name: CI
 
+# Antes solo corría con cambios en store-admin/**; los pushes de tema/.gitignore
+# no disparaban nada y parecía que "no hay deploy". Ahora corre en todo push/PR a main.
 on:
   push:
-    paths:
-      - "store-admin/**"
-      - ".github/workflows/ci.yml"
+    branches: [main]
   pull_request:
-    paths:
-      - "store-admin/**"
-      - ".github/workflows/ci.yml"
+    branches: [main]
   workflow_dispatch:
 
 defaults:
@@ -41,3 +39,16 @@ jobs:
           # Solo para `prisma generate` / build; no hace falta Postgres accesible.
           DATABASE_URL: postgresql://ci:ci@127.0.0.1:5432/ci?schema=public
         run: npm run build
+
+  # Marca un "Deployment" en GitHub al mergear a main (visible en Environments / historial).
+  # El deploy real del panel (Railway, etc.) sigue siendo el de tu proveedor conectado al repo.
+  register-deployment:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    needs: [store-admin]
+    environment: store-admin
+    steps:
+      - name: CI en main completado
+        run: |
+          echo "store-admin: lint, tests y build OK en main."
+          echo "Si usás Railway u otro host conectado a GitHub, el deploy del contenedor corre allí."
