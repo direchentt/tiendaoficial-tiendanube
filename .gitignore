@@ -15,3 +15,6 @@ store-admin/.env.*.local
 store-admin/prisma/*.db
 store-admin/prisma/*.db-journal
 store-admin/prisma/prisma/
+
+# Scaffold Apify / pruebas locales (no versionar)
+test-actor/
