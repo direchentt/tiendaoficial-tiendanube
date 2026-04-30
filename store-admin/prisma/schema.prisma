@@ -20,6 +20,7 @@ model Store {
   wishlistItems   WishlistItem[]
   conversionEvents ConversionEvent[]
   adminAuditLogs   AdminAuditLog[]
+  comboLandingPages ComboLandingPage[]
 }
 
 /// Webhooks genéricos recibidos (configurá URL + secreto en TN / integraciones).
@@ -174,6 +175,23 @@ model DynamicPricingConfig {
   updatedAt   DateTime @updatedAt
 }
 
+/// Página de combos v2: mismo `slug` que el handle de la página estática en TN (ej. bundle → /bundle/).
+model ComboLandingPage {
+  id        String   @id @default(cuid())
+  storeId   String
+  store     Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  slug      String   @db.VarChar(120)
+  title     String   @db.VarChar(200)
+  intro     String?  @db.Text
+  enabled   Boolean  @default(true)
+  bundles   Bundle[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([storeId, slug])
+  @@index([storeId])
+}
+
 /// Bundle (combo) de productos con precio especial.
 model Bundle {
   id          String          @id @default(cuid())
@@ -185,11 +203,15 @@ model Bundle {
   /// URL de imagen representativa del bundle (puede ser de TN o externa)
   imageUrl    String?
   enabled     Boolean         @default(true)
+  /// Si está asignado a una landing v2, solo se lista en GET /api/storefront/bundles/v2?slug=…
+  landingPageId String?
+  landingPage   ComboLandingPage? @relation(fields: [landingPageId], references: [id], onDelete: SetNull)
   products    BundleProduct[]
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
 
   @@index([storeId])
+  @@index([landingPageId])
 }
 
 /// Producto dentro de un bundle.

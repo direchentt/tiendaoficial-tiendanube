@@ -21,6 +21,7 @@ const patchSchema = z.object({
   comboPrice: z.number().positive().optional(),
   imageUrl: z.string().optional(),
   enabled: z.boolean().optional(),
+  landingPageId: z.string().cuid().nullable().optional(),
   products: z.array(bundleProductSchema).min(1).optional(),
 });
 
@@ -59,7 +60,16 @@ export async function PATCH(
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 422 });
   }
 
-  const { products, ...bundleData } = parsed.data;
+  const { products, landingPageId, ...bundleData } = parsed.data;
+
+  if (landingPageId !== undefined && landingPageId !== null) {
+    const lp = await prisma.comboLandingPage.findFirst({
+      where: { id: landingPageId, storeId: store.id },
+    });
+    if (!lp) {
+      return NextResponse.json({ error: "landingPageId no válido" }, { status: 422 });
+    }
+  }
 
   const bundle = await prisma.$transaction(async (tx) => {
     if (products) {
@@ -69,6 +79,7 @@ export async function PATCH(
       where: { id: params.id },
       data: {
         ...bundleData,
+        ...(landingPageId !== undefined ? { landingPageId } : {}),
         ...(products ? { products: { create: products } } : {}),
       },
       include: { products: true },

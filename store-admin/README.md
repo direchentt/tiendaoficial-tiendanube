@@ -31,6 +31,13 @@ Panel y API para reglas que van mas alla del admin estandar de Tiendanube, apoya
 - **Admin**: `GET /api/admin/wishlist-stats` — ranking por `productId` (conteo de filas actuales en favoritos), cantidad de clientes con al menos un item y total de filas.
 - Migracion: `WishlistItem` en Postgres (`prisma migrate deploy` en arranque Railway).
 
+## Combos v2 — páginas (landing + slug TN)
+
+- **Panel**: `/admin/bundles/v2` — creá páginas con `slug` (mismo valor que el **handle** de la página estática en Tiendanube, ej. `bundle` → `/bundle/`), título e intro; luego creá combos **asignados a esa página** (catálogo visual como en Bundles v1).
+- **Storefront**: `GET /api/storefront/bundles/v2?storeId=<LS.store.id>&slug=<handle>` devuelve `{ landing: { slug, title, intro }, bundles: [...] }` (mismo enriquecimiento de variantes que v1). El tema (`hache-suite.js`) usa este endpoint cuando el contenedor tiene `data-bundle-landing-slug` (el `page.handle` en la plantilla `/bundle`).
+- **Combos “globales”** (sin página v2): siguen en `GET /api/storefront/bundles` (categoría `/combos`, etc.); en BD tienen `landingPageId = null`.
+- **Migración**: `prisma/migrations/20260430140000_combo_landing_v2` (`ComboLandingPage` + `Bundle.landingPageId`).
+
 ## Categorias con contrasena
 
 - La API **Category** no expone “password” como campo nativo. Aqui: tabla `LockedCategory` + verificacion `POST /api/admin/category-gate/verify`. En el **tema**, un script en storefront debe pedir la clave y, si `ok`, mostrar contenido (o redirigir). El hash en BD es SHA256 de ejemplo: **sustituir por bcrypt** antes de produccion.

@@ -1330,38 +1330,86 @@
 
       container.innerHTML = '<p class="hs-bundle-state">Cargando combos…</p>';
 
+      const landingSlug = (container.getAttribute("data-bundle-landing-slug") || "").trim();
+      const cacheKey = landingSlug ? "bundles_v2_" + landingSlug : "bundles_v7";
+
       let data;
-      const cached = lsGet("bundles_v7");
+      const cached = lsGet(cacheKey);
       if (cached && (cached.bundles || []).length > 0) {
         data = cached;
       } else {
         try {
-          data = await apiGet(
-            `/api/storefront/bundles?storeId=${encodeURIComponent(getStoreId())}`
-          );
+          var bundlePath = landingSlug
+            ? "/api/storefront/bundles/v2?storeId=" +
+              encodeURIComponent(getStoreId()) +
+              "&slug=" +
+              encodeURIComponent(landingSlug)
+            : "/api/storefront/bundles?storeId=" + encodeURIComponent(getStoreId());
+          data = await apiGet(bundlePath);
           if ((data.bundles || []).length > 0) {
-            lsSet("bundles_v7", data, 30 * 1000);
+            lsSet(cacheKey, data, 30 * 1000);
           }
         } catch (e) {
           this._loadStarted = false;
+          var errMsg = e && e.message ? String(e.message) : "desconocido";
+          console.error("[HacheSuite][BundlePage] Error cargando bundles", {
+            backendUrl: BACKEND_URL,
+            storeId: getStoreId(),
+            landingSlug: landingSlug || null,
+            error: errMsg,
+          });
           container.innerHTML =
-            '<p class="hs-bundle-state hs-bundle-state--err">No se pudieron cargar los combos. Revisá la consola (F12) y que HACHE_BACKEND_URL / CORS apunten al panel.</p>';
+            '<p class="hs-bundle-state hs-bundle-state--err">No se pudieron cargar los combos.<br><small>Backend detectado: <code>' +
+            hsEscapeHtml(BACKEND_URL) +
+            "</code></small><br><small>Detalle: " +
+            hsEscapeHtml(errMsg) +
+            "</small><br><small>Revisá HACHE_BACKEND_URL y CORS en el panel.</small></p>";
           return;
         }
       }
 
       const bundles = data.bundles || [];
+      var landing = data.landing || null;
+
       if (bundles.length === 0) {
         this._loadStarted = false;
         try {
-          localStorage.removeItem(NS + "bundles_v7");
+          localStorage.removeItem(NS + cacheKey);
         } catch (_) {}
-        container.innerHTML =
-          '<p class="hs-bundle-state">No hay combos publicados todavía. Creálos en el panel Hache (Bundles) y marcá <strong>activo</strong>; el id de tienda en el servidor debe coincidir con esta tienda.</p>';
+        var emptyHtml;
+        if (landingSlug) {
+          emptyHtml = !landing
+            ? "<p class=\"hs-bundle-state\">No existe página combos v2 con slug <code>" +
+              hsEscapeHtml(landingSlug) +
+              '</code>. Creala en Railway (panel Hache) en <strong>Combos v2 (paginas)</strong> con el mismo slug que el handle de la pagina en Tiendanube (Mi Tiendanube &gt; Paginas).</p>'
+            : "<p class=\"hs-bundle-state\">Todavia no hay combos en esta pagina. En Railway: <strong>Combos v2</strong>, elegi esta landing y crea combos asignados a ella.</p>";
+        } else {
+          emptyHtml =
+            '<p class="hs-bundle-state">No hay combos publicados todavía. Creálos y activálos en tu admin en Railway (panel Hache → Bundles / Combos v2). El <code>storeId</code> que envía la tienda debe coincidir con el de tu backend.</p>';
+        }
+        container.innerHTML = emptyHtml;
         return;
       }
 
       container.innerHTML = "";
+      if (landing && (landing.title || landing.intro)) {
+        var headEl = document.createElement("div");
+        headEl.className = "hs-bundle-v2-landing-head";
+        if (landing.title) {
+          var h2 = document.createElement("h2");
+          h2.className = "hs-bundle-v2-landing-title";
+          h2.textContent = String(landing.title);
+          headEl.appendChild(h2);
+        }
+        if (landing.intro) {
+          var introEl = document.createElement("p");
+          introEl.className = "hs-bundle-v2-landing-intro";
+          introEl.textContent = String(landing.intro);
+          headEl.appendChild(introEl);
+        }
+        container.appendChild(headEl);
+      }
+
       const grid = document.createElement("div");
       grid.className = "hs-bundle-grid";
 
@@ -1530,7 +1578,29 @@
               }
             }
           }
-          await addToCart(p.productId, vid, p.quantity, p.productPath);
+          /*
+           * En algunos storefronts LS.Cart.addItem termina usando endpoints internos no públicos
+           * (/api/storefront/cart/items) y falla con 404/HTML. Para bundles usamos flujo robusto:
+           * 1) POST nativo a /comprar/
+           * 2) fallback con variation[] desde PDP si aplica
+           */
+          try {
+            await addToCartViaCartUrl(p.productId, vid, p.quantity);
+          } catch (cartErr) {
+            if (p.productPath) {
+              await addToCartViaPdpVariationFetch(
+                p.productPath,
+                p.productId,
+                vid,
+                p.quantity
+              );
+            } else {
+              throw cartErr;
+            }
+          }
+          try {
+            document.dispatchEvent(new Event("cart.released"));
+          } catch (_e) {}
           await new Promise(function (r) {
             window.setTimeout(r, 320);
           });

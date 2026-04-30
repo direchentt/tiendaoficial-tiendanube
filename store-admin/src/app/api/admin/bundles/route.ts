@@ -21,6 +21,8 @@ const createSchema = z.object({
   comboPrice: z.number().positive(),
   imageUrl: z.string().optional(),
   enabled: z.boolean().default(true),
+  /** ComboLandingPage v2 (opcional). Si se omite, el combo es “global” (/combos). */
+  landingPageId: z.string().cuid().optional().nullable(),
   products: z.array(bundleProductSchema).min(1),
 });
 
@@ -29,8 +31,17 @@ export async function GET(req: NextRequest) {
   if (unauth) return unauth;
 
   const store = await ensureDefaultStore();
+  const { searchParams } = new URL(req.url);
+  const lp = searchParams.get("landingPageId");
+  const where: { storeId: string; landingPageId?: string | null } = { storeId: store.id };
+  if (lp === "__none__") {
+    where.landingPageId = null;
+  } else if (lp && lp.length > 0) {
+    where.landingPageId = lp;
+  }
+
   const bundles = await prisma.bundle.findMany({
-    where: { storeId: store.id },
+    where,
     include: { products: true },
     orderBy: { createdAt: "desc" },
   });
@@ -48,12 +59,22 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 422 });
   }
 
-  const { products, imageUrl, ...bundleData } = parsed.data;
+  const { products, imageUrl, landingPageId, ...bundleData } = parsed.data;
+
+  if (landingPageId) {
+    const lp = await prisma.comboLandingPage.findFirst({
+      where: { id: landingPageId, storeId: store.id },
+    });
+    if (!lp) {
+      return NextResponse.json({ error: "landingPageId no válido para esta tienda" }, { status: 422 });
+    }
+  }
 
   const bundle = await prisma.bundle.create({
     data: {
       storeId: store.id,
       ...bundleData,
+      landingPageId: landingPageId ?? null,
       imageUrl: imageUrl || null,
       products: { create: products },
     },

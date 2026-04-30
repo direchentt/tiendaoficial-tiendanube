@@ -44,6 +44,13 @@ const MODULES = [
     color: "#7c5cfc",
   },
   {
+    href: "/admin/bundles/v2",
+    icon: "📄",
+    title: "Combos v2 (páginas)",
+    desc: "Una landing por slug TN (ej. bundle): título, intro y combos con look Pas Normal.",
+    color: "#a78bfa",
+  },
+  {
     href: "/admin/categories",
     icon: "🔒",
     title: "Categorías Privadas",

@@ -2260,7 +2260,7 @@ Detalle de producto
 		placeholder = https://
 	text
 		name = hache_backend_url
-		description = URL base del panel Hache (store-admin), sin barra final. Ej. https://tu-app.up.railway.app. Si queda vacio, se usa la URL por defecto del script (favoritos, bundles, precios, etc.).
+		description = URL base de tu backend en Railway (Hache / store-admin), sin barra final. Ej. https://tu-app.up.railway.app. Desde el panel ahí cargás combos con productos, precios e imagen; la tienda los lee en GET /api/storefront/bundles (página /bundle, estilo Pas Normal). Si queda vacío, el script usa una URL por defecto (no recomendado en producción). Requiere CORS habilitado para tu dominio de tienda.
 		placeholder =
 	checkbox
 		name = header_wishlist_icon

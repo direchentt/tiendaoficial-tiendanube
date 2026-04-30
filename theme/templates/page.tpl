@@ -11,6 +11,7 @@
 	{% set spotify_handle = spotify_handle|slice(1) %}
 {% endif %}
 {% set is_spotify_landing = page.handle == spotify_handle %}
+{% set is_bundle_landing = page.handle == 'bundle' %}
 
 {% if is_wishlist_page %}
 {% embed "snipplets/page-header.tpl" with {'breadcrumbs': true} %}
@@ -82,6 +83,20 @@
 {% endembed %}
 
 {% snipplet 'brand/brand-spoti-fy-landing.tpl' %}
+
+{% elseif is_bundle_landing %}
+
+{% embed "snipplets/page-header.tpl" with {'breadcrumbs': true} %}
+	{% block page_header_text %}
+		{{ page.name }}
+	{% endblock page_header_text %}
+{% endembed %}
+
+{% include 'snipplets/brand/hache-bundles-storefront.tpl' with {
+	intro_html: page.content,
+	bundle_mode: 'pas-normal',
+	bundle_landing_slug: page.handle
+} %}
 
 {% else %}
 

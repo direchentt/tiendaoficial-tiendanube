@@ -11,15 +11,26 @@ const NAV_ITEMS = [
   { href: "/admin/gifts", label: "Regalos en Carrito", icon: "🎁" },
   { href: "/admin/dynamic-pricing", label: "Precios Dinámicos", icon: "💰" },
   { href: "/admin/bundles", label: "Bundles / Combos", icon: "📦" },
+  { href: "/admin/bundles/v2", label: "Combos v2 (páginas)", icon: "📄" },
   { href: "/admin/payment-rules", label: "Reglas de Pago", icon: "⚡" },
   { href: "/admin/categories", label: "Categorías Privadas", icon: "🔒" },
   { href: "/admin/price", label: "Precios Masivos", icon: "📊" },
   { href: "/admin/payment-options", label: "Medios de Pago", icon: "💳" },
 ];
 
+function longestNavMatch(pathname: string): string | null {
+  const candidates = NAV_ITEMS.filter(
+    (x) => pathname === x.href || (x.href !== "/admin" && pathname.startsWith(x.href + "/"))
+  );
+  if (candidates.length === 0) return null;
+  return candidates.reduce((a, b) => (a.href.length >= b.href.length ? a : b)).href;
+}
+
 export function AdminNav() {
   const pathname = usePathname();
   if (pathname === "/admin/login") return null;
+
+  const activeHref = longestNavMatch(pathname);
 
   return (
     <nav style={navStyle}>
@@ -42,7 +53,7 @@ export function AdminNav() {
       {/* Nav items */}
       <div style={{ flex: 1, overflowY: "auto" }}>
         {NAV_ITEMS.map(({ href, label, icon }) => {
-          const isActive = pathname === href || (href !== "/admin" && pathname.startsWith(href));
+          const isActive = activeHref === href;
           return (
             <Link key={href} href={href} style={navLinkStyle(isActive)}>
               <span style={iconStyle}>{icon}</span>
